@@ -1,0 +1,85 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
+
+class PermissionSeeder extends Seeder
+{
+    public function run(): void
+    {
+        // Reset cached roles and permissions
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
+
+        // Define permissions for the application
+        $permissions = [
+            // User Management
+            'view users',
+            'manage users',
+
+            // Role Management
+            'view roles',
+            'create roles',
+            'edit roles',
+            'delete roles',
+
+            // Permission Management
+            'view permissions',
+            'create permissions',
+            'edit permissions',
+            'delete permissions',
+
+            // Menu Management
+            'manage menus',
+
+            // Vendor Management
+            'view vendors',
+            'create vendors',
+            'edit vendors',
+            'delete vendors',
+
+            // Part Master
+            'view parts',
+            'create parts',
+            'edit parts',
+            'delete parts',
+
+            // Part Request
+            'create part requests',
+            'view all part requests',
+            'approve part requests',
+
+            // Stock Management
+            'view stock',
+            'adjust stock',
+            'create stock',
+            
+            // Special Permissions
+            'super_admin',
+
+            // --- เพิ่มกลุ่มใหม่: Yard Locations ---
+            'view yard locations',
+            'create yard locations',
+            'edit yard locations',
+            'delete yard locations',
+        ];
+
+        // Create permissions
+        foreach ($permissions as $permission) {
+            Permission::firstOrCreate(['name' => $permission]);
+        }
+
+        // Create a user role and assign basic permissions
+        $userRole = Role::firstOrCreate(['name' => 'user']);
+        $userRole->givePermissionTo([
+            'create part requests',
+        ]);
+
+        // Create an admin role and assign all permissions
+        $adminRole = Role::firstOrCreate(['name' => 'admin']);
+        $adminRole->givePermissionTo(Permission::all());
+    }
+}
