@@ -12,6 +12,7 @@ use App\Http\Controllers\PartRequestController;
 use App\Http\Controllers\DashboardController; // เพิ่ม use statement นี้ไว้ด้านบน
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\YardLocationController;
+use App\Http\Controllers\ContainerController;
 // Redirect root to login page
 Route::get('/', function () {
     return redirect()->route('login');
@@ -81,6 +82,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('yard-locations/bulk-destroy', [YardLocationController::class, 'bulkDestroy'])->name('yard-locations.bulkDestroy');
     Route::resource('yard-locations', YardLocationController::class);
 
+    // Container Routes
+    Route::delete('containers/bulk-destroy', [ContainerController::class, 'bulkDestroy'])->name('containers.bulkDestroy');
+    Route::resource('containers', ContainerController::class);
 });
 
 

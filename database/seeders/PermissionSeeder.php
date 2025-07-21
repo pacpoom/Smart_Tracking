@@ -65,6 +65,11 @@ class PermissionSeeder extends Seeder
             'create yard locations',
             'edit yard locations',
             'delete yard locations',
+
+            'view containers',
+            'create containers',
+            'edit containers',
+            'delete containers',
         ];
 
         // Create permissions
