@@ -11,10 +11,10 @@ class YardLocationController extends Controller
 {
     function __construct()
     {
-        $this->middleware('permission:view yard locations|create yard locations|edit yard locations|delete yard locations', ['only' => ['index']]);
-        $this->middleware('permission:create yard locations', ['only' => ['create', 'store']]);
-        $this->middleware('permission:edit yard locations', ['only' => ['edit', 'update']]);
-        $this->middleware('permission:delete yard locations', ['only' => ['destroy', 'bulkDestroy']]);
+        // $this->middleware('permission:view yard locations|create yard locations|edit yard locations|delete yard locations', ['only' => ['index']]);
+        // $this->middleware('permission:create yard locations', ['only' => ['create', 'store']]);
+        // $this->middleware('permission:edit yard locations', ['only' => ['edit', 'update']]);
+        // $this->middleware('permission:delete yard locations', ['only' => ['destroy', 'bulkDestroy']]);
     }
 
     public function index(Request $request)
