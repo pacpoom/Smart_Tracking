@@ -70,6 +70,12 @@ class PermissionSeeder extends Seeder
             'create containers',
             'edit containers',
             'delete containers',
+
+            // --- เพิ่มกลุ่มใหม่: Container Order Plans ---
+            'view container plans',
+            'create container plans',
+            'edit container plans',
+            'delete container plans',
         ];
 
         // Create permissions

@@ -39,6 +39,8 @@
                             <th class="text-center" style="width: 1%;"><div class="form-check d-flex justify-content-center"><input class="form-check-input" type="checkbox" id="select-all-checkbox"></div></th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Container No.</th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Size</th>
+                            {{-- เพิ่มคอลัมน์ Agent --}}
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Agent</th>
                             <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Actions</th>
                         </tr>
                     </thead>
@@ -48,6 +50,8 @@
                             <td class="text-center"><div class="form-check d-flex justify-content-center"><input class="form-check-input container-checkbox" type="checkbox" name="ids[]" value="{{ $container->id }}"></div></td>
                             <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $container->container_no }}</p></td>
                             <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $container->size }}</p></td>
+                            {{-- แสดงข้อมูล Agent --}}
+                            <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $container->agent }}</p></td>
                             <td class="align-middle text-center">
                                 @can('edit containers')
                                     <a href="{{ route('containers.edit', $container->id) }}" class="btn btn-link text-secondary mb-0" title="Edit"><i class="material-symbols-rounded">edit</i></a>
@@ -59,7 +63,8 @@
                         </tr>
                         @include('containers.partials.delete-modal', ['container' => $container])
                         @empty
-                        <tr><td colspan="4" class="text-center p-3">No containers found.</td></tr>
+                        {{-- แก้ไข colspan --}}
+                        <tr><td colspan="5" class="text-center p-3">No containers found.</td></tr>
                         @endforelse
                     </tbody>
                 </table>
