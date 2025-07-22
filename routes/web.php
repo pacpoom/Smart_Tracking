@@ -17,6 +17,7 @@ use App\Http\Controllers\ContainerOrderPlanController;
 use App\Http\Controllers\ContainerReceiveController;
 use App\Http\Controllers\ContainerStockController;
 use App\Http\Controllers\ContainerChangeLocationController;
+use App\Http\Controllers\ContainerTransactionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -92,6 +93,7 @@ Route::middleware('auth')->group(function () {
     // Container Stock Route
     Route::get('container-stocks', [ContainerStockController::class, 'index'])->name('container-stocks.index');
 
+    Route::get('container-transactions', [ContainerTransactionController::class, 'index'])->name('container-transactions.index');
     // Container Change Location Routes
     Route::get('container-change-location', [ContainerChangeLocationController::class, 'index'])->name('container-change-location.index');
     Route::put('container-change-location/{stock}', [ContainerChangeLocationController::class, 'update'])->name('container-change-location.update');
