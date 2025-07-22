@@ -69,6 +69,7 @@
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">House B/L</th>
                             <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">ETA Date</th>
                             <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Check-in Date</th>
+                            <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Departure Date</th>
                             <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
                             <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Actions</th>
                         </tr>
@@ -83,6 +84,7 @@
                             <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $plan->house_bl }}</p></td>
                             <td class="align-middle text-center"><span class="text-secondary text-xs font-weight-bold">{{ $plan->eta_date?->format('d/m/Y') }}</span></td>
                             <td class="align-middle text-center"><span class="text-secondary text-xs font-weight-bold">{{ $plan->checkin_date?->format('d/m/Y') }}</span></td>
+                            <td class="align-middle text-center"><span class="text-secondary text-xs font-weight-bold">{{ $plan->departure_date?->format('d/m/Y') }}</span></td>
                             <td class="align-middle text-center text-sm">
                                 @if($plan->status == 1)
                                     <span class="badge badge-sm bg-gradient-warning">Pending</span>

@@ -30,6 +30,7 @@
                     <tr>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Plan No.</th>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Container No.</th>
+                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">House BL</th>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Size</th>
                         {{-- เพิ่มคอลัมน์ใหม่ --}}
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Model</th>
@@ -46,6 +47,7 @@
                     <tr>
                         <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stockPlan->plan_no }}</p></td>
                         <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stockPlan->container->container_no }}</p></td>
+                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stockPlan->house_bl }}</p></td>
                         <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stockPlan->container->size }}</p></td>
                         {{-- แสดงข้อมูลใหม่ --}}
                         <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stockPlan->model }}</p></td>

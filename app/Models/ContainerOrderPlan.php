@@ -19,12 +19,14 @@ class ContainerOrderPlan extends Model
         'eta_date',
         'free_time',
         'checkin_date',
+        'departure_date',
         'status',
     ];
 
     protected $casts = [
         'eta_date' => 'date',
         'checkin_date' => 'date',
+        'departure_date' => 'date',
     ];
 
     protected $appends = ['expiration_date', 'remaining_free_time'];
@@ -75,7 +77,7 @@ class ContainerOrderPlan extends Model
 
     public static function generatePlanNumber()
     {
-        $prefix = 'plan' . date('ymd');
+        $prefix = 'ORDER' . date('ymd');
         $lastPlan = self::where('plan_no', 'like', $prefix . '%')->latest('id')->first();
 
         if ($lastPlan) {

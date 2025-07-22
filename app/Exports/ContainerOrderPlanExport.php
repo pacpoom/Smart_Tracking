@@ -34,6 +34,7 @@ class ContainerOrderPlanExport implements FromCollection, WithHeadings, WithMapp
             'Type',
             'ETA Date',
             'Check-in Date',
+            'Departure Date',
             'Status',
         ];
     }
@@ -55,6 +56,7 @@ class ContainerOrderPlanExport implements FromCollection, WithHeadings, WithMapp
             $plan->type,
             $plan->eta_date?->format('Y-m-d'),
             $plan->checkin_date?->format('Y-m-d'),
+            $plan->departure_date?->format('Y-m-d'),
             $statusText,
         ];
     }
@@ -70,7 +72,7 @@ class ContainerOrderPlanExport implements FromCollection, WithHeadings, WithMapp
                 ],
             ],
         ];
-        $sheet->getStyle('A1:H'.$lastRow)->applyFromArray($styleArray);
+        $sheet->getStyle('A1:I'.$lastRow)->applyFromArray($styleArray);
         return [];
     }
 }

@@ -17,7 +17,9 @@ use App\Http\Controllers\ContainerOrderPlanController;
 use App\Http\Controllers\ContainerReceiveController;
 use App\Http\Controllers\ContainerStockController;
 use App\Http\Controllers\ContainerChangeLocationController;
-
+use App\Http\Controllers\ContainerTransactionController;
+use App\Http\Controllers\ContainerShipOutController;
+use App\Http\Controllers\ContainerYardDashboardController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -92,9 +94,18 @@ Route::middleware('auth')->group(function () {
     // Container Stock Route
     Route::get('container-stocks', [ContainerStockController::class, 'index'])->name('container-stocks.index');
 
+    Route::get('container-transactions', [ContainerTransactionController::class, 'index'])->name('container-transactions.index');
     // Container Change Location Routes
     Route::get('container-change-location', [ContainerChangeLocationController::class, 'index'])->name('container-change-location.index');
     Route::put('container-change-location/{stock}', [ContainerChangeLocationController::class, 'update'])->name('container-change-location.update');
+    Route::get('container-transactions', [ContainerTransactionController::class, 'index'])->name('container-transactions.index');
+
+    // Container Ship Out Routes
+    Route::get('container-ship-out', [ContainerShipOutController::class, 'index'])->name('container-ship-out.index');
+    Route::put('container-ship-out/{stock}', [ContainerShipOutController::class, 'shipOut'])->name('container-ship-out.shipOut');
+
+    // Container Yard Dashboard Route
+    Route::get('container-yard/dashboard', [ContainerYardDashboardController::class, 'index'])->name('container-yard.dashboard');
 });
 
 require __DIR__.'/auth.php';

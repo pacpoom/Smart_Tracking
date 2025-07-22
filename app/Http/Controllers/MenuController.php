@@ -13,10 +13,17 @@ class MenuController extends Controller
         //$this->middleware('permission:manage menus', ['only' => ['index', 'create', 'store', 'edit', 'update', 'destroy', 'bulkDestroy']]);
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        // แก้ไข: เปลี่ยนจาก get() เป็น paginate(10)
-        $menus = Menu::whereNull('parent_id')->orderBy('order')->paginate(10);
+        // 1. เพิ่ม Logic การค้นหา
+        $query = Menu::whereNull('parent_id')->orderBy('order');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('title', 'like', '%' . $search . '%');
+        }
+
+        $menus = $query->paginate(10);
         return view('menus.index', compact('menus'));
     }
 
@@ -68,9 +75,6 @@ class MenuController extends Controller
         return redirect()->route('menus.index')->with('success', 'Menu item deleted successfully.');
     }
 
-    /**
-     * Remove multiple resources from storage.
-     */
     public function bulkDestroy(Request $request)
     {
         $request->validate([

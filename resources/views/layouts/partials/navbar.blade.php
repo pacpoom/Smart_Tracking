@@ -13,10 +13,20 @@
       </div>
       <ul class="navbar-nav justify-content-end">
 
+        {{-- แก้ไข: ย้ายปุ่มย่อ/ขยายเมนูมาไว้ก่อน User Dropdown --}}
+        <li class="nav-item ps-3 d-flex align-items-center">
+          <a href="javascript:;" class="nav-link text-body p-0" id="iconNavbarSidenav">
+            <div class="sidenav-toggler-inner">
+              <i class="sidenav-toggler-line"></i>
+              <i class="sidenav-toggler-line"></i>
+              <i class="sidenav-toggler-line"></i>
+            </div>
+          </a>
+        </li>
+
         {{-- User Dropdown --}}
-        <li class="nav-item dropdown pe-2 d-flex align-items-center">
+        <li class="nav-item dropdown ps-2 d-flex align-items-center">
           <a href="javascript:;" class="nav-link text-body p-0" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-            {{-- แสดงรูปโปรไฟล์ --}}
             <img src="{{ auth()->user()->profile_photo_url }}" alt="profile_image" class="avatar avatar-sm rounded-circle">
             <span class="d-sm-inline d-none font-weight-bold ps-1">{{ auth()->user()->name }}</span>
           </a>
@@ -55,17 +65,6 @@
           </ul>
         </li>
         
-        {{-- Mobile Menu Toggle --}}
-        <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
-          <a href="javascript:;" class="nav-link text-body p-0" id="iconNavbarSidenav">
-            <div class="sidenav-toggler-inner">
-              <i class="sidenav-toggler-line"></i>
-              <i class="sidenav-toggler-line"></i>
-              <i class="sidenav-toggler-line"></i>
-            </div>
-          </a>
-        </li>
-
       </ul>
     </div>
   </div>

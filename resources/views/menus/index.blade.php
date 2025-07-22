@@ -8,6 +8,12 @@
         <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-md-between">
             <h5 class="mb-3 mb-md-0">Menu Structure</h5>
             <div class="d-flex align-items-center">
+                <form action="{{ route('menus.index') }}" method="GET" class="me-2">
+                    <div class="input-group input-group-outline">
+                        <label class="form-label">Search by Title...</label>
+                        <input type="text" class="form-control" name="search" value="{{ request('search') }}">
+                    </div>
+                </form>
                 @can('manage menus')
                     <button type="button" class="btn btn-danger mb-0 me-2" id="bulk-delete-btn" data-bs-toggle="modal" data-bs-target="#bulkDeleteModal" disabled>
                         Delete Selected
@@ -54,7 +60,7 @@
         </form>
     </div>
     <div class="card-footer d-flex justify-content-between">
-        {{ $menus->links() }}
+        {{ $menus->withQueryString()->links() }}
     </div>
 </div>
 
