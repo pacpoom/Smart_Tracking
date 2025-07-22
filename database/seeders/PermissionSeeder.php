@@ -82,6 +82,9 @@ class PermissionSeeder extends Seeder
             'receive containers',
             'view container stock',
             'export container stock',
+
+            'view container transactions',
+            'change container location',
         ];
 
         // Create permissions

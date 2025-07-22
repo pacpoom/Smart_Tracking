@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\ContainerOrderPlan;
 use App\Models\ContainerStock;
 use App\Models\YardLocation;
+use App\Models\ContainerTransaction; // 1. ตรวจสอบว่ามี use statement นี้
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth; // 2. ตรวจสอบว่ามี use statement นี้
 
 class ContainerReceiveController extends Controller
 {
@@ -50,9 +52,19 @@ class ContainerReceiveController extends Controller
 
             // 2. อัปเดตสถานะของ Order Plan เป็น "Received" (2)
             $plan = ContainerOrderPlan::find($request->container_order_plan_id);
-            $plan->status = 2; // 2 = Received
-            $plan->checkin_date = $request->checkin_date; // อัปเดต checkin_date ใน plan ด้วย
+            $plan->status = 2;
+            $plan->checkin_date = $request->checkin_date;
             $plan->save();
+
+            // 3. สร้าง Transaction Log
+            ContainerTransaction::create([
+                'container_order_plan_id' => $plan->id,
+                'user_id' => Auth::id(),
+                'yard_location_id' => $request->yard_location_id,
+                'activity_type' => 'Receive',
+                'transaction_date' => now(),
+                'remarks' => $request->remarks,
+            ]);
         });
 
         return redirect()->route('container-receive.create')->with('success', 'Container received successfully.');

@@ -139,4 +139,35 @@ class YardLocationController extends Controller
         YardLocation::whereIn('id', $request->ids)->delete();
         return redirect()->route('yard-locations.index')->with('success', 'Selected locations have been deleted successfully.');
     }
+
+     /**
+     * Search for locations for Select2 AJAX.
+     */
+    public function search(Request $request)
+    {
+        $search = $request->term;
+        $excludeId = $request->exclude; // ID ของตำแหน่งปัจจุบันที่จะไม่แสดงในผลการค้นหา
+
+        $query = YardLocation::where('is_active', true);
+
+        if ($search) {
+            $query->where('location_code', 'LIKE', "%{$search}%");
+        }
+
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+
+        $locations = $query->limit(15)->get(['id', 'location_code']);
+
+        $formatted_locations = [];
+        foreach ($locations as $location) {
+            $formatted_locations[] = [
+                'id' => $location->id,
+                'text' => $location->location_code
+            ];
+        }
+
+        return response()->json($formatted_locations);
+    }
 }

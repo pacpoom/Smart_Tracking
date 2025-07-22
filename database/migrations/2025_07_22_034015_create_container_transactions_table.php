@@ -1,0 +1,33 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('container_transactions', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('container_order_plan_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained();
+            $table->foreignId('yard_location_id')->nullable()->constrained('yard_locations');
+            $table->string('activity_type')->comment('e.g., Receive, Ship Out, Move');
+            $table->timestamp('transaction_date');
+            $table->text('remarks')->nullable();
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('container_transactions');
+    }
+};

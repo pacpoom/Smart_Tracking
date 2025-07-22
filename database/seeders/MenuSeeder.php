@@ -38,12 +38,15 @@ class MenuSeeder extends Seeder
         $inventory = Menu::create(['title' => 'Inventory', 'icon' => 'inventory_2', 'route' => null, 'order' => 3]);
         Menu::create(['title' => 'Stock Management', 'icon' => 'warehouse', 'route' => 'stocks.index', 'permission_name' => 'view stock', 'parent_id' => $inventory->id, 'order' => 1]);
 
-        $containerYard = Menu::create(['title' => 'Container Yard', 'icon' => 'warehouse', 'route' => null, 'order' => 3]);
-        // เพิ่มเมนูนี้
+       $containerYard = Menu::create(['title' => 'Container Yard', 'icon' => 'warehouse', 'route' => null, 'order' => 3]);
+        Menu::create(['title' => 'Container Receive', 'icon' => 'login', 'route' => 'container-receive.create', 'permission_name' => 'receive containers', 'parent_id' => $containerYard->id, 'order' => 1]);
         Menu::create(['title' => 'Container Stock', 'icon' => 'apps', 'route' => 'container-stocks.index', 'permission_name' => 'view container stock', 'parent_id' => $containerYard->id, 'order' => 2]);
-        Menu::create(['title' => 'Location Yard Master', 'icon' => 'pin_drop', 'route' => 'yard-locations.index', 'permission_name' => 'view yard locations', 'parent_id' => $containerYard->id, 'order' => 3]);
-        Menu::create(['title' => 'Container Master', 'icon' => 'view_in_ar', 'route' => 'containers.index', 'permission_name' => 'view containers', 'parent_id' => $containerYard->id, 'order' => 4]);
-        Menu::create(['title' => 'Container Order Plan', 'icon' => 'calendar_month', 'route' => 'container-order-plans.index', 'permission_name' => 'view container plans', 'parent_id' => $containerYard->id, 'order' => 5]);
+        // เพิ่มเมนูนี้
+        Menu::create(['title' => 'Change Location', 'icon' => 'multiple_stop', 'route' => 'container-change-location.index', 'permission_name' => 'change container location', 'parent_id' => $containerYard->id, 'order' => 3]);
+        Menu::create(['title' => 'Transaction Log', 'icon' => 'history', 'route' => 'container-transactions.index', 'permission_name' => 'view container transactions', 'parent_id' => $containerYard->id, 'order' => 4]);
+        Menu::create(['title' => 'Location Yard Master', 'icon' => 'pin_drop', 'route' => 'yard-locations.index', 'permission_name' => 'view yard locations', 'parent_id' => $containerYard->id, 'order' => 5]);
+        Menu::create(['title' => 'Container Master', 'icon' => 'view_in_ar', 'route' => 'containers.index', 'permission_name' => 'view containers', 'parent_id' => $containerYard->id, 'order' => 6]);
+        Menu::create(['title' => 'Container Order Plan', 'icon' => 'calendar_month', 'route' => 'container-order-plans.index', 'permission_name' => 'view container plans', 'parent_id' => $containerYard->id, 'order' => 7]);
 
 
     }

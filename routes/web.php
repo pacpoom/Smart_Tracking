@@ -16,6 +16,7 @@ use App\Http\Controllers\ContainerController;
 use App\Http\Controllers\ContainerOrderPlanController;
 use App\Http\Controllers\ContainerReceiveController;
 use App\Http\Controllers\ContainerStockController;
+use App\Http\Controllers\ContainerChangeLocationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -57,12 +58,14 @@ Route::middleware('auth')->group(function () {
     // Search Routes
     Route::get('parts/search', [PartController::class, 'search'])->name('parts.search');
     Route::get('containers/search', [ContainerController::class, 'search'])->name('containers.search');
+    Route::get('yard-locations/search', [YardLocationController::class, 'search'])->name('yard-locations.search');
 
     // Import & Export Routes
     Route::get('container-order-plans/template', [ContainerOrderPlanController::class, 'downloadTemplate'])->name('container-order-plans.template');
     Route::post('container-order-plans/import', [ContainerOrderPlanController::class, 'import'])->name('container-order-plans.import');
     Route::get('container-order-plans/export', [ContainerOrderPlanController::class, 'export'])->name('container-order-plans.export');
     Route::get('part-requests/export', [PartRequestController::class, 'export'])->name('part-requests.export');
+    Route::get('container-stocks/export', [ContainerStockController::class, 'export'])->name('container-stocks.export');
 
 
     // Resource Routes
@@ -73,7 +76,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('vendors', VendorController::class);
     Route::resource('parts', PartController::class);
     Route::resource('part-requests', PartRequestController::class)->except(['show', 'destroy']);
-    Route::resource('yard-locations', YardLocationController::class);
+    Route::resource('yard-locations', YardLocationController::class)->except(['show']);
     Route::resource('containers', ContainerController::class)->except(['show']);
     Route::resource('container-order-plans', ContainerOrderPlanController::class)->except(['show']);
     
@@ -85,10 +88,13 @@ Route::middleware('auth')->group(function () {
     // Container Receive Routes
     Route::get('container-receive/create', [ContainerReceiveController::class, 'create'])->name('container-receive.create');
     Route::post('container-receive', [ContainerReceiveController::class, 'store'])->name('container-receive.store');
+
     // Container Stock Route
     Route::get('container-stocks', [ContainerStockController::class, 'index'])->name('container-stocks.index');
-    // Export Route for Container Stock
-    Route::get('container-stocks/export', [ContainerStockController::class, 'export'])->name('container-stocks.export');
+
+    // Container Change Location Routes
+    Route::get('container-change-location', [ContainerChangeLocationController::class, 'index'])->name('container-change-location.index');
+    Route::put('container-change-location/{stock}', [ContainerChangeLocationController::class, 'update'])->name('container-change-location.update');
 });
 
 require __DIR__.'/auth.php';
