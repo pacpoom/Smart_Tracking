@@ -25,6 +25,7 @@ class ContainerOrderPlanImport implements ToModel, WithHeadingRow, WithValidatio
         }
 
         return new ContainerOrderPlan([
+            'plan_no'      => ContainerOrderPlan::generatePlanNumber(), // Generate the plan number here
             'container_id' => $container->id,
             'model'        => $row['model'],
             'type'         => $row['type'],
@@ -32,7 +33,7 @@ class ContainerOrderPlanImport implements ToModel, WithHeadingRow, WithValidatio
             'eta_date'     => $this->transformDate($row['eta_date']),
             'free_time'    => $row['free_time'],
             'checkin_date' => $this->transformDate($row['checkin_date']),
-            'is_active'    => true,
+            'status'       => 1, // Default to Pending
         ]);
     }
 
@@ -40,25 +41,16 @@ class ContainerOrderPlanImport implements ToModel, WithHeadingRow, WithValidatio
     {
         return [
             'container_no' => 'required|exists:containers,container_no',
-            // แก้ไข: เพิ่ม 'digits:8' เพื่อความแม่นยำ
-            'eta_date' => 'nullable|digits:8|date_format:Ymd',
-            'checkin_date' => 'nullable|digits:8|date_format:Ymd',
+            'eta_date' => 'nullable|date_format:Ymd',
+            'checkin_date' => 'nullable|date_format:Ymd',
         ];
     }
 
-    /**
-     * Transform a date value from Ymd format.
-     *
-     * @param  mixed $value
-     * @return \Carbon\Carbon|null
-     */
     private function transformDate($value)
     {
         if (empty($value)) {
             return null;
         }
-
-        // แปลงค่าจากรูปแบบ Ymd โดยตรง
         try {
             return Carbon::createFromFormat('Ymd', $value);
         } catch (\Exception $e) {

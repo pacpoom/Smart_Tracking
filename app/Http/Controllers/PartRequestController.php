@@ -25,42 +25,45 @@ class PartRequestController extends Controller
     {
         $query = PartRequest::with(['user', 'part'])->latest();
 
+        if ($request->filled('part_number')) {
+            $query->whereHas('part', function ($q) use ($request) {
+                $q->where('part_number', 'like', '%' . $request->part_number . '%');
+            });
+        }
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
         if ($request->filled('start_date')) {
             $query->whereDate('required_date', '>=', $request->start_date);
         }
         if ($request->filled('end_date')) {
             $query->whereDate('required_date', '<=', $request->end_date);
-        }
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-        if ($request->filled('part_number')) {
-            $query->whereHas('part', function ($q) use ($request) {
-                $q->where('part_number', 'like', '%' . $request->part_number . '%');
-            });
         }
 
         $requests = $query->paginate(10);
         return view('part-requests.index', compact('requests'));
     }
 
+    /**
+     * Export part requests to an Excel file.
+     */
     public function export(Request $request)
     {
         $query = PartRequest::with(['user', 'part'])->latest();
 
+        if ($request->filled('part_number')) {
+            $query->whereHas('part', function ($q) use ($request) {
+                $q->where('part_number', 'like', '%' . $request->part_number . '%');
+            });
+        }
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
         if ($request->filled('start_date')) {
             $query->whereDate('required_date', '>=', $request->start_date);
         }
         if ($request->filled('end_date')) {
             $query->whereDate('required_date', '<=', $request->end_date);
-        }
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-        if ($request->filled('part_number')) {
-            $query->whereHas('part', function ($q) use ($request) {
-                $q->where('part_number', 'like', '%' . $request->part_number . '%');
-            });
         }
 
         return Excel::download(new PartRequestExport($query), 'part_requests.xlsx');

@@ -6,7 +6,7 @@
 <div class="row">
     <div class="col-md-8 mx-auto">
         <div class="card">
-            <form action="{{ route('container-order-plans.store') }}" method="POST">
+            <form action="{{ route('container-order-plans.store') }}" method="POST" enctype="multipart/form-data">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5>Create New Container Plan</h5>
                     <div>

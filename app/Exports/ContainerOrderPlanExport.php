@@ -2,7 +2,7 @@
 
 namespace App\Exports;
 
-use App\Models\PartRequest;
+use App\Models\ContainerOrderPlan;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -10,7 +10,7 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class PartRequestExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize, WithStyles
+class ContainerOrderPlanExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize, WithStyles
 {
     protected $query;
 
@@ -27,36 +27,35 @@ class PartRequestExport implements FromCollection, WithHeadings, WithMapping, Sh
     public function headings(): array
     {
         return [
-            'ID',
-            'Part Number',
-            'Part Name (EN)',
-            'Requested By',
-            'Quantity',
-            'Required Date',
-            'Delivery Date',
-            'Arrival Date',
+            'Plan No.',
+            'Container No.',
+            'House B/L',
+            'Model',
+            'Type',
+            'ETA Date',
+            'Check-in Date',
             'Status',
-            'FOC No.',
-            'Reason',
         ];
     }
 
-    public function map($request): array
+    public function map($plan): array
     {
-        $statusText = $request->status; // Assuming status is already a string like 'pending', 'approved'
+        $statusText = match ($plan->status) {
+            1 => 'Pending',
+            2 => 'Received',
+            3 => 'Shipped Out',
+            default => 'Unknown',
+        };
 
         return [
-            $request->id,
-            $request->part->part_number,
-            $request->part->part_name_eng,
-            $request->user->name,
-            $request->quantity,
-            $request->required_date?->format('Y-m-d'),
-            $request->delivery_date?->format('Y-m-d'),
-            $request->arrival_date?->format('Y-m-d'),
-            ucfirst($statusText),
-            $request->foc_no,
-            $request->reason,
+            $plan->plan_no,
+            $plan->container->container_no,
+            $plan->house_bl,
+            $plan->model,
+            $plan->type,
+            $plan->eta_date?->format('Y-m-d'),
+            $plan->checkin_date?->format('Y-m-d'),
+            $statusText,
         ];
     }
 
@@ -71,7 +70,7 @@ class PartRequestExport implements FromCollection, WithHeadings, WithMapping, Sh
                 ],
             ],
         ];
-        $sheet->getStyle('A1:K'.$lastRow)->applyFromArray($styleArray);
+        $sheet->getStyle('A1:H'.$lastRow)->applyFromArray($styleArray);
         return [];
     }
 }

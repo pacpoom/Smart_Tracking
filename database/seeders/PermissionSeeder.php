@@ -51,6 +51,7 @@ class PermissionSeeder extends Seeder
             'create part requests',
             'view all part requests',
             'approve part requests',
+            'view part request dashboard',
 
             // Stock Management
             'view stock',
@@ -76,6 +77,11 @@ class PermissionSeeder extends Seeder
             'create container plans',
             'edit container plans',
             'delete container plans',
+
+            // --- เพิ่ม permission นี้ ---
+            'receive containers',
+            'view container stock',
+            'export container stock',
         ];
 
         // Create permissions

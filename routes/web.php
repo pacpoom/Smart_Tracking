@@ -14,6 +14,9 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\YardLocationController;
 use App\Http\Controllers\ContainerController;
 use App\Http\Controllers\ContainerOrderPlanController;
+use App\Http\Controllers\ContainerReceiveController;
+use App\Http\Controllers\ContainerStockController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -55,6 +58,13 @@ Route::middleware('auth')->group(function () {
     Route::get('parts/search', [PartController::class, 'search'])->name('parts.search');
     Route::get('containers/search', [ContainerController::class, 'search'])->name('containers.search');
 
+    // Import & Export Routes
+    Route::get('container-order-plans/template', [ContainerOrderPlanController::class, 'downloadTemplate'])->name('container-order-plans.template');
+    Route::post('container-order-plans/import', [ContainerOrderPlanController::class, 'import'])->name('container-order-plans.import');
+    Route::get('container-order-plans/export', [ContainerOrderPlanController::class, 'export'])->name('container-order-plans.export');
+    Route::get('part-requests/export', [PartRequestController::class, 'export'])->name('part-requests.export');
+
+
     // Resource Routes
     Route::resource('roles', RolePermissionController::class);
     Route::resource('permissions', PermissionController::class);
@@ -65,7 +75,6 @@ Route::middleware('auth')->group(function () {
     Route::resource('part-requests', PartRequestController::class)->except(['show', 'destroy']);
     Route::resource('yard-locations', YardLocationController::class);
     Route::resource('containers', ContainerController::class)->except(['show']);
-    // แก้ไข: นำ 'destroy' ออกจาก except()
     Route::resource('container-order-plans', ContainerOrderPlanController::class)->except(['show']);
     
     // Stock Routes
@@ -73,10 +82,13 @@ Route::middleware('auth')->group(function () {
     Route::put('parts/{part}/stock/adjust', [StockController::class, 'adjust'])->name('stocks.adjust');
     Route::post('stocks/store-part', [StockController::class, 'storePartAndStock'])->name('stocks.storePartAndStock');
 
-    // Routes for Container Order Plan Import
-    Route::get('container-order-plans/template', [ContainerOrderPlanController::class, 'downloadTemplate'])->name('container-order-plans.template');
-    Route::post('container-order-plans/import', [ContainerOrderPlanController::class, 'import'])->name('container-order-plans.import');
-
+    // Container Receive Routes
+    Route::get('container-receive/create', [ContainerReceiveController::class, 'create'])->name('container-receive.create');
+    Route::post('container-receive', [ContainerReceiveController::class, 'store'])->name('container-receive.store');
+    // Container Stock Route
+    Route::get('container-stocks', [ContainerStockController::class, 'index'])->name('container-stocks.index');
+    // Export Route for Container Stock
+    Route::get('container-stocks/export', [ContainerStockController::class, 'export'])->name('container-stocks.export');
 });
 
 require __DIR__.'/auth.php';

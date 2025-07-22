@@ -1,5 +1,5 @@
 @extends('layouts.app')
-
+@can('view part request dashboard')
 @section('title', 'Dashboard')
 
 @section('content')
@@ -131,3 +131,4 @@
         </div>
     </div>
 @endsection
+@endcan

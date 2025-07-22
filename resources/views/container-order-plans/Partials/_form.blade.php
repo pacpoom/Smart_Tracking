@@ -45,7 +45,6 @@
     <div class="col-md-6 mb-3">
         <label class="form-label">ETA Date</label>
         <div class="input-group input-group-outline">
-            {{-- แก้ไข: เพิ่ม isset() check --}}
             <input type="date" class="form-control" name="eta_date" value="{{ old('eta_date', isset($containerOrderPlan) ? $containerOrderPlan->eta_date?->format('Y-m-d') : '') }}">
         </div>
         @error('eta_date') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
@@ -53,17 +52,9 @@
     <div class="col-md-6 mb-3">
         <label class="form-label">Check-in Date</label>
         <div class="input-group input-group-outline">
-            {{-- แก้ไข: เพิ่ม isset() check --}}
             <input type="date" class="form-control" name="checkin_date" value="{{ old('checkin_date', isset($containerOrderPlan) ? $containerOrderPlan->checkin_date?->format('Y-m-d') : '') }}">
         </div>
         @error('checkin_date') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
-    </div>
-</div>
-<div class="mb-3">
-    <label class="form-label">Status</label>
-    <div class="form-check form-switch d-flex align-items-center p-0">
-        <input class="form-check-input ms-0" type="checkbox" name="is_active" value="1" id="is_active" {{ old('is_active', $containerOrderPlan->is_active ?? true) ? 'checked' : '' }}>
-        <label class="form-check-label mb-0 ms-3" for="is_active">Active</label>
     </div>
 </div>
 
@@ -74,7 +65,7 @@
             theme: 'bootstrap-5',
             placeholder: 'Type to search for a container...',
             ajax: {
-                url: '{{ route("containers.search") }}', // We will create this route next
+                url: '{{ route("containers.search") }}',
                 dataType: 'json',
                 delay: 250,
                 processResults: function (data) {

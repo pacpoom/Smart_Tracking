@@ -24,9 +24,9 @@
         </div>
     </div>
     <div class="card-body">
-        {{-- Search Form --}}
+        {{-- Advanced Search Form --}}
         <form action="{{ route('container-order-plans.index') }}" method="GET">
-            <div class="row align-items-end">
+            <div class="row g-3 align-items-end">
                 <div class="col-md-4">
                     <label class="form-label">Search by Container No. / B/L</label>
                     <div class="input-group input-group-outline">
@@ -45,8 +45,9 @@
                         <input type="date" class="form-control" name="end_date" value="{{ $endDate }}">
                     </div>
                 </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-dark">Search</button>
+                <div class="col-md-2 d-flex">
+                    <button type="submit" class="btn btn-dark me-2">Search</button>
+                    <a href="{{ route('container-order-plans.export', request()->query()) }}" class="btn btn-success">Export</a>
                 </div>
             </div>
         </form>
@@ -63,6 +64,7 @@
                     <thead>
                         <tr>
                             <th class="text-center" style="width: 1%;"><div class="form-check d-flex justify-content-center"><input class="form-check-input" type="checkbox" id="select-all-checkbox"></div></th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Plan No.</th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Container No.</th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">House B/L</th>
                             <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">ETA Date</th>
@@ -72,18 +74,24 @@
                         </tr>
                     </thead>
                     <tbody>
+                        {{-- แก้ไข: เปลี่ยน $requests เป็น $plans --}}
                         @forelse ($plans as $plan)
                         <tr>
                             <td class="text-center"><div class="form-check d-flex justify-content-center"><input class="form-check-input plan-checkbox" type="checkbox" name="ids[]" value="{{ $plan->id }}"></div></td>
+                            <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $plan->plan_no }}</p></td>
                             <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $plan->container->container_no }}</p></td>
                             <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $plan->house_bl }}</p></td>
                             <td class="align-middle text-center"><span class="text-secondary text-xs font-weight-bold">{{ $plan->eta_date?->format('d/m/Y') }}</span></td>
                             <td class="align-middle text-center"><span class="text-secondary text-xs font-weight-bold">{{ $plan->checkin_date?->format('d/m/Y') }}</span></td>
                             <td class="align-middle text-center text-sm">
-                                @if($plan->is_active)
-                                    <span class="badge badge-sm bg-gradient-success">Active</span>
+                                @if($plan->status == 1)
+                                    <span class="badge badge-sm bg-gradient-warning">Pending</span>
+                                @elseif($plan->status == 2)
+                                    <span class="badge badge-sm bg-gradient-success">Received</span>
+                                @elseif($plan->status == 3)
+                                    <span class="badge badge-sm bg-gradient-info">Shipped Out</span>
                                 @else
-                                    <span class="badge badge-sm bg-gradient-secondary">Inactive</span>
+                                    <span class="badge badge-sm bg-gradient-secondary">Unknown</span>
                                 @endif
                             </td>
                             <td class="align-middle text-center">
@@ -97,7 +105,7 @@
                         </tr>
                         @include('container-order-plans.partials.delete-modal', ['plan' => $plan])
                         @empty
-                        <tr><td colspan="7" class="text-center p-3">No container order plans found for the selected date range.</td></tr>
+                        <tr><td colspan="8" class="text-center p-3">No container order plans found for the selected date range.</td></tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -105,6 +113,7 @@
         </form>
     </div>
     <div class="card-footer d-flex justify-content-between">
+        {{-- แก้ไข: เปลี่ยน $requests เป็น $plans --}}
         {{ $plans->withQueryString()->links() }}
     </div>
 </div>

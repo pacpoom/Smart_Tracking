@@ -6,15 +6,16 @@ use App\Models\Container;
 use App\Models\ContainerOrderPlan;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
-use App\Exports\ContainerOrderPlanTemplateExport;
+use App\Exports\ContainerOrderPlanExport;
 use App\Imports\ContainerOrderPlanImport;
+use App\Exports\ContainerOrderPlanTemplateExport;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ContainerOrderPlanController extends Controller
 {
     function __construct()
     {
-        // $this->middleware('permission:view container plans|create container plans|edit container plans|delete container plans', ['only' => ['index']]);
+        // $this->middleware('permission:view container plans|create container plans|edit container plans|delete container plans', ['only' => ['index', 'export']]);
         // $this->middleware('permission:create container plans', ['only' => ['create', 'store', 'downloadTemplate', 'import']]);
         // $this->middleware('permission:edit container plans', ['only' => ['edit', 'update']]);
         // $this->middleware('permission:delete container plans', ['only' => ['destroy', 'bulkDestroy']]);
@@ -32,6 +33,7 @@ class ContainerOrderPlanController extends Controller
             $search = $request->search;
             $query->where(function($q) use ($search) {
                 $q->where('house_bl', 'like', '%' . $search . '%')
+                  ->orWhere('plan_no', 'like', '%' . $search . '%')
                   ->orWhereHas('container', function ($subQ) use ($search) {
                       $subQ->where('container_no', 'like', '%' . $search . '%');
                   });
@@ -41,6 +43,28 @@ class ContainerOrderPlanController extends Controller
         $plans = $query->latest()->paginate(10);
         
         return view('container-order-plans.index', compact('plans', 'startDate', 'endDate'));
+    }
+
+    public function export(Request $request)
+    {
+        $startDate = $request->input('start_date', Carbon::now()->startOfMonth()->toDateString());
+        $endDate = $request->input('end_date', Carbon::now()->endOfMonth()->toDateString());
+
+        $query = ContainerOrderPlan::with('container');
+        $query->whereBetween('eta_date', [$startDate, $endDate]);
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('house_bl', 'like', '%' . $search . '%')
+                  ->orWhere('plan_no', 'like', '%' . $search . '%')
+                  ->orWhereHas('container', function ($subQ) use ($search) {
+                      $subQ->where('container_no', 'like', '%' . $search . '%');
+                  });
+            });
+        }
+
+        return Excel::download(new ContainerOrderPlanExport($query), 'container_order_plans.xlsx');
     }
 
     public function create()
@@ -56,7 +80,11 @@ class ContainerOrderPlanController extends Controller
             'checkin_date' => 'nullable|date|after_or_equal:eta_date',
         ]);
 
-        ContainerOrderPlan::create($request->all());
+        $data = $request->all();
+        $data['status'] = 1; // 1 = Pending
+        $data['plan_no'] = ContainerOrderPlan::generatePlanNumber();
+
+        ContainerOrderPlan::create($data);
         return redirect()->route('container-order-plans.index')->with('success', 'Container order plan created successfully.');
     }
 
@@ -73,7 +101,9 @@ class ContainerOrderPlanController extends Controller
             'checkin_date' => 'nullable|date|after_or_equal:eta_date',
         ]);
         
-        $containerOrderPlan->update($request->all());
+        $data = $request->except('status');
+        
+        $containerOrderPlan->update($data);
         return redirect()->route('container-order-plans.index')->with('success', 'Container order plan updated successfully.');
     }
 
