@@ -11,6 +11,7 @@ class ContainerTransaction extends Model
 
     protected $fillable = [
         'container_order_plan_id',
+        'house_bl',
         'user_id',
         'yard_location_id',
         'activity_type',
@@ -35,5 +36,13 @@ class ContainerTransaction extends Model
     public function yardLocation()
     {
         return $this->belongsTo(YardLocation::class);
+    }
+
+    /**
+     * Get the photos for the transaction.
+     */
+    public function photos()
+    {
+        return $this->hasMany(ContainerPhoto::class);
     }
 }
