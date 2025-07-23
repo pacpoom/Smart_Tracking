@@ -20,6 +20,8 @@ use App\Http\Controllers\ContainerChangeLocationController;
 use App\Http\Controllers\ContainerTransactionController;
 use App\Http\Controllers\ContainerShipOutController;
 use App\Http\Controllers\ContainerYardDashboardController;
+use App\Http\Controllers\ContainerTackingController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -106,6 +108,14 @@ Route::middleware('auth')->group(function () {
 
     // Container Yard Dashboard Route
     Route::get('container-yard/dashboard', [ContainerYardDashboardController::class, 'index'])->name('container-yard.dashboard');
+
+    // Container Tacking Routes
+    Route::get('container-tacking/create', [ContainerTackingController::class, 'create'])->name('container-tacking.create');
+    Route::post('container-tacking', [ContainerTackingController::class, 'store'])->name('container-tacking.store');
+    // Container Tacking Routes
+    Route::resource('container-tacking', ContainerTackingController::class)->only(['index', 'create', 'store', 'show']);
+    Route::get('container-tacking/photos/{photo}', [ContainerTackingController::class, 'showPhoto'])->name('container-tacking.photo.show');
+
 });
 
 require __DIR__.'/auth.php';
