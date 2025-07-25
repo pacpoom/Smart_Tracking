@@ -18,14 +18,14 @@ class ContainerOrderPlanImport implements ToModel, WithHeadingRow, WithValidatio
     */
     public function model(array $row)
     {
-        $container = Container::where('container_no', $row['container_no'])->first();
-
-        if (!$container) {
-            return null;
-        }
+        // 1. ค้นหา Container จาก container_no
+        //    ถ้าไม่เจอ จะสร้าง Container ใหม่ให้โดยอัตโนมัติ
+        $container = Container::firstOrCreate(
+            ['container_no' => $row['container_no']]
+        );
 
         return new ContainerOrderPlan([
-            'plan_no'      => ContainerOrderPlan::generatePlanNumber(), // Generate the plan number here
+            'plan_no'      => ContainerOrderPlan::generatePlanNumber(),
             'container_id' => $container->id,
             'model'        => $row['model'],
             'type'         => $row['type'],
@@ -40,7 +40,9 @@ class ContainerOrderPlanImport implements ToModel, WithHeadingRow, WithValidatio
     public function rules(): array
     {
         return [
-            'container_no' => 'required|exists:containers,container_no',
+            // 2. แก้ไข: เปลี่ยนจาก 'exists' เป็น 'string'
+            //    เพื่อให้สามารถรับค่า container_no ใหม่ๆ ได้
+            'container_no' => 'required|string',
             'eta_date' => 'nullable|date_format:Ymd',
             'checkin_date' => 'nullable|date_format:Ymd',
         ];

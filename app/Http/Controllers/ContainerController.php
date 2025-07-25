@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 
 class ContainerController extends Controller
 {
+    // ... (โค้ดอื่นๆ เหมือนเดิม) ...
     function __construct()
     {
         // $this->middleware('permission:view containers|create containers|edit containers|delete containers', ['only' => ['index']]);
@@ -31,6 +32,10 @@ class ContainerController extends Controller
         return view('containers.index', compact('containers'));
     }
 
+
+    /**
+     * Search for containers for Select2 AJAX.
+     */
     public function search(Request $request)
     {
         $search = $request->term;
@@ -42,14 +47,15 @@ class ContainerController extends Controller
         $formatted_containers = [];
         foreach ($containers as $container) {
             $formatted_containers[] = [
-                'id' => $container->id,
+                'id' => $container->container_no, // 1. แก้ไข: ใช้ container_no เป็น ID
                 'text' => $container->container_no . ' - ' . $container->size
             ];
         }
 
         return response()->json($formatted_containers);
     }
-
+    
+    // ... (โค้ดส่วนที่เหลือเหมือนเดิม) ...
     public function create()
     {
         return view('containers.create');

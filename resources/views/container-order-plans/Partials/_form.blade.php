@@ -1,16 +1,16 @@
 @csrf
 <div class="row">
     <div class="col-md-12 mb-3">
-        <label class="form-label">Select Container</label>
-        <select class="form-control" id="container-select" name="container_id" required>
+        <label class="form-label">Select or Create Container</label>
+        <select class="form-control" id="container-select" name="container_no" required>
             {{-- Pre-populate for edit form --}}
             @if(isset($containerOrderPlan) && $containerOrderPlan->container)
-                <option value="{{ $containerOrderPlan->container->id }}" selected>
+                <option value="{{ $containerOrderPlan->container->container_no }}" selected>
                     {{ $containerOrderPlan->container->container_no }} - {{ $containerOrderPlan->container->size }}
                 </option>
             @endif
         </select>
-        @error('container_id') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
+        @error('container_no') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
     </div>
 </div>
 <div class="row">
@@ -58,12 +58,32 @@
     </div>
 </div>
 
+{{-- Show status only on the edit page --}}
+@if(isset($containerOrderPlan))
+    <div class="mb-3">
+        <label class="form-label">Status</label>
+        <div class="input-group input-group-outline">
+            @php
+                $statusText = match ($containerOrderPlan->status) {
+                    1 => 'Pending',
+                    2 => 'Received',
+                    3 => 'Shipped Out',
+                    default => 'Unknown',
+                };
+            @endphp
+            <input type="text" class="form-control" value="{{ $statusText }}" readonly disabled>
+        </div>
+    </div>
+@endif
+
+
 @push('scripts')
 <script>
     $(document).ready(function() {
         $('#container-select').select2({
             theme: 'bootstrap-5',
-            placeholder: 'Type to search for a container...',
+            placeholder: 'Select or type a new Container No...',
+            tags: true,
             ajax: {
                 url: '{{ route("containers.search") }}',
                 dataType: 'json',

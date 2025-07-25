@@ -9,7 +9,7 @@
             <h5 class="mb-3 mb-md-0">Container Tacking List</h5>
             <form action="{{ route('container-tacking.index') }}" method="GET" class="md-2">
                 <div class="input-group input-group-outline">
-                    <label class="form-label">Search by Container No. / Shipment...</label>
+                    <label class="form-label">Search by</label>
                     <input type="text" class="form-control" name="search" value="{{ request('search') }}">
                 </div>
             </form>

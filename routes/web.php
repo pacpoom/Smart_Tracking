@@ -21,6 +21,7 @@ use App\Http\Controllers\ContainerTransactionController;
 use App\Http\Controllers\ContainerShipOutController;
 use App\Http\Controllers\ContainerYardDashboardController;
 use App\Http\Controllers\ContainerTackingController;
+use App\Http\Controllers\DisplayDashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -117,6 +118,7 @@ Route::middleware('auth')->group(function () {
     Route::get('container-tacking/photos/{photo}', [ContainerTackingController::class, 'showPhoto'])->name('container-tacking.photo.show');
 
     Route::resource('container-tacking', ContainerTackingController::class)->except(['show', 'destroy']);
+    Route::get('display-dashboard', [App\Http\Controllers\DisplayDashboardController::class, 'index'])->name('display.dashboard');
 
 });
 

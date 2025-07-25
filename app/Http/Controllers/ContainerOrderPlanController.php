@@ -9,7 +9,7 @@ use Carbon\Carbon;
 use App\Exports\ContainerOrderPlanExport;
 use App\Imports\ContainerOrderPlanImport;
 use App\Exports\ContainerOrderPlanTemplateExport;
-use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Facades\Excel; // 1. เพิ่ม use statement นี้
 
 class ContainerOrderPlanController extends Controller
 {
@@ -75,13 +75,18 @@ class ContainerOrderPlanController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'container_id' => 'required|exists:containers,id',
+            'container_no' => 'required|string|max:255',
             'eta_date' => 'nullable|date',
             'checkin_date' => 'nullable|date|after_or_equal:eta_date',
         ]);
 
-        $data = $request->all();
-        $data['status'] = 1; // 1 = Pending
+        $container = Container::firstOrCreate(
+            ['container_no' => $request->container_no]
+        );
+
+        $data = $request->except('container_no');
+        $data['container_id'] = $container->id;
+        $data['status'] = 1;
         $data['plan_no'] = ContainerOrderPlan::generatePlanNumber();
 
         ContainerOrderPlan::create($data);
@@ -96,12 +101,17 @@ class ContainerOrderPlanController extends Controller
     public function update(Request $request, ContainerOrderPlan $containerOrderPlan)
     {
         $request->validate([
-            'container_id' => 'required|exists:containers,id',
+            'container_no' => 'required|string|max:255',
             'eta_date' => 'nullable|date',
             'checkin_date' => 'nullable|date|after_or_equal:eta_date',
         ]);
         
-        $data = $request->except('status');
+        $container = Container::firstOrCreate(
+            ['container_no' => $request->container_no]
+        );
+        
+        $data = $request->except(['status', 'container_no']);
+        $data['container_id'] = $container->id;
         
         $containerOrderPlan->update($data);
         return redirect()->route('container-order-plans.index')->with('success', 'Container order plan updated successfully.');
