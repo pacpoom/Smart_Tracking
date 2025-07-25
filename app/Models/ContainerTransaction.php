@@ -11,7 +11,6 @@ class ContainerTransaction extends Model
 
     protected $fillable = [
         'container_order_plan_id',
-        'house_bl',
         'user_id',
         'yard_location_id',
         'activity_type',

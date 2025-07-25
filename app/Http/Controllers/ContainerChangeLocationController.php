@@ -58,7 +58,6 @@ class ContainerChangeLocationController extends Controller
             // 2. Create a transaction log for the 'Move' activity
             ContainerTransaction::create([
                 'container_order_plan_id' => $stock->container_order_plan_id,
-                'house_bl' => $stock->containerOrderPlan->house_bl,
                 'user_id' => Auth::id(),
                 'yard_location_id' => $newLocationId, // The new location
                 'activity_type' => 'Move',

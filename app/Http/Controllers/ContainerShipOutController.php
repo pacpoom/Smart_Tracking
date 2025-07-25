@@ -55,7 +55,6 @@ class ContainerShipOutController extends Controller
             // 2. Create a Transaction Log for the 'Ship Out' activity
             ContainerTransaction::create([
                 'container_order_plan_id' => $plan->id,
-                'house_bl' => $plan->house_bl,
                 'user_id' => Auth::id(),
                 'yard_location_id' => $stock->yard_location_id, // Record the location it shipped out from
                 'activity_type' => 'Ship Out',
