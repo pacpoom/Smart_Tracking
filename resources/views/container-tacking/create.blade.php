@@ -10,7 +10,7 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5>Open Container Tacking</h5>
-                    <button type="submit" class="btn btn-dark">Save Tacking</button>
+                    {{-- The main save button is now at the end of the form --}}
                 </div>
                 <div class="card-body">
                     @include('layouts.partials.alerts')
@@ -20,14 +20,12 @@
                         <div class="col-12 mb-3">
                             <label class="form-label">Container No.</label>
                             <select class="form-control" id="container-select" name="container_id" required></select>
-                            @error('container_id') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
                         </div>
                         <div class="col-12 mb-3">
                              <label class="form-label">Shipment / B/L</label>
                             <div class="input-group input-group-outline">
                                 <input type="text" class="form-control" name="shipment">
                             </div>
-                            @error('shipment') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
                         </div>
                     </div>
                     <div class="row">
@@ -37,7 +35,6 @@
                                 <option value="Inbound">Inbound</option>
                                 <option value="Outbound">Outbound</option>
                             </select>
-                             @error('job_type') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Container Type</label>
@@ -47,7 +44,6 @@
                                 <option value="LOCAL">LOCAL</option>
                                 <option value="EXPORT">EXPORT</option>
                             </select>
-                             @error('container_type') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Transport Type</label>
@@ -59,40 +55,95 @@
                                 <option value="40">40'</option>
                                 <option value="40HQ">40' HQ</option>
                             </select>
-                             @error('transport_type') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
                         </div>
                     </div>
 
                     <hr class="horizontal dark">
 
-                    {{-- Photo Upload Section --}}
-                    <h6 class="mt-4">Photo Upload</h6>
-                    @error('photos') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
-                    <div class="row">
-                        @php
-                            $photoTypes = [
+                    {{-- Photo Upload Section with Pagination --}}
+                    <div class="d-flex justify-content-between align-items-center mt-4">
+                        <h6 class="mb-0">Photo Upload</h6>
+                        <span id="step-indicator" class="badge bg-gradient-secondary">Step 1 of 3</span>
+                    </div>
+
+                    @php
+                        $photoGroups = [
+                            1 => [
                                 'doc_receive_1' => 'รูปเอกสารรับตู้ 1', 'doc_receive_2' => 'รูปเอกสารรับตู้ 2',
                                 'truck_front' => 'รูปหน้ารถ', 'truck_right' => 'รูปรถข้างขวา', 'truck_left' => 'รูปรถข้างซ้าย',
-                                'wheel_ chock' => 'รูปหนุนหมอนรองล้อ', 'container_rear' => 'รูปท้ายตู้', 'seal' => 'รูปซีล',
+                                'wheel_chock' => 'รูปหนุนหมอนรองล้อ', 'container_rear' => 'รูปท้ายตู้', 'seal' => 'รูปซีล',
+                                'pallet_check_doc' => 'รูปเอกสารตรวจสอบ Pallet',
+                            ],
+                            2 => [
                                 'open_1' => 'รูปเปิดตู้ 1', 'open_2' => 'รูปเปิดตู้ 2', 'open_3' => 'รูปเปิดตู้ 3', 'open_4' => 'รูปเปิดตู้ 4', 'open_5' => 'รูปเปิดตู้ 5',
                                 'open_6' => 'รูปเปิดตู้ 6', 'open_7' => 'รูปเปิดตู้ 7', 'open_8' => 'รูปเปิดตู้ 8', 'open_9' => 'รูปเปิดตู้ 9', 'open_10' => 'รูปเปิดตู้ 10',
-                                'pallet_check_doc' => 'รูปเอกสารตรวจสอบ Pallet',
+                            ],
+                            3 => [
                                 'empty_1' => 'รูปตู้เปล่า 1', 'empty_2' => 'รูปตู้เปล่า 2', 'empty_3' => 'รูปตู้เปล่า 3', 'empty_4' => 'รูปตู้เปล่า 4',
                                 'empty_5' => 'รูปตู้เปล่า 5', 'empty_6' => 'รูปตู้เปล่า 6', 'empty_7' => 'รูปตู้เปล่า 7', 'empty_8' => 'รูปตู้เปล่า 8', 'empty_9' => 'รูปตู้เปล่า 9',
                                 'condition_check_doc' => 'รูปเอกสารตรวจสอบสภาพตู้',
-                            ];
-                        @endphp
-
-                        @foreach($photoTypes as $key => $label)
-                        <div class="col-12 mb-3">
-                            <label for="{{ $key }}" class="form-label">{{ $label }}</label>
-                            <div class="input-group input-group-outline">
-                                <input class="form-control" type="file" name="photos[{{ $key }}]" id="{{ $key }}" accept="image/*">
-                            </div>
-                            @error('photos.'.$key) <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
+                            ]
+                        ];
+                    @endphp
+                    
+                    {{-- Step 1 --}}
+                    <div id="step-1" class="photo-step">
+                        <div class="row mt-3">
+                            @foreach($photoGroups[1] as $key => $label)
+                                <div class="col-12 mb-3">
+                                    <label for="{{ $key }}" class="form-label">{{ $label }}</label>
+                                    <div class="input-group input-group-outline">
+                                        <input class="form-control photo-input" type="file" name="photos[{{ $key }}]" id="{{ $key }}" accept="image/*" data-preview-id="{{ $key }}-preview">
+                                    </div>
+                                    <div class="mt-2 text-center">
+                                        <img id="{{ $key }}-preview" src="#" alt="Image Preview" class="img-fluid border-radius-lg" style="display: none; max-height: 150px;"/>
+                                    </div>
+                                </div>
+                            @endforeach
                         </div>
-                        @endforeach
                     </div>
+
+                    {{-- Step 2 --}}
+                    <div id="step-2" class="photo-step" style="display: none;">
+                        <div class="row mt-3">
+                            @foreach($photoGroups[2] as $key => $label)
+                                <div class="col-12 mb-3">
+                                    <label for="{{ $key }}" class="form-label">{{ $label }}</label>
+                                    <div class="input-group input-group-outline">
+                                        <input class="form-control photo-input" type="file" name="photos[{{ $key }}]" id="{{ $key }}" accept="image/*" data-preview-id="{{ $key }}-preview">
+                                    </div>
+                                     <div class="mt-2 text-center">
+                                        <img id="{{ $key }}-preview" src="#" alt="Image Preview" class="img-fluid border-radius-lg" style="display: none; max-height: 150px;"/>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    {{-- Step 3 --}}
+                    <div id="step-3" class="photo-step" style="display: none;">
+                        <div class="row mt-3">
+                            @foreach($photoGroups[3] as $key => $label)
+                                <div class="col-12 mb-3">
+                                    <label for="{{ $key }}" class="form-label">{{ $label }}</label>
+                                    <div class="input-group input-group-outline">
+                                        <input class="form-control photo-input" type="file" name="photos[{{ $key }}]" id="{{ $key }}" accept="image/*" data-preview-id="{{ $key }}-preview">
+                                    </div>
+                                     <div class="mt-2 text-center">
+                                        <img id="{{ $key }}-preview" src="#" alt="Image Preview" class="img-fluid border-radius-lg" style="display: none; max-height: 150px;"/>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    {{-- Navigation Buttons --}}
+                    <div class="mt-4 d-flex justify-content-between">
+                        <button type="button" class="btn btn-outline-secondary" id="prev-btn" style="display: none;">Previous</button>
+                        <button type="button" class="btn btn-dark" id="next-btn">Next</button>
+                        <button type="submit" class="btn btn-dark" id="save-btn" style="display: none;">Save Tacking</button>
+                    </div>
+
                 </div>
             </div>
         </form>
@@ -116,6 +167,66 @@
                     };
                 },
                 cache: true
+            }
+        });
+
+        // Step navigation logic
+        let currentStep = 1;
+        const totalSteps = 3;
+        const nextBtn = $('#next-btn');
+        const prevBtn = $('#prev-btn');
+        const saveBtn = $('#save-btn');
+        const stepIndicator = $('#step-indicator');
+
+        function showStep(step) {
+            $('.photo-step').hide();
+            $('#step-' + step).show();
+            stepIndicator.text('Step ' + step + ' of ' + totalSteps);
+
+            prevBtn.toggle(step > 1);
+            nextBtn.toggle(step < totalSteps);
+            saveBtn.toggle(step === totalSteps);
+        }
+
+        nextBtn.on('click', function() {
+            if (currentStep < totalSteps) {
+                currentStep++;
+                showStep(currentStep);
+            }
+        });
+
+        prevBtn.on('click', function() {
+            if (currentStep > 1) {
+                currentStep--;
+                showStep(currentStep);
+            }
+        });
+
+        // Confirmation before changing a photo
+        $('.photo-input').on('click', function(e) {
+            const previewId = $(this).data('preview-id');
+            const previewImage = $('#' + previewId);
+            // Check if there's already a file selected by checking if the preview is visible
+            if (previewImage.is(':visible')) {
+                if (!confirm('A photo is already selected. Do you want to choose a new one?')) {
+                    e.preventDefault(); // Prevent the file selection dialog from opening
+                }
+            }
+        });
+
+        // Image preview logic
+        $('.photo-input').on('change', function() {
+            const previewId = $(this).data('preview-id');
+            const previewImage = $('#' + previewId);
+
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImage.attr('src', e.target.result).show();
+                }
+                reader.readAsDataURL(this.files[0]);
+            } else {
+                previewImage.hide().attr('src', '#');
             }
         });
     });
