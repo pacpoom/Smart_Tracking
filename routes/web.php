@@ -83,7 +83,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('yard-locations', YardLocationController::class)->except(['show']);
     Route::resource('containers', ContainerController::class)->except(['show']);
     Route::resource('container-order-plans', ContainerOrderPlanController::class)->except(['show']);
-    
+
     // Stock Routes
     Route::get('stocks', [StockController::class, 'index'])->name('stocks.index');
     Route::put('parts/{part}/stock/adjust', [StockController::class, 'adjust'])->name('stocks.adjust');
@@ -115,6 +115,8 @@ Route::middleware('auth')->group(function () {
     // Container Tacking Routes
     Route::resource('container-tacking', ContainerTackingController::class)->only(['index', 'create', 'store', 'show']);
     Route::get('container-tacking/photos/{photo}', [ContainerTackingController::class, 'showPhoto'])->name('container-tacking.photo.show');
+
+    Route::resource('container-tacking', ContainerTackingController::class)->except(['show', 'destroy']);
 
 });
 

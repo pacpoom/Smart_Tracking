@@ -14,7 +14,7 @@ class ContainerTackingController extends Controller
     function __construct()
     {
         // $this->middleware('permission:tack container photos', ['only' => ['create', 'store']]);
-        // $this->middleware('permission:view container tackings', ['only' => ['index', 'show', 'showPhoto']]);
+        // $this->middleware('permission:view container tackings', ['only' => ['index', 'show']]);
     }
 
     public function index(Request $request)
@@ -47,8 +47,9 @@ class ContainerTackingController extends Controller
             'container_type' => 'required|string',
             'transport_type' => 'required|string',
             'container_id' => 'required|exists:containers,id',
-            'photos' => 'nullable|array|max:30', // Corrected validation
-            'photos.*' => 'image|mimes:jpeg,png,jpg|max:2048', // 2MB per photo
+            'shipment' => 'nullable|string|max:255', // เพิ่ม validation
+            'photos' => 'nullable|array|max:30',
+            'photos.*' => 'image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         $tacking = DB::transaction(function () use ($request) {
@@ -80,14 +81,10 @@ class ContainerTackingController extends Controller
 
     public function show(ContainerTacking $containerTacking)
     {
-        // Eager load relationships for the detail view
         $containerTacking->load(['container', 'user', 'photos']);
         return view('container-tacking.show', compact('containerTacking'));
     }
 
-    /**
-     * Serve a tacking photo.
-     */
     public function showPhoto(ContainerTackingPhoto $photo)
     {
         if (!Storage::disk('public')->exists($photo->file_path)) {

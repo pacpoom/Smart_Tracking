@@ -4,7 +4,6 @@
 
 @section('content')
 <div class="row">
-    {{-- Constrain width on larger screens, full width on mobile --}}
     <div class="col-lg-6 col-md-8 mx-auto">
         <form action="{{ route('container-tacking.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
@@ -21,12 +20,14 @@
                         <div class="col-12 mb-3">
                             <label class="form-label">Container No.</label>
                             <select class="form-control" id="container-select" name="container_id" required></select>
+                            @error('container_id') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
                         </div>
                         <div class="col-12 mb-3">
                              <label class="form-label">Shipment / B/L</label>
                             <div class="input-group input-group-outline">
                                 <input type="text" class="form-control" name="shipment">
                             </div>
+                            @error('shipment') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
                         </div>
                     </div>
                     <div class="row">
@@ -36,6 +37,7 @@
                                 <option value="Inbound">Inbound</option>
                                 <option value="Outbound">Outbound</option>
                             </select>
+                             @error('job_type') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Container Type</label>
@@ -45,6 +47,7 @@
                                 <option value="LOCAL">LOCAL</option>
                                 <option value="EXPORT">EXPORT</option>
                             </select>
+                             @error('container_type') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Transport Type</label>
@@ -56,6 +59,7 @@
                                 <option value="40">40'</option>
                                 <option value="40HQ">40' HQ</option>
                             </select>
+                             @error('transport_type') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
                         </div>
                     </div>
 
@@ -63,6 +67,7 @@
 
                     {{-- Photo Upload Section --}}
                     <h6 class="mt-4">Photo Upload</h6>
+                    @error('photos') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
                     <div class="row">
                         @php
                             $photoTypes = [
@@ -84,6 +89,7 @@
                             <div class="input-group input-group-outline">
                                 <input class="form-control" type="file" name="photos[{{ $key }}]" id="{{ $key }}" accept="image/*">
                             </div>
+                            @error('photos.'.$key) <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
                         </div>
                         @endforeach
                     </div>

@@ -21,5 +21,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Paginator::useBootstrapFive(); // 2. เพิ่มบรรทัดนี้
+
+        if (!$this->app->isLocal()) {
+            URL::forceScheme('https');
+        }
     }
 }

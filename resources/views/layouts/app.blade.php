@@ -12,12 +12,11 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
   <!-- CSS Files -->
   <link id="pagestyle" href="{{ asset('assets/css/material-dashboard.css?v=3.2.0') }}" rel="stylesheet" />
-  
+
   <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
 </head>
 
-{{-- 1. เพิ่ม data-sidenav-target="#sidenav-main" เข้าไปใน body tag --}}
 <body class="g-sidenav-show bg-gray-200" data-sidenav-target="#sidenav-main">
 
   @include('layouts.partials.sidebar')
@@ -38,9 +37,11 @@
   <script src="{{ asset('assets/js/plugins/smooth-scrollbar.min.js') }}"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="{{ asset('assets/js/material-dashboard.min.js?v=3.2.0') }}"></script>
+
+  {{-- แก้ไข: เปลี่ยน http เป็น https --}}
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-  
+
   @stack('scripts')
 </body>
 </html>
