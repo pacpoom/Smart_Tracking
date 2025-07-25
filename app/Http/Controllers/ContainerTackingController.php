@@ -47,11 +47,12 @@ class ContainerTackingController extends Controller
             'container_type' => 'required|string',
             'transport_type' => 'required|string',
             'container_id' => 'required|exists:containers,id',
-            'shipment' => 'nullable|string|max:255', // เพิ่ม validation
+            'shipment' => 'nullable|string|max:255',
             'photos' => 'nullable|array|max:30',
             'photos.*' => 'image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
+        // แก้ไข: ให้ DB::transaction คืนค่า object ที่สร้างขึ้นมา
         $tacking = DB::transaction(function () use ($request) {
             $tacking = ContainerTacking::create([
                 'job_type' => $request->job_type,
@@ -64,18 +65,20 @@ class ContainerTackingController extends Controller
 
             if ($request->hasFile('photos')) {
                 foreach ($request->file('photos') as $photoType => $file) {
-                    $path = $file->store("tacking_photos/{$tacking->id}", 'public');
-
-                    ContainerTackingPhoto::create([
-                        'container_tacking_id' => $tacking->id,
-                        'photo_type' => $photoType,
-                        'file_path' => $path,
-                    ]);
+                    if ($file->isValid()) {
+                        $path = $file->store("tacking_photos/{$tacking->id}", 'public');
+                        ContainerTackingPhoto::create([
+                            'container_tacking_id' => $tacking->id,
+                            'photo_type' => $photoType,
+                            'file_path' => $path,
+                        ]);
+                    }
                 }
             }
-            return $tacking;
+            return $tacking; // คืนค่า object
         });
 
+        // แก้ไข: Redirect ไปยังหน้า show พร้อมกับ ID
         return redirect()->route('container-tacking.show', $tacking->id)->with('success', 'Container tacking data and photos saved successfully.');
     }
 
@@ -90,7 +93,6 @@ class ContainerTackingController extends Controller
         if (!Storage::disk('public')->exists($photo->file_path)) {
             abort(404);
         }
-
         return response()->file(storage_path('app/public/' . $photo->file_path));
     }
 }

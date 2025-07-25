@@ -20,12 +20,14 @@
                         <div class="col-12 mb-3">
                             <label class="form-label">Container No.</label>
                             <select class="form-control" id="container-select" name="container_id" required></select>
+                            @error('container_id') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
                         </div>
                         <div class="col-12 mb-3">
                              <label class="form-label">Shipment / B/L</label>
                             <div class="input-group input-group-outline">
                                 <input type="text" class="form-control" name="shipment">
                             </div>
+                            @error('shipment') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
                         </div>
                     </div>
                     <div class="row">
@@ -35,6 +37,7 @@
                                 <option value="Inbound">Inbound</option>
                                 <option value="Outbound">Outbound</option>
                             </select>
+                            @error('job_type') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Container Type</label>
@@ -44,6 +47,7 @@
                                 <option value="LOCAL">LOCAL</option>
                                 <option value="EXPORT">EXPORT</option>
                             </select>
+                            @error('container_type') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Transport Type</label>
@@ -55,6 +59,7 @@
                                 <option value="40">40'</option>
                                 <option value="40HQ">40' HQ</option>
                             </select>
+                            @error('transport_type') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
                         </div>
                     </div>
 
@@ -65,6 +70,7 @@
                         <h6 class="mb-0">Photo Upload</h6>
                         <span id="step-indicator" class="badge bg-gradient-secondary">Step 1 of 3</span>
                     </div>
+                    @error('photos') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
 
                     @php
                         $photoGroups = [
@@ -95,6 +101,7 @@
                                     <div class="input-group input-group-outline">
                                         <input class="form-control photo-input" type="file" name="photos[{{ $key }}]" id="{{ $key }}" accept="image/*" data-preview-id="{{ $key }}-preview">
                                     </div>
+                                    @error('photos.'.$key) <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
                                     <div class="mt-2 text-center">
                                         <img id="{{ $key }}-preview" src="#" alt="Image Preview" class="img-fluid border-radius-lg" style="display: none; max-height: 150px;"/>
                                     </div>
@@ -112,6 +119,7 @@
                                     <div class="input-group input-group-outline">
                                         <input class="form-control photo-input" type="file" name="photos[{{ $key }}]" id="{{ $key }}" accept="image/*" data-preview-id="{{ $key }}-preview">
                                     </div>
+                                    @error('photos.'.$key) <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
                                      <div class="mt-2 text-center">
                                         <img id="{{ $key }}-preview" src="#" alt="Image Preview" class="img-fluid border-radius-lg" style="display: none; max-height: 150px;"/>
                                     </div>
@@ -129,6 +137,7 @@
                                     <div class="input-group input-group-outline">
                                         <input class="form-control photo-input" type="file" name="photos[{{ $key }}]" id="{{ $key }}" accept="image/*" data-preview-id="{{ $key }}-preview">
                                     </div>
+                                    @error('photos.'.$key) <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
                                      <div class="mt-2 text-center">
                                         <img id="{{ $key }}-preview" src="#" alt="Image Preview" class="img-fluid border-radius-lg" style="display: none; max-height: 150px;"/>
                                     </div>
@@ -206,10 +215,9 @@
         $('.photo-input').on('click', function(e) {
             const previewId = $(this).data('preview-id');
             const previewImage = $('#' + previewId);
-            // Check if there's already a file selected by checking if the preview is visible
             if (previewImage.is(':visible')) {
                 if (!confirm('A photo is already selected. Do you want to choose a new one?')) {
-                    e.preventDefault(); // Prevent the file selection dialog from opening
+                    e.preventDefault();
                 }
             }
         });
