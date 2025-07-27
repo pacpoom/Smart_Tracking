@@ -13,7 +13,7 @@
                         <div class="bg-gradient-dark shadow-dark border-radius-lg py-3 pe-1">
                             {{-- 1. ย้ายโลโก้และชื่อระบบมาไว้ที่นี่ --}}
                             <div class="text-center">
-                                <img src="{{ asset('assets/img/logo.png') }}" alt="Logo" style="max-height: 80px;" class="mb-2">
+                                <img src="{{ asset('assets/img/logo.jpg') }}" alt="Logo" style="max-height: 90px; border-radius: 8px;" class="mb-2">
                                 <h4 class="text-white font-weight-bolder">Logistics Management System</h4>
                             </div>
                         </div>
@@ -44,10 +44,6 @@
                             <div class="text-center">
                                 <button type="submit" class="btn bg-gradient-dark w-100 my-4 mb-2">Sign In</button>
                             </div>
-                            <p class="mt-4 text-sm text-center">
-                                Don't have an account?
-                                <a href="#" class="text-primary text-gradient font-weight-bold">Sign up</a>
-                            </p>
                         </form>
                     </div>
                 </div>
