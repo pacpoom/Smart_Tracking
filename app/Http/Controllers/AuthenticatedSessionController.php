@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Requests\LoginRequest; // เราจะสร้างไฟล์นี้ในขั้นตอนถัดไป
+use App\Http\Requests\LoginRequest;
+use Illuminate\Support\Facades\DB; // 1. เพิ่ม use statement นี้
 
 class AuthenticatedSessionController extends Controller
 {
@@ -24,6 +25,14 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
 
         $request->session()->regenerate();
+
+        // --- เพิ่มส่วนนี้เข้ามา ---
+        // 2. บันทึก Session ID ใหม่ลงในฐานข้อมูล
+        $user = Auth::user();
+        DB::table('users')
+            ->where('id', $user->id)
+            ->update(['session_id' => $request->session()->getId()]);
+        // --- สิ้นสุดส่วนที่เพิ่ม ---
 
         return redirect()->intended('/dashboard');
     }
