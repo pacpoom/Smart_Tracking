@@ -3,7 +3,6 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Http\Middleware\TrustProxies; // 1. เพิ่ม use statement นี้
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -12,8 +11,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // 2. เพิ่มการตั้งค่า TrustProxies ที่นี่
-        $middleware->trustProxies(at: '*');
+        // 1. เพิ่ม Middleware ของเราเข้าไปในกลุ่ม 'web'
+        $middleware->web(append: [
+            \App\Http\Middleware\CheckSingleSession::class,
+        ]);
+
+        //
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
