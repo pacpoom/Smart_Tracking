@@ -24,6 +24,7 @@ class ContainerReceiveController extends Controller
     {
         // ดึงเฉพาะ Order Plans ที่มีสถานะเป็น Pending (1)
         $pendingPlans = ContainerOrderPlan::where('status', 1)->with('container')->get();
+        
         $locations = YardLocation::where('is_active', true)->get();
 
         return view('container-receive.create', compact('pendingPlans', 'locations'));

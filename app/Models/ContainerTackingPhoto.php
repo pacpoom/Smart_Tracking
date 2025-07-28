@@ -13,6 +13,8 @@ class ContainerTackingPhoto extends Model
         'container_tacking_id',
         'photo_type',
         'file_path',
+        'batch_key', // เพิ่มบรรทัดนี้
+        'remarks',   // เพิ่มบรรทัดนี้
     ];
 
     public function containerTacking()

@@ -114,12 +114,21 @@ Route::middleware('auth')->group(function () {
     Route::get('container-tacking/create', [ContainerTackingController::class, 'create'])->name('container-tacking.create');
     Route::post('container-tacking', [ContainerTackingController::class, 'store'])->name('container-tacking.store');
     // Container Tacking Routes
-    Route::resource('container-tacking', ContainerTackingController::class)->only(['index', 'create', 'store', 'show']);
+    Route::resource('container-tacking', ContainerTackingController::class)->except(['edit', 'update']);
+
     Route::get('container-tacking/photos/{photo}', [ContainerTackingController::class, 'showPhoto'])->name('container-tacking.photo.show');
 
-    Route::resource('container-tacking', ContainerTackingController::class)->except(['show', 'destroy']);
+    Route::resource('container-tacking', ContainerTackingController::class)->except(['show']);
     Route::get('display-dashboard', [App\Http\Controllers\DisplayDashboardController::class, 'index'])->name('display.dashboard');
 
+    // Route for adding more tacking photos
+    Route::post('container-tacking/{containerTacking}/add-photos', [ContainerTackingController::class, 'addPhotos'])->name('container-tacking.addPhotos');
+    // Search Route for Container Order Plans
+    Route::get('container-order-plans/search', [ContainerOrderPlanController::class, 'search'])->name('container-order-plans.search');
+     // Bulk Delete Routes
+    // ...
+    Route::delete('container-tacking.bulk-destroy', [ContainerTackingController::class, 'bulkDestroy'])->name('container-tacking.bulkDestroy');
+    
 });
 
 require __DIR__.'/auth.php';

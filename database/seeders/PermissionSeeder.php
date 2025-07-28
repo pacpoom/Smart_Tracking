@@ -92,6 +92,9 @@ class PermissionSeeder extends Seeder
             'tack container photos',
             'view container tackings',
             'view display dashboard',
+
+            'add damage photos',
+            'delete container tackings',
         ];
 
         // Create permissions

@@ -9,7 +9,7 @@ use Carbon\Carbon;
 use App\Exports\ContainerOrderPlanExport;
 use App\Imports\ContainerOrderPlanImport;
 use App\Exports\ContainerOrderPlanTemplateExport;
-use Maatwebsite\Excel\Facades\Excel; // 1. เพิ่ม use statement นี้
+use Maatwebsite\Excel\Facades\Excel;
 
 class ContainerOrderPlanController extends Controller
 {
@@ -19,6 +19,7 @@ class ContainerOrderPlanController extends Controller
         // $this->middleware('permission:create container plans', ['only' => ['create', 'store', 'downloadTemplate', 'import']]);
         // $this->middleware('permission:edit container plans', ['only' => ['edit', 'update']]);
         // $this->middleware('permission:delete container plans', ['only' => ['destroy', 'bulkDestroy']]);
+        // $this->middleware('auth')->only('search');
     }
 
     public function index(Request $request)
@@ -45,28 +46,6 @@ class ContainerOrderPlanController extends Controller
         return view('container-order-plans.index', compact('plans', 'startDate', 'endDate'));
     }
 
-    public function export(Request $request)
-    {
-        $startDate = $request->input('start_date', Carbon::now()->startOfMonth()->toDateString());
-        $endDate = $request->input('end_date', Carbon::now()->endOfMonth()->toDateString());
-
-        $query = ContainerOrderPlan::with('container');
-        $query->whereBetween('eta_date', [$startDate, $endDate]);
-
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('house_bl', 'like', '%' . $search . '%')
-                  ->orWhere('plan_no', 'like', '%' . $search . '%')
-                  ->orWhereHas('container', function ($subQ) use ($search) {
-                      $subQ->where('container_no', 'like', '%' . $search . '%');
-                  });
-            });
-        }
-
-        return Excel::download(new ContainerOrderPlanExport($query), 'container_order_plans.xlsx');
-    }
-
     public function create()
     {
         return view('container-order-plans.create');
@@ -86,7 +65,7 @@ class ContainerOrderPlanController extends Controller
 
         $data = $request->except('container_no');
         $data['container_id'] = $container->id;
-        $data['status'] = 1;
+        $data['status'] = 1; // 1 = Pending
         $data['plan_no'] = ContainerOrderPlan::generatePlanNumber();
 
         ContainerOrderPlan::create($data);
@@ -135,7 +114,7 @@ class ContainerOrderPlanController extends Controller
     
     public function downloadTemplate()
     {
-        return Excel::download(new ContainerOrderPlanTemplateExport, 'container_order_plan_template.xlsx');
+        return Excel::download(new \App\Exports\ContainerOrderPlanTemplateExport, 'container_order_plan_template.xlsx');
     }
 
     public function import(Request $request)
@@ -145,7 +124,7 @@ class ContainerOrderPlanController extends Controller
         ]);
 
         try {
-            Excel::import(new ContainerOrderPlanImport, $request->file('import_file'));
+            Excel::import(new \App\Imports\ContainerOrderPlanImport, $request->file('import_file'));
         } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
              $failures = $e->failures();
              $errorMessages = [];
@@ -156,5 +135,54 @@ class ContainerOrderPlanController extends Controller
         }
 
         return redirect()->route('container-order-plans.index')->with('success', 'Container order plans imported successfully.');
+    }
+
+    public function export(Request $request)
+    {
+        $startDate = $request->input('start_date', Carbon::now()->startOfMonth()->toDateString());
+        $endDate = $request->input('end_date', Carbon::now()->endOfMonth()->toDateString());
+
+        $query = ContainerOrderPlan::with('container');
+        $query->whereBetween('eta_date', [$startDate, $endDate]);
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('house_bl', 'like', '%' . $search . '%')
+                  ->orWhere('plan_no', 'like', '%' . $search . '%')
+                  ->orWhereHas('container', function ($subQ) use ($search) {
+                      $subQ->where('container_no', 'like', '%' . $search . '%');
+                  });
+            });
+        }
+
+        return Excel::download(new ContainerOrderPlanExport($query), 'container_order_plans.xlsx');
+    }
+
+    public function search(Request $request)
+    {
+        $search = $request->term;
+        $plans = ContainerOrderPlan::with('container')
+                    ->where('status', '!=', 3) // Exclude 'Shipped Out'
+                    ->where(function($query) use ($search) {
+                        $query->where('plan_no', 'LIKE', "%{$search}%")
+                              ->orWhere('house_bl', 'LIKE', "%{$search}%")
+                              ->orWhereHas('container', function($q) use ($search) {
+                                  $q->where('container_no', 'LIKE', "%{$search}%");
+                              });
+                    })
+                    ->limit(15)
+                    ->get();
+
+        $formatted_plans = [];
+        foreach ($plans as $plan) {
+            $formatted_plans[] = [
+                'id' => $plan->id,
+                'text' => $plan->container->container_no . ' (Plan: ' . $plan->plan_no . ')',
+                'house_bl' => $plan->house_bl // เพิ่มข้อมูลนี้
+            ];
+        }
+
+        return response()->json($formatted_plans);
     }
 }

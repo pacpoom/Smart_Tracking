@@ -13,14 +13,17 @@ class ContainerTacking extends Model
         'job_type',
         'container_type',
         'transport_type',
-        'container_id',
+        'container_order_plan_id',
         'shipment',
         'user_id',
     ];
 
-    public function container()
+    /**
+     * Get the container order plan associated with the tacking.
+     */
+    public function containerOrderPlan()
     {
-        return $this->belongsTo(Container::class);
+        return $this->belongsTo(ContainerOrderPlan::class);
     }
 
     public function user()

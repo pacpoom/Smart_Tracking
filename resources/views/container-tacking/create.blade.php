@@ -10,22 +10,20 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5>Open Container Tacking</h5>
-                    {{-- The main save button is now at the end of the form --}}
                 </div>
                 <div class="card-body">
                     @include('layouts.partials.alerts')
 
-                    {{-- Main Details --}}
                     <div class="row">
                         <div class="col-12 mb-3">
-                            <label class="form-label">Container No.</label>
-                            <select class="form-control" id="container-select" name="container_id" required></select>
-                            @error('container_id') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
+                            <label class="form-label">Container Plan</label>
+                            <select class="form-control" id="plan-select" name="container_order_plan_id" required></select>
+                            @error('container_order_plan_id') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
                         </div>
                         <div class="col-12 mb-3">
                              <label class="form-label">Shipment / B/L</label>
                             <div class="input-group input-group-outline">
-                                <input type="text" class="form-control" name="shipment">
+                                <input type="text" class="form-control" name="shipment" id="shipment-input" disabled="true">
                             </div>
                             @error('shipment') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
                         </div>
@@ -92,10 +90,11 @@
                         ];
                     @endphp
                     
-                    {{-- Step 1 --}}
-                    <div id="step-1" class="photo-step">
+                    {{-- Steps for photo upload --}}
+                    @foreach($photoGroups as $step => $photos)
+                    <div id="step-{{ $step }}" class="photo-step" style="{{ $step > 1 ? 'display: none;' : '' }}">
                         <div class="row mt-3">
-                            @foreach($photoGroups[1] as $key => $label)
+                            @foreach($photos as $key => $label)
                                 <div class="col-12 mb-3">
                                     <label for="{{ $key }}" class="form-label">{{ $label }}</label>
                                     <div class="input-group input-group-outline">
@@ -109,42 +108,7 @@
                             @endforeach
                         </div>
                     </div>
-
-                    {{-- Step 2 --}}
-                    <div id="step-2" class="photo-step" style="display: none;">
-                        <div class="row mt-3">
-                            @foreach($photoGroups[2] as $key => $label)
-                                <div class="col-12 mb-3">
-                                    <label for="{{ $key }}" class="form-label">{{ $label }}</label>
-                                    <div class="input-group input-group-outline">
-                                        <input class="form-control photo-input" type="file" name="photos[{{ $key }}]" id="{{ $key }}" accept="image/*" data-preview-id="{{ $key }}-preview">
-                                    </div>
-                                    @error('photos.'.$key) <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
-                                     <div class="mt-2 text-center">
-                                        <img id="{{ $key }}-preview" src="#" alt="Image Preview" class="img-fluid border-radius-lg" style="display: none; max-height: 150px;"/>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-
-                    {{-- Step 3 --}}
-                    <div id="step-3" class="photo-step" style="display: none;">
-                        <div class="row mt-3">
-                            @foreach($photoGroups[3] as $key => $label)
-                                <div class="col-12 mb-3">
-                                    <label for="{{ $key }}" class="form-label">{{ $label }}</label>
-                                    <div class="input-group input-group-outline">
-                                        <input class="form-control photo-input" type="file" name="photos[{{ $key }}]" id="{{ $key }}" accept="image/*" data-preview-id="{{ $key }}-preview">
-                                    </div>
-                                    @error('photos.'.$key) <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
-                                     <div class="mt-2 text-center">
-                                        <img id="{{ $key }}-preview" src="#" alt="Image Preview" class="img-fluid border-radius-lg" style="display: none; max-height: 150px;"/>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
+                    @endforeach
 
                     {{-- Navigation Buttons --}}
                     <div class="mt-4 d-flex justify-content-between">
@@ -163,19 +127,36 @@
 @push('scripts')
 <script>
     $(document).ready(function() {
-        $('#container-select').select2({
+        $('#plan-select').select2({
             theme: 'bootstrap-5',
-            placeholder: 'Type to search for a container...',
+            placeholder: 'Search by Plan No, Container No, or B/L...',
             ajax: {
-                url: '{{ route("containers.search") }}',
+                url: '{{ route("container-order-plans.search") }}',
                 dataType: 'json',
                 delay: 250,
                 processResults: function (data) {
                     return {
-                        results: data
+                        results: $.map(data, function(item) {
+                            return {
+                                id: item.id,
+                                text: item.text,
+                                house_bl: item.house_bl // Pass the house_bl data
+                            }
+                        })
                     };
                 },
                 cache: true
+            }
+        });
+
+        // Autofill Shipment / B/L
+        $('#plan-select').on('select2:select', function (e) {
+            var data = e.params.data;
+            if (data.house_bl) {
+                const shipmentInput = $('#shipment-input');
+                shipmentInput.val(data.house_bl);
+                // Trigger Material Dashboard's is-filled class
+                shipmentInput.parent().addClass('is-filled');
             }
         });
 
