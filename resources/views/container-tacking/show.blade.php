@@ -12,6 +12,12 @@
                     Report Problem / Add Photos
                 </button>
             @endcan
+            @can('download tacking photos')
+                <a href="{{ route('container-tacking.downloadPhotos', $containerTacking->id) }}" class="btn btn-success">
+                    <i class="material-symbols-rounded me-1">folder_zip</i>
+                    Download Photos (ZIP)
+                </a>
+            @endcan
             <a href="{{ route('container-tacking.index') }}" class="btn btn-outline-secondary">Back to List</a>
         </div>
     </div>

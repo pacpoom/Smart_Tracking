@@ -128,6 +128,8 @@ Route::middleware('auth')->group(function () {
      // Bulk Delete Routes
     // ...
     Route::delete('container-tacking.bulk-destroy', [ContainerTackingController::class, 'bulkDestroy'])->name('container-tacking.bulkDestroy');
+    // Route for downloading tacking photos as a ZIP
+    Route::get('container-tacking/{containerTacking}/download-photos', [ContainerTackingController::class, 'downloadPhotosAsZip'])->name('container-tacking.downloadPhotos');
     
 });
 

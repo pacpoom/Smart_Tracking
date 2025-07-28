@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use ZipArchive; // 1. เพิ่ม use statement นี้
 
 class ContainerTackingController extends Controller
 {
@@ -16,8 +17,10 @@ class ContainerTackingController extends Controller
         // $this->middleware('permission:tack container photos', ['only' => ['create', 'store']]);
         // $this->middleware('permission:view container tackings', ['only' => ['index', 'show', 'showPhoto']]);
         // $this->middleware('permission:delete container tackings', ['only' => ['destroy', 'bulkDestroy']]);
+        // $this->middleware('permission:download tacking photos', ['only' => ['downloadPhotosAsZip']]); // 2. เพิ่ม middleware นี้
     }
 
+    // ... (index, create, store methods remain the same) ...
     public function index(Request $request)
     {
         $query = ContainerTacking::with(['containerOrderPlan.container', 'user']);
@@ -81,6 +84,7 @@ class ContainerTackingController extends Controller
         return redirect()->route('container-tacking.show', $tacking->id)->with('success', 'Container tacking data and photos saved successfully.');
     }
 
+
     public function show(ContainerTacking $containerTacking)
     {
         $containerTacking->load(['containerOrderPlan.container', 'user', 'photos']);
@@ -93,6 +97,30 @@ class ContainerTackingController extends Controller
             abort(404);
         }
         return response()->file(storage_path('app/public/' . $photo->file_path));
+    }
+
+    /**
+     * Download all photos for a tacking record as a ZIP file.
+     */
+    public function downloadPhotosAsZip(ContainerTacking $containerTacking)
+    {
+        $zip = new ZipArchive;
+        $fileName = 'tacking_photos_' . $containerTacking->id . '.zip';
+        $zipPath = storage_path('app/public/' . $fileName);
+
+        if ($zip->open($zipPath, ZipArchive::CREATE) === TRUE) {
+            $photos = $containerTacking->photos;
+
+            foreach ($photos as $photo) {
+                if (Storage::disk('public')->exists($photo->file_path)) {
+                    $filePath = storage_path('app/public/' . $photo->file_path);
+                    $zip->addFile($filePath, basename($photo->file_path));
+                }
+            }
+            $zip->close();
+        }
+
+        return response()->download($zipPath)->deleteFileAfterSend(true);
     }
 
     public function destroy(ContainerTacking $containerTacking)
