@@ -96,6 +96,11 @@ class PermissionSeeder extends Seeder
             'add damage photos',
             'delete container tackings',
             'download tacking photos',
+
+            'view pulling plans',
+            'create pulling plans',
+            'edit pulling plans',
+            'delete pulling plans',
         ];
 
         // Create permissions

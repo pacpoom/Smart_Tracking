@@ -51,6 +51,7 @@ class MenuSeeder extends Seeder
         Menu::create(['title' => 'Container Master', 'icon' => 'view_in_ar', 'route' => 'containers.index', 'permission_name' => 'view containers', 'parent_id' => $containerYard->id, 'order' => 9]);
         Menu::create(['title' => 'Container Order Plan', 'icon' => 'calendar_month', 'route' => 'container-order-plans.index', 'permission_name' => 'view container plans', 'parent_id' => $containerYard->id, 'order' => 10]);
         Menu::create(['title' => 'Display Dashboard', 'icon' => 'tv', 'route' => 'display.dashboard', 'permission_name' => 'view display dashboard', 'parent_id' => $management->id, 'order' => 5]);
+        Menu::create(['title' => 'Container Pulling Plan', 'icon' => 'move_up', 'route' => 'container-pulling-plans.index', 'permission_name' => 'view pulling plans', 'parent_id' => $operations->id, 'order' => 3]);
 
     
     }

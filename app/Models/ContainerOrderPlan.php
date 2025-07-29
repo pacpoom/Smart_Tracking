@@ -89,4 +89,10 @@ class ContainerOrderPlan extends Model
 
         return $prefix . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
     }
+
+    public function pullingPlan()
+    {
+        return $this->hasOne(ContainerPullingPlan::class);
+    }
+
 }

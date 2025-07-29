@@ -1,11 +1,12 @@
-<div class="modal fade" id="shipOutModal-{{ $stock->id }}" tabindex="-1" aria-labelledby="shipOutModalLabel-{{ $stock->id }}" aria-hidden="true">
+<div class="modal fade" id="shipOutModal-{{ $plan->id }}" tabindex="-1" aria-labelledby="shipOutModalLabel-{{ $plan->id }}" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form action="{{ route('container-ship-out.shipOut', $stock->id) }}" method="POST">
+            <form action="{{ route('container-ship-out.shipOut', $plan->id) }}" method="POST">
                 @csrf
                 @method('PUT')
                 <div class="modal-header">
-                    <h5 class="modal-title" id="shipOutModalLabel-{{ $stock->id }}">Confirm Ship Out for {{ $stock->containerOrderPlan->container->container_no }}</h5>
+                    {{-- แก้ไข: เพิ่ม Nullsafe Operator (?->) --}}
+                    <h5 class="modal-title" id="shipOutModalLabel-{{ $plan->id }}">Confirm Ship Out for {{ $plan->containerOrderPlan?->container?->container_no ?? 'N/A' }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">

@@ -63,7 +63,7 @@ class ContainerReceiveController extends Controller
                 'user_id' => Auth::id(),
                 'yard_location_id' => $request->yard_location_id,
                 'activity_type' => 'Receive',
-                'transaction_date' => now(),
+                'transaction_date' => date('Y-m-d H:i:s'),
                 'remarks' => $request->remarks,
             ]);
         });

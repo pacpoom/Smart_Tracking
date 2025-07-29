@@ -61,7 +61,7 @@ class ContainerChangeLocationController extends Controller
                 'user_id' => Auth::id(),
                 'yard_location_id' => $newLocationId, // The new location
                 'activity_type' => 'Move',
-                'transaction_date' => now(),
+                'transaction_date' => date('Y-m-d H:i:s'),
                 'remarks' => 'Moved from ' . ($stock->yardLocation->location_code ?? 'N/A') . ' to ' . YardLocation::find($newLocationId)->location_code,
             ]);
         });

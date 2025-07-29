@@ -19,7 +19,7 @@ class ContainerOrderPlanController extends Controller
         // $this->middleware('permission:create container plans', ['only' => ['create', 'store', 'downloadTemplate', 'import']]);
         // $this->middleware('permission:edit container plans', ['only' => ['edit', 'update']]);
         // $this->middleware('permission:delete container plans', ['only' => ['destroy', 'bulkDestroy']]);
-        // $this->middleware('auth')->only('search');
+        // $this->middleware('auth')->only(['search', 'searchStock']);
     }
 
     public function index(Request $request)
@@ -179,7 +179,35 @@ class ContainerOrderPlanController extends Controller
             $formatted_plans[] = [
                 'id' => $plan->id,
                 'text' => $plan->container->container_no . ' (Plan: ' . $plan->plan_no . ')',
-                'house_bl' => $plan->house_bl // เพิ่มข้อมูลนี้
+                'house_bl' => $plan->house_bl,
+            ];
+        }
+
+        return response()->json($formatted_plans);
+    }
+
+    public function searchStock(Request $request)
+    {
+        $search = $request->term;
+        $plans = ContainerOrderPlan::with('container')
+                    ->where('status', 2) // Search only "Received" plans
+                    ->where(function($query) use ($search) {
+                        if ($search) {
+                            $query->where('plan_no', 'LIKE', "%{$search}%")
+                                  ->orWhere('house_bl', 'LIKE', "%{$search}%")
+                                  ->orWhereHas('container', function($q) use ($search) {
+                                      $q->where('container_no', 'LIKE', "%{$search}%");
+                                  });
+                        }
+                    })
+                    ->limit(15)
+                    ->get();
+
+        $formatted_plans = [];
+        foreach ($plans as $plan) {
+            $formatted_plans[] = [
+                'id' => $plan->id,
+                'text' => $plan->container->container_no . ' (Plan: ' . $plan->plan_no . ')'
             ];
         }
 

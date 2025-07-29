@@ -22,6 +22,7 @@ use App\Http\Controllers\ContainerShipOutController;
 use App\Http\Controllers\ContainerYardDashboardController;
 use App\Http\Controllers\ContainerTackingController;
 use App\Http\Controllers\DisplayDashboardController;
+use App\Http\Controllers\ContainerPullingPlanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -105,7 +106,8 @@ Route::middleware('auth')->group(function () {
 
     // Container Ship Out Routes
     Route::get('container-ship-out', [ContainerShipOutController::class, 'index'])->name('container-ship-out.index');
-    Route::put('container-ship-out/{stock}', [ContainerShipOutController::class, 'shipOut'])->name('container-ship-out.shipOut');
+    //Route::put('container-ship-out/{stock}', [ContainerShipOutController::class, 'shipOut'])->name('container-ship-out.shipOut');
+    Route::put('container-ship-out/{pullingPlan}', [ContainerShipOutController::class, 'shipOut'])->name('container-ship-out.shipOut');
 
     // Container Yard Dashboard Route
     Route::get('container-yard/dashboard', [ContainerYardDashboardController::class, 'index'])->name('container-yard.dashboard');
@@ -130,7 +132,12 @@ Route::middleware('auth')->group(function () {
     Route::delete('container-tacking.bulk-destroy', [ContainerTackingController::class, 'bulkDestroy'])->name('container-tacking.bulkDestroy');
     // Route for downloading tacking photos as a ZIP
     Route::get('container-tacking/{containerTacking}/download-photos', [ContainerTackingController::class, 'downloadPhotosAsZip'])->name('container-tacking.downloadPhotos');
-    
+    // Container Pulling Plan Routes
+    Route::delete('container-pulling-plans/bulk-destroy', [ContainerPullingPlanController::class, 'bulkDestroy'])->name('container-pulling-plans.bulkDestroy');
+    Route::resource('container-pulling-plans', ContainerPullingPlanController::class);
+    Route::get('container-order-plans/search-stock', [ContainerOrderPlanController::class, 'searchStock'])->name('container-order-plans.searchStock');
+
+
 });
 
 require __DIR__.'/auth.php';

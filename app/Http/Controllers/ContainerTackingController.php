@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use ZipArchive; // 1. เพิ่ม use statement นี้
 
 class ContainerTackingController extends Controller
@@ -17,10 +18,11 @@ class ContainerTackingController extends Controller
         // $this->middleware('permission:tack container photos', ['only' => ['create', 'store']]);
         // $this->middleware('permission:view container tackings', ['only' => ['index', 'show', 'showPhoto']]);
         // $this->middleware('permission:delete container tackings', ['only' => ['destroy', 'bulkDestroy']]);
-        // $this->middleware('permission:download tacking photos', ['only' => ['downloadPhotosAsZip']]); // 2. เพิ่ม middleware นี้
+        // $this->middleware('permission:add damage photos', ['only' => ['addPhotos']]);
+        // // 2. เพิ่ม Middleware สำหรับฟังก์ชัน download
+        // $this->middleware('permission:download tacking photos', ['only' => ['downloadPhotosAsZip']]);
     }
 
-    // ... (index, create, store methods remain the same) ...
     public function index(Request $request)
     {
         $query = ContainerTacking::with(['containerOrderPlan.container', 'user']);
@@ -84,7 +86,6 @@ class ContainerTackingController extends Controller
         return redirect()->route('container-tacking.show', $tacking->id)->with('success', 'Container tacking data and photos saved successfully.');
     }
 
-
     public function show(ContainerTacking $containerTacking)
     {
         $containerTacking->load(['containerOrderPlan.container', 'user', 'photos']);
@@ -100,6 +101,37 @@ class ContainerTackingController extends Controller
     }
 
     /**
+     * Store additional photos for a tacking record.
+     */
+    public function addPhotos(Request $request, ContainerTacking $containerTacking)
+    {
+        $request->validate([
+            'damage_photos' => 'required|array|min:1|max:3',
+            'damage_photos.*' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'remarks' => 'nullable|string',
+        ]);
+
+        DB::transaction(function () use ($request, $containerTacking) {
+            $batchKey = Str::uuid(); // Generate a unique key for this batch of photos
+
+            foreach ($request->file('damage_photos') as $key => $file) {
+                if ($file && $file->isValid()) {
+                    $path = $file->store("tacking_photos/{$containerTacking->id}", 'public');
+                    ContainerTackingPhoto::create([
+                        'container_tacking_id' => $containerTacking->id,
+                        'photo_type' => 'damage_photo_' . ($key + 1),
+                        'file_path' => $path,
+                        'batch_key' => $batchKey,
+                        'remarks' => $request->remarks,
+                    ]);
+                }
+            }
+        });
+
+        return back()->with('success', 'Damage photos added successfully.');
+    }
+
+    /**
      * Download all photos for a tacking record as a ZIP file.
      */
     public function downloadPhotosAsZip(ContainerTacking $containerTacking)
@@ -108,16 +140,20 @@ class ContainerTackingController extends Controller
         $fileName = 'tacking_photos_' . $containerTacking->id . '.zip';
         $zipPath = storage_path('app/public/' . $fileName);
 
-        if ($zip->open($zipPath, ZipArchive::CREATE) === TRUE) {
+        if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
             $photos = $containerTacking->photos;
 
             foreach ($photos as $photo) {
                 if (Storage::disk('public')->exists($photo->file_path)) {
                     $filePath = storage_path('app/public/' . $photo->file_path);
-                    $zip->addFile($filePath, basename($photo->file_path));
+                    // Create a more descriptive filename inside the zip
+                    $newFilename = $photo->photo_type . '_' . basename($photo->file_path);
+                    $zip->addFile($filePath, $newFilename);
                 }
             }
             $zip->close();
+        } else {
+            return back()->with('error', 'Could not create the zip file.');
         }
 
         return response()->download($zipPath)->deleteFileAfterSend(true);

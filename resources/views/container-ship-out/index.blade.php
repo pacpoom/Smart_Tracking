@@ -23,34 +23,36 @@
             <table class="table align-items-center mb-0">
                 <thead>
                     <tr>
+                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Pulling Plan No.</th>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Container No.</th>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Size</th>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Current Location</th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Pulling Date</th>
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($stocks as $stock)
+                    @forelse ($pullingPlans as $plan)
                     <tr>
-                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stock->containerOrderPlan->container->container_no }}</p></td>
-                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stock->containerOrderPlan->container->size }}</p></td>
-                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stock->yardLocation->location_code ?? 'N/A' }}</p></td>
+                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $plan->pulling_plan_no }}</p></td>
+                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $plan->containerOrderPlan->container->container_no }}</p></td>
+                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $plan->containerOrderPlan->containerStock->yardLocation->location_code ?? 'N/A' }}</p></td>
+                        <td class="align-middle text-center"><span class="text-secondary text-xs font-weight-bold">{{ $plan->pulling_date?->format('d/m/Y') }}</span></td>
                         <td class="align-middle text-center">
-                            <button type="button" class="btn btn-sm btn-dark mb-0" data-bs-toggle="modal" data-bs-target="#shipOutModal-{{ $stock->id }}">
+                            <button type="button" class="btn btn-sm btn-dark mb-0" data-bs-toggle="modal" data-bs-target="#shipOutModal-{{ $plan->id }}">
                                 Ship Out
                             </button>
                         </td>
                     </tr>
-                    @include('container-ship-out.partials.ship-out-modal', ['stock' => $stock])
+                    @include('container-ship-out.partials.ship-out-modal', ['plan' => $plan])
                     @empty
-                    <tr><td colspan="5" class="text-center p-3">No containers in stock to ship out.</td></tr>
+                    <tr><td colspan="5" class="text-center p-3">No containers with a pulling plan found.</td></tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
     </div>
     <div class="card-footer d-flex justify-content-between">
-        {{ $stocks->withQueryString()->links() }}
+        {{ $pullingPlans->withQueryString()->links() }}
     </div>
 </div>
 @endsection

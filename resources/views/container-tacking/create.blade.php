@@ -10,10 +10,23 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5>Open Container Tacking</h5>
+                    {{-- The main save button is now at the end of the form --}}
                 </div>
                 <div class="card-body">
                     @include('layouts.partials.alerts')
 
+                    {{-- Add a general error block --}}
+                    @if ($errors->any())
+                        <div class="alert alert-danger text-white">
+                            <ul class="mb-0">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    {{-- Main Details --}}
                     <div class="row">
                         <div class="col-12 mb-3">
                             <label class="form-label">Container Plan</label>
@@ -23,7 +36,7 @@
                         <div class="col-12 mb-3">
                              <label class="form-label">Shipment / B/L</label>
                             <div class="input-group input-group-outline">
-                                <input type="text" class="form-control" name="shipment" id="shipment-input" disabled="true">
+                                <input type="text" class="form-control" name="shipment" id="shipment-input">
                             </div>
                             @error('shipment') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
                         </div>
