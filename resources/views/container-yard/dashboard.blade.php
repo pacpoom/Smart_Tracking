@@ -49,9 +49,54 @@
         </div>
     </div>
 
+    {{-- Yard Overview --}}
+    <div class="row mt-4">
+        <div class="col-12">
+            <h5 class="mb-3">Yard Overview</h5>
+        </div>
+        <div class="col-xl-4 col-sm-6 mb-xl-0 mb-4">
+            <div class="card">
+                <div class="card-header p-3 pt-2">
+                    <div class="icon icon-lg icon-shape bg-gradient-primary shadow-primary text-center border-radius-xl mt-n4 position-absolute">
+                        <i class="material-symbols-rounded opacity-10">calendar_today</i>
+                    </div>
+                    <div class="text-end pt-1">
+                        <p class="text-sm mb-0 text-capitalize">Today's Pulling Plan</p>
+                        <h4 class="mb-0">{{ $pullingTodayCount }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4 col-sm-6 mb-xl-0 mb-4">
+            <div class="card">
+                <div class="card-header p-3 pt-2">
+                    <div class="icon icon-lg icon-shape bg-gradient-secondary shadow-secondary text-center border-radius-xl mt-n4 position-absolute">
+                        <i class="material-symbols-rounded opacity-10">view_in_ar</i>
+                    </div>
+                    <div class="text-end pt-1">
+                        <p class="text-sm mb-0 text-capitalize">Total Containers</p>
+                        <h4 class="mb-0">{{ $totalContainers }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4 col-sm-6">
+            <div class="card">
+                <div class="card-header p-3 pt-2">
+                    <div class="icon icon-lg icon-shape bg-gradient-danger shadow-danger text-center border-radius-xl mt-n4 position-absolute">
+                        <i class="material-symbols-rounded opacity-10">timer_off</i>
+                    </div>
+                    <div class="text-end pt-1">
+                        <p class="text-sm mb-0 text-capitalize">Expired Containers</p>
+                        <h4 class="mb-0">{{ $expiredCount }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     {{-- Charts Row --}}
     <div class="row mt-4">
-        {{-- Container Activity Chart --}}
         <div class="col-lg-7 mb-lg-0 mb-4">
             <div class="card">
                 <div class="card-header">
@@ -64,7 +109,6 @@
                 </div>
             </div>
         </div>
-        {{-- Location Occupancy Chart --}}
         <div class="col-lg-5">
             <div class="card h-100">
                 <div class="card-header pb-0">
@@ -206,7 +250,7 @@
             },
         });
 
-        // Auto-refresh the page every 5 minutes (300,000 milliseconds)
+        // Auto-refresh the page every 5 minutes
         setTimeout(function(){
            window.location.reload(1);
         }, 300000);

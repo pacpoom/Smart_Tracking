@@ -41,7 +41,6 @@
                             </button>
                         </td>
                     </tr>
-                    {{-- แก้ไข: ไม่ต้องส่ง $locations ไปแล้ว --}}
                     @include('container-change-location.partials.change-location-modal', ['stock' => $stock])
                     @empty
                     <tr><td colspan="4" class="text-center p-3">No containers in stock to move.</td></tr>
