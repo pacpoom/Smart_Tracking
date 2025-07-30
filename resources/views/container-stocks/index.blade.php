@@ -10,7 +10,7 @@
             <div class="d-flex align-items-center">
                 <form action="{{ route('container-stocks.index') }}" method="GET" class="me-2">
                     <div class="input-group input-group-outline">
-                        <label class="form-label">Search</label>
+                        <label class="form-label">Search by Plan No, Container No, Location...</label>
                         <input type="text" class="form-control" name="search" value="{{ request('search') }}">
                     </div>
                 </form>
@@ -30,12 +30,11 @@
                     <tr>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Plan No.</th>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Container No.</th>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">House BL</th>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Size</th>
-                        {{-- เพิ่มคอลัมน์ใหม่ --}}
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Model</th>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Type</th>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Current Location</th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Stock Status</th>
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Check-in Date</th>
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">ETA Date</th>
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Expiration Date</th>
@@ -47,12 +46,19 @@
                     <tr>
                         <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stockPlan->plan_no }}</p></td>
                         <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stockPlan->container->container_no }}</p></td>
-                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stockPlan->house_bl }}</p></td>
                         <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stockPlan->container->size }}</p></td>
-                        {{-- แสดงข้อมูลใหม่ --}}
                         <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stockPlan->model }}</p></td>
                         <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stockPlan->type }}</p></td>
                         <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stockPlan->containerStock->yardLocation->location_code ?? 'N/A' }}</p></td>
+                        <td class="align-middle text-center text-sm">
+                            @if($stockPlan->containerStock->status == 1)
+                                <span class="badge badge-sm bg-gradient-primary">Full</span>
+                            @elseif($stockPlan->containerStock->status == 2)
+                                <span class="badge badge-sm bg-gradient-warning">Partial</span>
+                            @elseif($stockPlan->containerStock->status == 3)
+                                <span class="badge badge-sm bg-gradient-secondary">Empty</span>
+                            @endif
+                        </td>
                         <td class="align-middle text-center"><span class="text-secondary text-xs font-weight-bold">{{ $stockPlan->checkin_date?->format('d/m/Y') }}</span></td>
                         <td class="align-middle text-center"><span class="text-secondary text-xs font-weight-bold">{{ $stockPlan->eta_date?->format('d/m/Y') }}</span></td>
                         <td class="align-middle text-center"><span class="text-secondary text-xs font-weight-bold">{{ $stockPlan->expiration_date?->format('d/m/Y') }}</span></td>
@@ -65,8 +71,7 @@
                         </td>
                     </tr>
                     @empty
-                    {{-- แก้ไข colspan --}}
-                    <tr><td colspan="10" class="text-center p-3">No containers currently in stock.</td></tr>
+                    <tr><td colspan="11" class="text-center p-3">No containers currently in stock.</td></tr>
                     @endforelse
                 </tbody>
             </table>

@@ -16,12 +16,8 @@ class ContainerShipOutController extends Controller
         //$this->middleware('permission:ship out containers');
     }
 
-    /**
-     * Display a listing of pulling plans ready for shipping out.
-     */
     public function index(Request $request)
     {
-        // ดึงข้อมูลจาก Pulling Plans ที่ยังไม่เสร็จสิ้น (status != 3)
         $query = ContainerPullingPlan::where('status', '!=', 3)
             ->with(['containerOrderPlan.container', 'containerOrderPlan.containerStock.yardLocation']);
 
@@ -37,9 +33,6 @@ class ContainerShipOutController extends Controller
         return view('container-ship-out.index', compact('pullingPlans'));
     }
 
-    /**
-     * Process the container ship out based on a pulling plan.
-     */
     public function shipOut(Request $request, ContainerPullingPlan $pullingPlan)
     {
         $request->validate([
@@ -47,39 +40,42 @@ class ContainerShipOutController extends Controller
             'remarks' => 'nullable|string',
         ]);
 
-        $orderPlan = $pullingPlan->containerOrderPlan;
-        
-        // แก้ไข: ค้นหา stock record โดยตรงจาก container_stocks table
-        $stock = ContainerStock::where('container_order_plan_id', $orderPlan->id)->first();
+        DB::transaction(function () use ($request, $pullingPlan) {
+            $orderPlan = $pullingPlan->containerOrderPlan;
+            $stock = $orderPlan->containerStock;
 
-        // 1. ตรวจสอบว่ามีข้อมูลสต็อกอยู่จริงหรือไม่ (ย้ายมาอยู่นอก transaction เพื่อความเสถียร)
-        if (!$stock) {
-            return back()->with('error', 'Cannot ship out. Stock record not found for this container plan.');
-        }
+            if (!$stock) {
+                return back()->with('error', 'Cannot ship out. Stock record not found.');
+            }
 
-        DB::transaction(function () use ($request, $pullingPlan, $orderPlan, $stock) {
-            // 2. Update the status of the Pulling Plan to "Completed" (3)
-            $pullingPlan->status = 3;
+            // 1. Update Pulling Plan status
+            $pullingPlan->status = 3; // Completed
             $pullingPlan->save();
 
-            // 3. Update the status of the Order Plan to "Shipped Out" (3)
-            $orderPlan->status = 3;
-            $orderPlan->departure_date = $request->departure_date;
-            $orderPlan->save();
+            // 2. Determine new stock status based on plan type
+            $newStockStatus = ($pullingPlan->plan_type === 'all') ? 3 : 2; // 3 = Empty, 2 = Partial
 
-            // 4. Create a Transaction Log for the 'Ship Out' activity
+            // 3. Update Container Stock status
+            $stock->status = $newStockStatus;
+            $stock->save();
+
+            // 4. Update Order Plan status if the stock is now empty
+            if ($newStockStatus === 3) {
+                $orderPlan->status = 3; // Shipped Out
+                $orderPlan->departure_date = $request->departure_date;
+                $orderPlan->save();
+            }
+
+            // 5. Create Transaction Log
             ContainerTransaction::create([
                 'container_order_plan_id' => $orderPlan->id,
                 'house_bl' => $orderPlan->house_bl,
                 'user_id' => Auth::id(),
-                'yard_location_id' => $stock->yard_location_id, // Record the location it shipped out from
+                'yard_location_id' => $stock->yard_location_id,
                 'activity_type' => 'Ship Out',
-                'transaction_date' => date('Y-m-d H:i:s'),
-                'remarks' => $request->remarks,
+                'transaction_date' => now(),
+                'remarks' => 'Plan Type: ' . ucfirst($pullingPlan->plan_type) . '. ' . $request->remarks,
             ]);
-
-            // 5. Remove the container from the stock
-            $stock->delete();
         });
 
         return back()->with('success', 'Container has been shipped out successfully.');

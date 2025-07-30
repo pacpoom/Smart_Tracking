@@ -12,12 +12,15 @@ class ContainerStock extends Model
     protected $fillable = [
         'container_order_plan_id',
         'yard_location_id',
+        'status', // 1: Full, 2: Partial, 3: Empty
         'checkin_date',
+        'eta_date',
         'remarks',
     ];
 
     protected $casts = [
         'checkin_date' => 'date',
+        'eta_date' => 'date',
     ];
 
     public function containerOrderPlan()
