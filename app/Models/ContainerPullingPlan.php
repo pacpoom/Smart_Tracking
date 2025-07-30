@@ -11,6 +11,7 @@ class ContainerPullingPlan extends Model
 
     protected $fillable = [
         'pulling_plan_no',
+        'plan_type', // เพิ่มบรรทัดนี้
         'container_order_plan_id',
         'pulling_date',
         'pulling_order', // เพิ่มบรรทัดนี้

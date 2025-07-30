@@ -46,6 +46,7 @@ class ContainerPullingPlanController extends Controller
             'container_order_plan_id' => 'required|exists:container_order_plans,id',
             'pulling_date' => 'required|date',
             'destination' => 'nullable|string|max:255',
+            'plan_type' => 'required|in:All,Pull', // เพิ่ม validation
         ]);
 
         $data = $request->all();
@@ -53,7 +54,6 @@ class ContainerPullingPlanController extends Controller
         $data['user_id'] = Auth::id();
         $data['status'] = 1; // Planned
 
-        // Generate pulling_order for the given date
         $lastOrder = ContainerPullingPlan::where('pulling_date', $request->pulling_date)->max('pulling_order');
         $data['pulling_order'] = $lastOrder + 1;
 
@@ -68,17 +68,23 @@ class ContainerPullingPlanController extends Controller
 
     public function update(Request $request, ContainerPullingPlan $containerPullingPlan)
     {
-        // 1. แก้ไข Validation Rule
         $request->validate([
             'container_order_plan_id' => 'required|exists:container_order_plans,id',
             'pulling_date' => 'required|date',
             'destination' => 'nullable|string|max:255',
             'status' => 'required|integer|in:1,2,3',
-            'pulling_order' => 'required|integer', // เพิ่ม validation
+            'pulling_order' => 'required|integer',
+            'plan_type' => 'required|in:all,pull', // เพิ่ม validation
         ]);
         
-        // 2. ลบ Logic การสร้างลำดับอัตโนมัติออก
-        $containerPullingPlan->update($request->all());
+        $data = $request->all();
+
+        if ($containerPullingPlan->pulling_date->format('Y-m-d') != $request->pulling_date) {
+            $lastOrder = ContainerPullingPlan::where('pulling_date', $request->pulling_date)->max('pulling_order');
+            $data['pulling_order'] = $lastOrder + 1;
+        }
+        
+        $containerPullingPlan->update($data);
         return redirect()->route('container-pulling-plans.index')->with('success', 'Pulling plan updated successfully.');
     }
 

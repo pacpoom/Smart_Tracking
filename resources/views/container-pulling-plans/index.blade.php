@@ -38,6 +38,7 @@
                         <tr>
                             <th class="text-center" style="width: 1%;"><div class="form-check d-flex justify-content-center"><input class="form-check-input" type="checkbox" id="select-all-checkbox"></div></th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Pulling Plan No.</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Plan Type</th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Container No.</th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Destination</th>
                             <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Pulling Date</th>
@@ -51,6 +52,7 @@
                         <tr>
                             <td class="text-center"><div class="form-check d-flex justify-content-center"><input class="form-check-input plan-checkbox" type="checkbox" name="ids[]" value="{{ $plan->id }}"></div></td>
                             <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $plan->pulling_plan_no }}</p></td>
+                            <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $plan->plan_type }}</p></td>
                             <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $plan->containerOrderPlan->container->container_no }}</p></td>
                             <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $plan->destination }}</p></td>
                             <td class="align-middle text-center"><span class="text-secondary text-xs font-weight-bold">{{ $plan->pulling_date?->format('d/m/Y') }}</span></td>

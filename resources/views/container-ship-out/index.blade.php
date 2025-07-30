@@ -2,12 +2,26 @@
 
 @section('title', 'Container Ship Out')
 
+@push('styles')
+{{-- 1. เพิ่ม CSS สำหรับ Blinking Animation --}}
+<style>
+    @keyframes blinker {
+        50% {
+            opacity: 0.3;
+        }
+    }
+    .blinking-indicator {
+        animation: blinker 1.5s linear infinite;
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="card">
     <div class="card-header pb-0">
         <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-md-between">
             <h5 class="mb-3 mb-md-0">Container Ship Out</h5>
-            <form action="{{ route('container-ship-out.index') }}" method="GET" class="md-2">
+            <form action="{{ route('container-ship-out.index') }}" method="GET" class="w-100 w-md-auto">
                 <div class="input-group input-group-outline">
                     <label class="form-label">Search by Container No...</label>
                     <input type="text" class="form-control" name="search" value="{{ request('search') }}">
@@ -15,43 +29,49 @@
             </form>
         </div>
     </div>
-    <div class="card-body px-0 pt-0 pb-2">
-        <div class="p-4">
-            @include('layouts.partials.alerts')
-        </div>
-        <div class="table-responsive p-0">
-            <table class="table align-items-center mb-0">
-                <thead>
-                    <tr>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Pulling Plan No.</th>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Container No.</th>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Current Location</th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Pulling Date</th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($pullingPlans as $plan)
-                    <tr>
-                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $plan->pulling_plan_no }}</p></td>
-                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $plan->containerOrderPlan->container->container_no }}</p></td>
-                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $plan->containerOrderPlan->containerStock->yardLocation->location_code ?? 'N/A' }}</p></td>
-                        <td class="align-middle text-center"><span class="text-secondary text-xs font-weight-bold">{{ $plan->pulling_date?->format('d/m/Y') }}</span></td>
-                        <td class="align-middle text-center">
-                            <button type="button" class="btn btn-sm btn-dark mb-0" data-bs-toggle="modal" data-bs-target="#shipOutModal-{{ $plan->id }}">
+    <div class="card-body">
+        @include('layouts.partials.alerts')
+        
+        {{-- Card-based layout for mobile friendliness --}}
+        <div class="row">
+            @forelse ($pullingPlans as $plan)
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card border">
+                        <div class="card-header border-bottom pb-2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0">{{ $plan->containerOrderPlan?->container?->container_no ?? 'N/A' }}</h6>
+                                
+                                {{-- 2. เพิ่ม Logic การแสดง Plan Type --}}
+                                @if($plan->plan_type === 'All')
+                                    <span class="badge bg-gradient-success blinking-indicator">All</span>
+                                @elseif($plan->plan_type === 'Pull')
+                                    <span class="badge bg-gradient-info blinking-indicator">Pull</span>
+                                @endif
+                            </div>
+                            <p class="text-sm mb-0">Order: {{ $plan->pulling_order ?? 'N/A' }}</p>
+                        </div>
+                        <div class="card-body">
+                            <p class="mb-1"><strong>Location:</strong> {{ $plan->containerOrderPlan?->containerStock?->yardLocation?->location_code ?? 'N/A' }}</p>
+                            <p class="mb-1"><strong>Plan No:</strong> {{ $plan->pulling_plan_no }}</p>
+                            <p class="mb-0"><strong>Pulling Date:</strong> {{ $plan->pulling_date?->format('d/m/Y') }}</p>
+                        </div>
+                        <div class="card-footer pt-0">
+                            <button type="button" class="btn btn-dark w-100 mb-0" data-bs-toggle="modal" data-bs-target="#shipOutModal-{{ $plan->id }}">
                                 Ship Out
                             </button>
-                        </td>
-                    </tr>
-                    @include('container-ship-out.partials.ship-out-modal', ['plan' => $plan])
-                    @empty
-                    <tr><td colspan="5" class="text-center p-3">No containers with a pulling plan found.</td></tr>
-                    @endforelse
-                </tbody>
-            </table>
+                        </div>
+                    </div>
+                </div>
+                {{-- Modal remains the same --}}
+                @include('container-ship-out.partials.ship-out-modal', ['plan' => $plan])
+            @empty
+                <div class="col-12">
+                    <p class="text-center p-3">No containers with a pulling plan found.</p>
+                </div>
+            @endforelse
         </div>
     </div>
-    <div class="card-footer d-flex justify-content-between">
+    <div class="card-footer d-flex justify-content-center">
         {{ $pullingPlans->withQueryString()->links() }}
     </div>
 </div>

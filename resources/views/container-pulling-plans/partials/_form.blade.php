@@ -1,6 +1,6 @@
 @csrf
 <div class="row">
-    <div class="col-md-12 mb-3">
+    <div class="col-md-8 mb-3">
         <label class="form-label">Select Container in Stock</label>
         <select class="form-control" id="plan-select" name="container_order_plan_id" required>
             {{-- Pre-populate for edit form --}}
@@ -11,6 +11,15 @@
             @endif
         </select>
         @error('container_order_plan_id') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
+    </div>
+    <div class="col-md-4 mb-3">
+        <label class="form-label">Plan Type</label>
+        <div class="input-group input-group-outline">
+            <select class="form-control" name="plan_type" required>
+                <option value="All" {{ (old('plan_type', $containerPullingPlan->plan_type ?? 'All') == 'All') ? 'selected' : '' }}>All</option>
+                <option value="Pull" {{ (old('plan_type', $containerPullingPlan->plan_type ?? '') == 'Pull') ? 'selected' : '' }}>Pull</option>
+            </select>
+        </div>
     </div>
 </div>
 <div class="row">
