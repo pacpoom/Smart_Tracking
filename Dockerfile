@@ -1,7 +1,7 @@
 # File: Dockerfile
-# คำอธิบาย: พิมพ์เขียวสำหรับสร้าง Image ของ Laravel App
+# คำอธิบาย: เพิ่มการติดตั้ง PHP extension 'zip'
 
-# 1. ใช้ Base Image เป็น PHP 8.2-FPM (อัปเดตจาก 8.1)
+# 1. ใช้ Base Image เป็น PHP 8.2-FPM
 FROM php:8.2-fpm
 
 # 2. ตั้งค่า Working Directory
@@ -15,13 +15,14 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libxml2-dev \
     zip \
-    unzip
+    unzip \
+    libzip-dev # <-- เพิ่ม dependency สำหรับ zip
 
 # 4. ล้าง Cache ของ apt
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # 5. ติดตั้ง PHP Extensions ที่ Laravel ต้องการใช้
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
+RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip # <-- เพิ่ม zip เข้าไป
 
 # 6. ติดตั้ง Composer (ตัวจัดการ Package ของ PHP)
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer

@@ -1,7 +1,6 @@
 # File: docker-compose.yml
-# คำอธิบาย: แก้ไขโดยการลบ service 'db' ออกไป เพื่อใช้ฐานข้อมูลภายนอก
+# คำอธิบาย: ลบ attribute 'version' ที่ไม่จำเป็นออกไป
 
-version: '3.8'
 services:
   # Service สำหรับ PHP Application (Laravel)
   app:
@@ -33,5 +32,3 @@ services:
 networks:
   laravel:
     driver: bridge
-
-# ไม่ต้องมี volumes ของ db แล้ว เพราะเราลบ service db ออกไป
