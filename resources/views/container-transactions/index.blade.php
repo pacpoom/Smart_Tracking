@@ -25,6 +25,7 @@
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">House B/L</th>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Activity</th>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Location</th>
+                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Remarks</th>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">User</th>
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Transaction Date</th>
                     </tr>
@@ -37,6 +38,7 @@
                         <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $transaction->containerOrderPlan->house_bl }}</p></td>
                         <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $transaction->activity_type }}</p></td>
                         <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $transaction->yardLocation?->location_code ?? 'N/A' }}</p></td>
+                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $transaction->remarks }}</p></td>  
                         <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $transaction->user->name }}</p></td>
                         <td class="align-middle text-center"><span class="text-secondary text-xs font-weight-bold">{{ $transaction->transaction_date->format('d/m/Y H:i') }}</span></td>
                     </tr>

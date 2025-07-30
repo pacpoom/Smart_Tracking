@@ -6,6 +6,7 @@ use App\Models\YardLocation;
 use App\Models\YardCategory;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use App\Models\ContainerStock;
 
 class YardLocationController extends Controller
 {
@@ -146,7 +147,10 @@ class YardLocationController extends Controller
     public function search(Request $request)
     {
         $search = $request->term;
-        $excludeId = $request->exclude; // ID ของตำแหน่งปัจจุบันที่จะไม่แสดงในผลการค้นหา
+        $excludeId = $request->exclude;
+
+        // 2. ดึง ID ของ Location ทั้งหมดที่มีตู้คอนเทนเนอร์อยู่
+        $occupiedLocationIds = ContainerStock::pluck('yard_location_id')->unique()->toArray();
 
         $query = YardLocation::where('is_active', true);
 
@@ -157,6 +161,9 @@ class YardLocationController extends Controller
         if ($excludeId) {
             $query->where('id', '!=', $excludeId);
         }
+
+        // 3. กรองข้อมูลโดยไม่รวม Location ที่มีตู้คอนเทนเนอร์อยู่แล้ว
+        $query->whereNotIn('id', $occupiedLocationIds);
 
         $locations = $query->limit(15)->get(['id', 'location_code']);
 

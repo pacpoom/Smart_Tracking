@@ -14,4 +14,9 @@ class YardCategory extends Model
         'type',
         'description',
     ];
+
+    public function yardLocations()
+    {
+        return $this->hasMany(YardLocation::class, 'location_type_id');
+    }
 }

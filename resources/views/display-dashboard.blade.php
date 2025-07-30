@@ -3,18 +3,28 @@
 @section('title', 'Live Dashboard')
 
 @section('content')
-    {{-- เพิ่มส่วนแสดงวันที่และเวลา --}}
+  {{-- Header Row --}}
     <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body text-center p-3">
+        <div class="col-lg-6 col-md-6 mb-4 mb-md-0">
+            <div class="card h-100">
+                <div class="card-body d-flex align-items-center">
+                    <img src="{{ asset('assets/img/logo.jpg') }}" alt="Company Logo" style="max-height: 100px; width: auto;">
+                    <div class="ms-3">
+                        <h4 class="mb-0">Smart Tracking System</h4>
+                        <p class="text-sm mb-0">Logistics & Container Management</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-6">
+            <div class="card h-100">
+                <div class="card-body text-center d-flex flex-column justify-content-center">
                     <h2 class="mb-0 font-weight-bolder" id="live-clock"></h2>
                     <p class="mb-0 text-lg" id="live-date"></p>
                 </div>
             </div>
         </div>
     </div>
-
     {{-- 1. Plan Status of the Month --}}
     <div class="row">
         <div class="col-12">
@@ -61,6 +71,52 @@
         </div>
     </div>
 
+    {{-- Yard Overview --}}
+    <div class="row mt-4">
+        <div class="col-12">
+            <h5 class="mb-3">Yard Overview</h5>
+        </div>
+        <div class="col-xl-4 col-sm-6 mb-xl-0 mb-4">
+            <div class="card">
+                <div class="card-header p-3 pt-2">
+                    <div class="icon icon-lg icon-shape bg-gradient-primary shadow-primary text-center border-radius-xl mt-n4 position-absolute">
+                        <i class="material-symbols-rounded opacity-10">calendar_today</i>
+                    </div>
+                    <div class="text-end pt-1">
+                        <p class="text-sm mb-0 text-capitalize">Today's Pulling Plan</p>
+                        <h4 class="mb-0">{{ $pullingTodayCount }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4 col-sm-6 mb-xl-0 mb-4">
+            <div class="card">
+                <div class="card-header p-3 pt-2">
+                    <div class="icon icon-lg icon-shape bg-gradient-secondary shadow-secondary text-center border-radius-xl mt-n4 position-absolute">
+                        <i class="material-symbols-rounded opacity-10">view_in_ar</i>
+                    </div>
+                    <div class="text-end pt-1">
+                        <p class="text-sm mb-0 text-capitalize">Total Containers</p>
+                        <h4 class="mb-0">{{ $totalContainers }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4 col-sm-6">
+            <div class="card">
+                <div class="card-header p-3 pt-2">
+                    <div class="icon icon-lg icon-shape bg-gradient-danger shadow-danger text-center border-radius-xl mt-n4 position-absolute">
+                        <i class="material-symbols-rounded opacity-10">timer_off</i>
+                    </div>
+                    <div class="text-end pt-1">
+                        <p class="text-sm mb-0 text-capitalize">Expired Containers</p>
+                        <h4 class="mb-0">{{ $expiredCount }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     {{-- Charts Row --}}
     <div class="row mt-4">
         <div class="col-lg-7 mb-lg-0 mb-4">
@@ -95,6 +151,59 @@
                             <h6 class="mb-0 text-sm">Occupied</h6>
                             <span class="text-lg font-weight-bold text-danger">{{ $occupiedLocationsCount }}</span>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Today's Pulling Plan Table --}}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header pb-0">
+                    <h6>Today's Pulling Plan ({{ \Carbon\Carbon::today()->format('d M Y') }})</h6>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div class="table-responsive">
+                        <table class="table align-items-center mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Order</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Container No.</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Location</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($pullingTodayPlans as $plan)
+                                <tr>
+                                    <td>
+                                        <p class="text-xs font-weight-bold mb-0 px-3">{{ $plan->pulling_order }}</p>
+                                    </td>
+                                    <td>
+                                        <h6 class="mb-0 text-sm ps-2">{{ $plan->containerOrderPlan?->container?->container_no ?? 'N/A' }}</h6>
+                                    </td>
+                                    <td>
+                                        <p class="text-xs font-weight-bold mb-0">{{ $plan->containerOrderPlan?->containerStock?->yardLocation?->location_code ?? 'N/A' }}</p>
+                                    </td>
+                                    <td class="align-middle text-center text-sm">
+                                        @if($plan->status == 1)
+                                            <span class="badge badge-sm bg-gradient-secondary">Planned</span>
+                                        @elseif($plan->status == 2)
+                                            <span class="badge badge-sm bg-gradient-info">In Progress</span>
+                                        @elseif($plan->status == 3)
+                                            <span class="badge badge-sm bg-gradient-success">Completed</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="4" class="text-center p-3">No pulling plans for today.</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -153,6 +262,45 @@
             </div>
         </div>
     </div>
+  {{-- เพิ่มตารางใหม่สำหรับ Available Locations by Type --}}
+            <div class="card">
+                <div class="card-header pb-0">
+                    <h6>Available Locations by Type</h6>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div class="table-responsive">
+                        <table class="table align-items-center mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Location Type</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Available Slots</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($availableLocationsByType as $type)
+                                <tr>
+                                    <td>
+                                        <div class="d-flex px-2 py-1">
+                                            <h6 class="mb-0 text-sm">{{ $type->name }}</h6>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle text-center text-sm">
+                                        <span class="text-success font-weight-bold">{{ $type->available }}</span>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="2" class="text-center p-3">No location types found.</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 @endsection
 
 @push('scripts')
@@ -216,7 +364,7 @@
             },
         });
 
-        // Live Clock
+	 // Live Clock
         function updateClock() {
             const now = new Date();
             const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -228,7 +376,6 @@
 
         setInterval(updateClock, 1000);
         updateClock(); // Initial call
-
         // Auto-refresh the page every 5 minutes
         setTimeout(function(){
            window.location.reload(1);
