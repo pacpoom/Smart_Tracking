@@ -4,46 +4,78 @@
 
 @section('content')
 <div class="card">
-    <div class="card-header pb-0">
+    {{-- <div class="card-header pb-0">
         <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-md-between">
             <h5 class="mb-3 mb-md-0">Container Transaction Log</h5>
-            <form action="{{ route('container-transactions.index') }}" method="GET" class="md-2">
-                <div class="input-group input-group-outline">
-                    <label class="form-label">Search by Container No</label>
-                    <input type="text" class="form-control" name="search" value="{{ request('search') }}">
-                </div>
-            </form>
+            @can('export container transactions')
+                <a href="{{ route('container-transactions.export', request()->query()) }}" class="btn btn-success mb-0">Export</a>
+            @endcan
         </div>
-    </div>
-    <div class="card-body px-0 pt-0 pb-2">
-        <div class="table-responsive p-0">
+    </div> --}}
+    <div class="card-body">
+        {{-- Search Form --}}
+        <form action="{{ route('container-transactions.index') }}" method="GET">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label">Search by Container No.</label>
+                    <div class="input-group input-group-outline">
+                        <input type="text" class="form-control" name="search" value="{{ request('search') }}">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Date From</label>
+                    <div class="input-group input-group-outline">
+                        <input type="date" class="form-control" name="start_date" value="{{ $startDate }}">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Date To</label>
+                    <div class="input-group input-group-outline">
+                        <input type="date" class="form-control" name="end_date" value="{{ $endDate }}">
+                    </div>
+                </div>
+            </div>
+            <div class="row g-3 align-items-end mt-4">
+                <div class="col-md-1">
+                    <div>
+                        <button type="submit" class="btn btn-dark w-100">Search</button>
+                    </div>
+                </div>
+                <div class="col-md-1">
+                    <div>
+                        @can('export container transactions')
+                        <a href="{{ route('container-transactions.export', request()->query()) }}" class="btn btn-success w-100">Export</a>
+                        @endcan
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <div class="table-responsive p-0 mt-4">
             <table class="table align-items-center mb-0">
                 <thead>
                     <tr>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Container No.</th>
-                        {{-- เพิ่มคอลัมน์นี้ --}}
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">House B/L</th>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Activity</th>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Location</th>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Remarks</th>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">User</th>
+                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Remarks</th>
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Transaction Date</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse ($transactions as $transaction)
                     <tr>
-                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $transaction->containerOrderPlan->container->container_no }}</p></td>
-                        {{-- แสดงข้อมูล House B/L จาก Relationship --}}
-                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $transaction->containerOrderPlan->house_bl }}</p></td>
+                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $transaction->containerOrderPlan?->container?->container_no ?? 'N/A' }}</p></td>
+                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $transaction->containerOrderPlan?->house_bl }}</p></td>
                         <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $transaction->activity_type }}</p></td>
                         <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $transaction->yardLocation?->location_code ?? 'N/A' }}</p></td>
-                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $transaction->remarks }}</p></td>  
                         <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $transaction->user->name }}</p></td>
+                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $transaction->remarks ?? 'N/A' }}</p></td>
                         <td class="align-middle text-center"><span class="text-secondary text-xs font-weight-bold">{{ $transaction->transaction_date->format('d/m/Y H:i') }}</span></td>
                     </tr>
                     @empty
-                    {{-- แก้ไข colspan --}}
                     <tr><td colspan="6" class="text-center p-3">No transactions found.</td></tr>
                     @endforelse
                 </tbody>

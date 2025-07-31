@@ -190,7 +190,7 @@ class ContainerOrderPlanController extends Controller
     {
         $search = $request->term;
         $plans = ContainerOrderPlan::with('container')
-                    ->where('status', 2) // Search only "Received" plans
+                    //->where('status', 2) // Search only "Received" plans
                     ->where(function($query) use ($search) {
                         if ($search) {
                             $query->where('plan_no', 'LIKE', "%{$search}%")

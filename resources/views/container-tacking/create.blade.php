@@ -10,12 +10,10 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5>Open Container Tacking</h5>
-                    {{-- The main save button is now at the end of the form --}}
                 </div>
                 <div class="card-body">
                     @include('layouts.partials.alerts')
 
-                    {{-- Add a general error block --}}
                     @if ($errors->any())
                         <div class="alert alert-danger text-white">
                             <ul class="mb-0">
@@ -29,7 +27,7 @@
                     {{-- Main Details --}}
                     <div class="row">
                         <div class="col-12 mb-3">
-                            <label class="form-label">Container Plan</label>
+                            <label class="form-label">Container Plan (In Stock)</label>
                             <select class="form-control" id="plan-select" name="container_order_plan_id" required></select>
                             @error('container_order_plan_id') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
                         </div>
@@ -144,7 +142,8 @@
             theme: 'bootstrap-5',
             placeholder: 'Search by Plan No, Container No, or B/L...',
             ajax: {
-                url: '{{ route("container-order-plans.search") }}',
+                // แก้ไข: เปลี่ยนเป็น route 'container-order-plans.searchStock'
+                url: '{{ route("container-order-plans.searchStock") }}',
                 dataType: 'json',
                 delay: 250,
                 processResults: function (data) {
@@ -153,7 +152,7 @@
                             return {
                                 id: item.id,
                                 text: item.text,
-                                house_bl: item.house_bl // Pass the house_bl data
+                                house_bl: item.house_bl
                             }
                         })
                     };
@@ -168,7 +167,6 @@
             if (data.house_bl) {
                 const shipmentInput = $('#shipment-input');
                 shipmentInput.val(data.house_bl);
-                // Trigger Material Dashboard's is-filled class
                 shipmentInput.parent().addClass('is-filled');
             }
         });

@@ -30,7 +30,7 @@ class ContainerChangeLocationController extends Controller
             });
         }
 
-        $stocks = $query->paginate(10);
+        $stocks = $query->paginate(3);
         // ไม่ต้องส่ง $locations ไปที่ view แล้ว
         return view('container-change-location.index', compact('stocks'));
     }

@@ -17,14 +17,22 @@ class ContainerReceiveController extends Controller
         //$this->middleware('permission:receive containers');
     }
 
+    /**
+     * Show the form for creating a new resource.
+     */
     public function create()
     {
+        // 1. ดึงเฉพาะ Order Plans ที่มีสถานะเป็น Pending (1)
+        // หมายเหตุ: หากมี Plan จำนวนมากในอนาคต เราควรเปลี่ยนส่วนนี้เป็น AJAX เช่นกัน
         $pendingPlans = ContainerOrderPlan::where('status', 1)->with('container')->get();
-        $locations = YardLocation::where('is_active', true)->get();
-
-        return view('container-receive.create', compact('pendingPlans', 'locations'));
+        
+        // 2. ไม่ต้องดึงข้อมูล $locations มาที่นี่แล้ว
+        return view('container-receive.create', compact('pendingPlans'));
     }
 
+    /**
+     * Store a newly created resource in storage.
+     */
     public function store(Request $request)
     {
         $request->validate([
@@ -37,7 +45,6 @@ class ContainerReceiveController extends Controller
         DB::transaction(function () use ($request) {
             $plan = ContainerOrderPlan::find($request->container_order_plan_id);
 
-            // 1. สร้าง Record ใน Container Stock พร้อมกับ status = 1 (Full)
             ContainerStock::create([
                 'container_order_plan_id' => $request->container_order_plan_id,
                 'yard_location_id' => $request->yard_location_id,
@@ -46,12 +53,10 @@ class ContainerReceiveController extends Controller
                 'remarks' => $request->remarks,
             ]);
 
-            // 2. อัปเดตสถานะของ Order Plan เป็น "Received" (2)
-            $plan->status = 2;
+            $plan->status = 2; // 2 = Received
             $plan->checkin_date = $request->checkin_date;
             $plan->save();
 
-            // 3. สร้าง Transaction Log
             ContainerTransaction::create([
                 'container_order_plan_id' => $plan->id,
                 'house_bl' => $plan->house_bl,

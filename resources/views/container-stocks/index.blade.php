@@ -10,7 +10,7 @@
             <div class="d-flex align-items-center">
                 <form action="{{ route('container-stocks.index') }}" method="GET" class="me-2">
                     <div class="input-group input-group-outline">
-                        <label class="form-label">Search by Plan No, Container No, Location...</label>
+                        <label class="form-label">Search by</label>
                         <input type="text" class="form-control" name="search" value="{{ request('search') }}">
                     </div>
                 </form>
@@ -30,48 +30,46 @@
                     <tr>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Plan No.</th>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Container No.</th>
+                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">House BL.</th>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Size</th>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Model</th>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Type</th>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Current Location</th>
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Stock Status</th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Check-in Date</th>
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">ETA Date</th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Expiration Date</th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Check-in Date</th>
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Remaining Free Time</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($stocks as $stockPlan)
+                    @forelse ($stocks as $stock)
                     <tr>
-                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stockPlan->plan_no }}</p></td>
-                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stockPlan->container->container_no }}</p></td>
-                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stockPlan->container->size }}</p></td>
-                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stockPlan->model }}</p></td>
-                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stockPlan->type }}</p></td>
-                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stockPlan->containerStock->yardLocation->location_code ?? 'N/A' }}</p></td>
+                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stock->containerOrderPlan?->plan_no ?? 'N/A' }}</p></td>
+                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stock->containerOrderPlan?->container?->container_no ?? 'N/A' }}</p></td>
+                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stock->containerOrderPlan?->house_bl ?? 'N/A' }}</p></td>
+                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stock->containerOrderPlan?->container?->size ?? 'N/A' }}</p></td>
+                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stock->yardLocation?->location_code ?? 'N/A' }}</p></td>
                         <td class="align-middle text-center text-sm">
-                            @if($stockPlan->containerStock->status == 1)
+                            @if($stock->status == 1)
                                 <span class="badge badge-sm bg-gradient-primary">Full</span>
-                            @elseif($stockPlan->containerStock->status == 2)
+                            @elseif($stock->status == 2)
                                 <span class="badge badge-sm bg-gradient-warning">Partial</span>
-                            @elseif($stockPlan->containerStock->status == 3)
+                            @elseif($stock->status == 3)
                                 <span class="badge badge-sm bg-gradient-secondary">Empty</span>
+                            @else
+                                <span class="badge badge-sm bg-gradient-light">N/A</span>
                             @endif
                         </td>
-                        <td class="align-middle text-center"><span class="text-secondary text-xs font-weight-bold">{{ $stockPlan->checkin_date?->format('d/m/Y') }}</span></td>
-                        <td class="align-middle text-center"><span class="text-secondary text-xs font-weight-bold">{{ $stockPlan->eta_date?->format('d/m/Y') }}</span></td>
-                        <td class="align-middle text-center"><span class="text-secondary text-xs font-weight-bold">{{ $stockPlan->expiration_date?->format('d/m/Y') }}</span></td>
+                        <td class="align-middle text-center"><span class="text-secondary text-xs font-weight-bold">{{ $stock->containerOrderPlan?->eta_date?->format('d/m/Y') ?? 'N/A' }}</span></td>
+                        <td class="align-middle text-center"><span class="text-secondary text-xs font-weight-bold">{{ $stock->checkin_date?->format('d/m/Y') }}</span></td>
                         <td class="align-middle text-center">
-                            @if($stockPlan->remaining_free_time === 'Expired')
+                            @if($stock->containerOrderPlan?->remaining_free_time === 'Expired')
                                 <span class="badge badge-sm bg-gradient-danger">Expired</span>
                             @else
-                                <span class="text-secondary text-xs font-weight-bold">{{ $stockPlan->remaining_free_time }} days</span>
+                                <span class="text-secondary text-xs font-weight-bold">{{ $stock->containerOrderPlan?->remaining_free_time }} days</span>
                             @endif
                         </td>
                     </tr>
                     @empty
-                    <tr><td colspan="11" class="text-center p-3">No containers currently in stock.</td></tr>
+                    <tr><td colspan="7" class="text-center p-3">No containers currently in stock.</td></tr>
                     @endforelse
                 </tbody>
             </table>

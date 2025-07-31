@@ -23,6 +23,7 @@ use App\Http\Controllers\ContainerYardDashboardController;
 use App\Http\Controllers\ContainerTackingController;
 use App\Http\Controllers\DisplayDashboardController;
 use App\Http\Controllers\ContainerPullingPlanController;
+use App\Http\Controllers\ContainerReturnController;
 
 /*
 |--------------------------------------------------------------------------
@@ -137,6 +138,11 @@ Route::middleware('auth')->group(function () {
     Route::resource('container-pulling-plans', ContainerPullingPlanController::class);
     Route::get('container-order-plans/search-stock', [ContainerOrderPlanController::class, 'searchStock'])->name('container-order-plans.searchStock');
 
+    // Export Route for Container Transactions
+    Route::get('container-transactions/export', [ContainerTransactionController::class, 'export'])->name('container-transactions.export');
+    // Container Return Routes
+    Route::get('container-return', [ContainerReturnController::class, 'index'])->name('container-return.index');
+    Route::put('container-return/{stock}', [ContainerReturnController::class, 'returnContainer'])->name('container-return.return');
 
 });
 

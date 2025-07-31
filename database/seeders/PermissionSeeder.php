@@ -101,6 +101,9 @@ class PermissionSeeder extends Seeder
             'create pulling plans',
             'edit pulling plans',
             'delete pulling plans',
+            'export container transactions',
+            'return containers',
+            
         ];
 
         // Create permissions

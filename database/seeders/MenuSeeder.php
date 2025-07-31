@@ -43,6 +43,7 @@ class MenuSeeder extends Seeder
         Menu::create(['title' => 'Container Ship Out', 'icon' => 'logout', 'route' => 'container-ship-out.index', 'permission_name' => 'ship out containers', 'parent_id' => $containerYard->id, 'order' => 2]);
         Menu::create(['title' => 'Container Tacking', 'icon' => 'photo_camera', 'route' => 'container-tacking.create', 'permission_name' => 'tack container photos', 'parent_id' => $containerYard->id, 'order' => 3]);
         // เพิ่มเมนูนี้
+        Menu::create(['title' => 'Container Return', 'icon' => 'assignment_return', 'route' => 'container-return.index', 'permission_name' => 'return containers', 'parent_id' => $containerYard->id, 'order' => 3]);
         Menu::create(['title' => 'Tacking List', 'icon' => 'list', 'route' => 'container-tacking.index', 'permission_name' => 'view container tackings', 'parent_id' => $containerYard->id, 'order' => 4]);
         Menu::create(['title' => 'Container Stock', 'icon' => 'apps', 'route' => 'container-stocks.index', 'permission_name' => 'view container stock', 'parent_id' => $containerYard->id, 'order' => 5]);
         Menu::create(['title' => 'Change Location', 'icon' => 'multiple_stop', 'route' => 'container-change-location.index', 'permission_name' => 'change container location', 'parent_id' => $containerYard->id, 'order' => 6]);

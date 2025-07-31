@@ -35,14 +35,13 @@ class ContainerStockExport implements FromCollection, WithHeadings, WithMapping,
         return [
             'Plan No.',
             'Container No.',
-            'House BL', // เพิ่มคอลัมน์นี้
+            'House BL.', // เพิ่มคอลัมน์นี้
             'Size',
-            'Model', // เพิ่มคอลัมน์นี้
-            'Type',  // เพิ่มคอลัมน์นี้
             'Current Location',
-            'Check-in Date',
+            'Stock Status',
             'ETA Date',
-            'Expiration Date',
+            'Check-in Date',
+            'Expiration Date', // เพิ่มคอลัมน์นี้
             'Remaining Free Time',
         ];
     }
@@ -51,24 +50,30 @@ class ContainerStockExport implements FromCollection, WithHeadings, WithMapping,
      * @param ContainerOrderPlan $stockPlan
      * @return array
      */
-    public function map($stockPlan): array
+    public function map($stock): array
     {
-        $remainingTime = $stockPlan->remaining_free_time;
+        $stockStatus = match ($stock->status) {
+            1 => 'Full',
+            2 => 'Partial',
+            3 => 'Empty',
+            default => 'Unknown',
+        };
+
+        $remainingTime = $stock->containerOrderPlan?->remaining_free_time;
         if ($remainingTime !== 'Expired' && $remainingTime !== 'N/A') {
             $remainingTime .= ' days';
         }
 
         return [
-            $stockPlan->plan_no,
-            $stockPlan->container->container_no,
-            $stockPlan->house_bl, // เพิ่มข้อมูลนี้
-            $stockPlan->container->size,
-            $stockPlan->model, // เพิ่มข้อมูลนี้
-            $stockPlan->type,  // เพิ่มข้อมูลนี้
-            $stockPlan->containerStock->yardLocation->location_code ?? 'N/A',
-            $stockPlan->checkin_date?->format('Y-m-d'),
-            $stockPlan->eta_date?->format('Y-m-d'),
-            $stockPlan->expiration_date?->format('Y-m-d'),
+            $stock->containerOrderPlan?->plan_no ?? 'N/A',
+            $stock->containerOrderPlan?->container?->container_no ?? 'N/A',
+            $stock->containerOrderPlan?->house_bl ?? 'N/A', // เพิ่มข้อมูลนี้
+            $stock->containerOrderPlan?->container?->size ?? 'N/A',
+            $stock->yardLocation?->location_code ?? 'N/A',
+            $stockStatus,
+            $stock->containerOrderPlan?->eta_date?->format('Y-m-d') ?? 'N/A',
+            $stock->checkin_date?->format('Y-m-d'),
+            $stock->containerOrderPlan?->expiration_date?->format('Y-m-d'), // เพิ่มข้อมูลนี้
             $remainingTime,
         ];
     }
@@ -92,7 +97,7 @@ class ContainerStockExport implements FromCollection, WithHeadings, WithMapping,
             ],
         ];
         // แก้ไข: ปรับ range ให้ครอบคลุมคอลัมน์ใหม่ (A1:J)
-        $sheet->getStyle('A1:K'.$lastRow)->applyFromArray($styleArray);
+        $sheet->getStyle('A1:J'.$lastRow)->applyFromArray($styleArray);
 
         return [];
     }

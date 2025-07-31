@@ -7,7 +7,7 @@
     <div class="card-header pb-0">
         <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-md-between">
             <h5 class="mb-3 mb-md-0">Change Container Location</h5>
-            <form action="{{ route('container-change-location.index') }}" method="GET" class="md-2">
+            <form action="{{ route('container-change-location.index') }}" method="GET" class="w-100 w-md-auto">
                 <div class="input-group input-group-outline">
                     <label class="form-label">Search by Container No...</label>
                     <input type="text" class="form-control" name="search" value="{{ request('search') }}">
@@ -15,41 +15,38 @@
             </form>
         </div>
     </div>
-    <div class="card-body px-0 pt-0 pb-2">
-        <div class="p-4">
-            @include('layouts.partials.alerts')
-        </div>
-        <div class="table-responsive p-0">
-            <table class="table align-items-center mb-0">
-                <thead>
-                    <tr>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Container No.</th>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Size</th>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Current Location</th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($stocks as $stock)
-                    <tr>
-                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stock->containerOrderPlan->container->container_no }}</p></td>
-                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stock->containerOrderPlan->container->size }}</p></td>
-                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stock->yardLocation->location_code ?? 'N/A' }}</p></td>
-                        <td class="align-middle text-center">
-                            <button type="button" class="btn btn-sm btn-outline-dark mb-0" data-bs-toggle="modal" data-bs-target="#changeLocationModal-{{ $stock->id }}">
+    <div class="card-body">
+        @include('layouts.partials.alerts')
+        
+        <div class="row">
+            @forelse ($stocks as $stock)
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card border">
+                        <div class="card-header border-bottom pb-2">
+                            <h6 class="mb-0">{{ $stock->containerOrderPlan?->container?->container_no ?? 'N/A' }}</h6>
+                            <p class="text-sm mb-0">Size: {{ $stock->containerOrderPlan?->container?->size ?? 'N/A' }}</p>
+                        </div>
+                        <div class="card-body">
+                            <p class="mb-1"><strong>Current Location:</strong></p>
+                            <h5 class="font-weight-bolder">{{ $stock->yardLocation?->location_code ?? 'N/A' }}</h5>
+                        </div>
+                        <div class="card-footer pt-0">
+                            <button type="button" class="btn btn-dark w-100 mb-0" data-bs-toggle="modal" data-bs-target="#changeLocationModal-{{ $stock->id }}">
                                 Change Location
                             </button>
-                        </td>
-                    </tr>
-                    @include('container-change-location.partials.change-location-modal', ['stock' => $stock])
-                    @empty
-                    <tr><td colspan="4" class="text-center p-3">No containers in stock to move.</td></tr>
-                    @endforelse
-                </tbody>
-            </table>
+                        </div>
+                    </div>
+                </div>
+                @include('container-change-location.partials.change-location-modal', ['stock' => $stock])
+            @empty
+                <div class="col-12">
+                    <p class="text-center p-3">No containers in stock to move.</p>
+                </div>
+            @endforelse
         </div>
     </div>
-    <div class="card-footer d-flex justify-content-between">
+    <div class="card-footer d-flex justify-content-center">
+        {{-- Pagination --}}
         {{ $stocks->withQueryString()->links() }}
     </div>
 </div>
@@ -58,20 +55,15 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Use event delegation for modals that are created in a loop
     document.body.addEventListener('show.bs.modal', function(event) {
         let modal = event.target;
-        // Check if it's our change location modal
         if (modal.id.startsWith('changeLocationModal-')) {
             let selectElement = modal.querySelector('.location-select');
-
-            // Check if the modal has a select element and if it's not already initialized
             if (selectElement && !$(selectElement).data('select2')) {
                 let current_location_id = $(selectElement).data('current-location-id');
-
                 $(selectElement).select2({
                     theme: 'bootstrap-5',
-                    dropdownParent: $(modal), // Important for modals
+                    dropdownParent: $(modal),
                     placeholder: 'Type to search for a location...',
                     ajax: {
                         url: '{{ route("yard-locations.search") }}',
@@ -79,8 +71,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         delay: 250,
                         data: function(params) {
                             return {
-                                term: params.term, // search term
-                                exclude: current_location_id // pass the current location to exclude
+                                term: params.term,
+                                exclude: current_location_id
                             };
                         },
                         processResults: function(data) {

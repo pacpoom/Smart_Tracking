@@ -53,7 +53,7 @@ class ContainerShipOutController extends Controller
             $pullingPlan->save();
 
             // 2. Determine new stock status based on plan type
-            $newStockStatus = ($pullingPlan->plan_type === 'all') ? 3 : 2; // 3 = Empty, 2 = Partial
+            $newStockStatus = ($pullingPlan->plan_type === 'All') ? 3 : 2; // 3 = Empty, 2 = Partial
 
             // 3. Update Container Stock status
             $stock->status = $newStockStatus;
