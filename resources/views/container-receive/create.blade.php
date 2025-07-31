@@ -55,7 +55,7 @@
         // Initialize Select2 for Container Plan with AJAX
         $('#plan-select').select2({
             theme: 'bootstrap-5',
-            placeholder: 'Search by Plan No, Container No, or B/L...',
+            placeholder: 'Search by',
             ajax: {
                 url: '{{ route("container-order-plans.search") }}', // This route should search for status != 3
                 dataType: 'json',

@@ -53,7 +53,7 @@ class ContainerChangeLocationController extends Controller
 
         DB::transaction(function () use ($stock, $newLocationId, $oldLocationId) {
             // 1. Update the location in the container_stocks table
-            $stock->update(['yard_location_id' => $newLocationId]);
+            
 
             // 2. Create a transaction log for the 'Move' activity
             ContainerTransaction::create([
@@ -64,6 +64,9 @@ class ContainerChangeLocationController extends Controller
                 'transaction_date' => date('Y-m-d H:i:s'),
                 'remarks' => 'Moved from ' . ($stock->yardLocation->location_code ?? 'N/A') . ' to ' . YardLocation::find($newLocationId)->location_code,
             ]);
+
+            $stock->update(['yard_location_id' => $newLocationId]);
+            
         });
 
         return back()->with('success', 'Container location updated successfully.');

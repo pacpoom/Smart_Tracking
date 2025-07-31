@@ -137,7 +137,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('container-pulling-plans/bulk-destroy', [ContainerPullingPlanController::class, 'bulkDestroy'])->name('container-pulling-plans.bulkDestroy');
     Route::resource('container-pulling-plans', ContainerPullingPlanController::class);
     Route::get('container-order-plans/search-stock', [ContainerOrderPlanController::class, 'searchStock'])->name('container-order-plans.searchStock');
-
+    Route::get('container-order-plans/search-stock-pulling', [ContainerOrderPlanController::class, 'searchStockPulling'])->name('container-order-plans.searchStockPulling');
     // Export Route for Container Transactions
     Route::get('container-transactions/export', [ContainerTransactionController::class, 'export'])->name('container-transactions.export');
     // Container Return Routes

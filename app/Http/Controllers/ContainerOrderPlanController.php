@@ -163,7 +163,7 @@ class ContainerOrderPlanController extends Controller
     {
         $search = $request->term;
         $plans = ContainerOrderPlan::with('container')
-                    ->where('status', '!=', 3) // Exclude 'Shipped Out'
+                    ->where('status', 1) // Exclude 'Shipped Out'
                     ->where(function($query) use ($search) {
                         $query->where('plan_no', 'LIKE', "%{$search}%")
                               ->orWhere('house_bl', 'LIKE', "%{$search}%")
@@ -190,7 +190,40 @@ class ContainerOrderPlanController extends Controller
     {
         $search = $request->term;
         $plans = ContainerOrderPlan::with('container')
-                    //->where('status', 2) // Search only "Received" plans
+                    ->where('status','!=', 4) // Search only "Received" plans
+                    ->where(function($query) use ($search) {
+                        if ($search) {
+                            $query->where('plan_no', 'LIKE', "%{$search}%")
+                                  ->orWhere('house_bl', 'LIKE', "%{$search}%")
+                                  ->orWhereHas('container', function($q) use ($search) {
+                                      $q->where('container_no', 'LIKE', "%{$search}%");
+                                  });
+                        }
+                    })
+                    ->limit(15)
+                    ->get();
+
+        $formatted_plans = [];
+        foreach ($plans as $plan) {
+            $formatted_plans[] = [
+                'id' => $plan->id,
+                'text' => $plan->container->container_no . ' (Plan: ' . $plan->plan_no . ')'
+            ];
+        }
+
+        return response()->json($formatted_plans);
+    }
+
+        /**
+     * Search for plans that are currently in stock.
+     */
+    public function searchStockPulling(Request $request)
+    {
+        $search = $request->term;
+
+        // แก้ไข: ค้นหา Order Plan ที่มีข้อมูลอยู่ในตาราง container_stocks
+        $plans = ContainerOrderPlan::with('container')
+                    ->whereHas('containerStock') // <-- นี่คือส่วนที่แก้ไข
                     ->where(function($query) use ($search) {
                         if ($search) {
                             $query->where('plan_no', 'LIKE', "%{$search}%")

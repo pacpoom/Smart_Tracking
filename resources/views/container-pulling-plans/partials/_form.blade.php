@@ -73,7 +73,7 @@
             theme: 'bootstrap-5',
             placeholder: 'Search by Plan No, Container No, or B/L...',
             ajax: {
-                url: '{{ route("container-order-plans.searchStock") }}',
+                url: '{{ route("container-order-plans.searchStockPulling") }}',
                 dataType: 'json',
                 delay: 250,
                 processResults: function (data) {
