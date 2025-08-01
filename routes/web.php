@@ -24,6 +24,7 @@ use App\Http\Controllers\ContainerTackingController;
 use App\Http\Controllers\DisplayDashboardController;
 use App\Http\Controllers\ContainerPullingPlanController;
 use App\Http\Controllers\ContainerReturnController;
+use App\Http\Controllers\ContainerExchangeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -144,6 +145,12 @@ Route::middleware('auth')->group(function () {
     Route::get('container-return', [ContainerReturnController::class, 'index'])->name('container-return.index');
     Route::put('container-return/{stock}', [ContainerReturnController::class, 'returnContainer'])->name('container-return.return');
 
+    // Container Exchange Routes
+    Route::get('container-exchange/create', [ContainerExchangeController::class, 'create'])->name('container-exchange.create');
+    Route::post('container-exchange', [ContainerExchangeController::class, 'store'])->name('container-exchange.store');
+    // We also need a search route for stocks
+    Route::get('container-stocks/search', [ContainerStockController::class, 'search'])->name('container-stocks.search');
+    Route::resource('container-exchange', ContainerExchangeController::class)->only(['index', 'create', 'store']);
 });
 
 require __DIR__.'/auth.php';

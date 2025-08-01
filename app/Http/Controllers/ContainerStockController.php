@@ -66,4 +66,63 @@ class ContainerStockController extends Controller
 
         return Excel::download(new ContainerStockExport($query), 'container_stock.xlsx');
     }
+    
+    public function search1(Request $request)
+    {
+        $search = $request->term;
+
+        // แก้ไข: ค้นหา Order Plan ที่มีข้อมูลอยู่ในตาราง container_stocks
+        $plans = ContainerOrderPlan::with('container')
+                    ->whereHas('containerStock') // <-- นี่คือส่วนที่แก้ไข
+                    ->where(function($query) use ($search) {
+                        if ($search) {
+                            $query->where('plan_no', 'LIKE', "%{$search}%")
+                                  ->orWhere('house_bl', 'LIKE', "%{$search}%")
+                                  ->orWhereHas('container', function($q) use ($search) {
+                                      $q->where('container_no', 'LIKE', "%{$search}%");
+                                  });
+                        }
+                    })
+                    ->limit(15)
+                    ->get();
+
+        $formatted_plans = [];
+        foreach ($plans as $plan) {
+            $formatted_plans[] = [
+                'id' => $plan->container->id,
+                'text' => $plan->container->container_no . ' (Plan: ' . $plan->plan_no . ')'
+            ];
+        }
+
+        return response()->json($formatted_plans);
+    }
+    
+    public function search(Request $request)
+    {
+        $search = $request->term;
+        $query = ContainerStock::with(['containerOrderPlan.container']);
+
+        if ($search) {
+            $query->whereHas('containerOrderPlan', function ($q) use ($search) {
+                $q->where('plan_no', 'LIKE', "%{$search}%")
+                  ->orWhereHas('container', function ($subQ) use ($search) {
+                      $subQ->where('container_no', 'LIKE', "%{$search}%");
+                  });
+            });
+        }
+
+        $stocks = $query->limit(15)->get();
+
+        $formatted_stocks = [];
+        foreach ($stocks as $stock) {
+            if ($stock->containerOrderPlan && $stock->containerOrderPlan->container) {
+                $formatted_stocks[] = [
+                    'id' => $stock->id,
+                    'text' => $stock->containerOrderPlan->container->container_no . ' (Plan: ' . $stock->containerOrderPlan->plan_no . ')'
+                ];
+            }
+        }
+
+        return response()->json($formatted_stocks);
+    }
 }

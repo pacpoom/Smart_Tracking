@@ -6,6 +6,7 @@ use App\Models\ContainerOrderPlan;
 use App\Models\ContainerPullingPlan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ContainerPullingPlanController extends Controller
 {
@@ -46,7 +47,7 @@ class ContainerPullingPlanController extends Controller
             'container_order_plan_id' => 'required|exists:container_order_plans,id',
             'pulling_date' => 'required|date',
             'destination' => 'nullable|string|max:255',
-            'plan_type' => 'required|in:All,Pull', // เพิ่ม validation
+            'plan_type' => 'required|in:All,Pull',
         ]);
 
         $data = $request->all();
@@ -54,6 +55,7 @@ class ContainerPullingPlanController extends Controller
         $data['user_id'] = Auth::id();
         $data['status'] = 1; // Planned
 
+        // Generate pulling_order for the given date
         $lastOrder = ContainerPullingPlan::where('pulling_date', $request->pulling_date)->max('pulling_order');
         $data['pulling_order'] = $lastOrder + 1;
 
@@ -73,18 +75,39 @@ class ContainerPullingPlanController extends Controller
             'pulling_date' => 'required|date',
             'destination' => 'nullable|string|max:255',
             'status' => 'required|integer|in:1,2,3',
-            'pulling_order' => 'required|integer',
-            'plan_type' => 'required|in:all,pull', // เพิ่ม validation
+            'pulling_order' => 'required|integer|min:1',
+            'plan_type' => 'required|in:All,Pull',
         ]);
         
-        $data = $request->all();
-
         if ($containerPullingPlan->pulling_date->format('Y-m-d') != $request->pulling_date) {
-            $lastOrder = ContainerPullingPlan::where('pulling_date', $request->pulling_date)->max('pulling_order');
-            $data['pulling_order'] = $lastOrder + 1;
+            return back()->with('error', 'Changing the date and order at the same time is not supported. Please change them separately.');
         }
-        
-        $containerPullingPlan->update($data);
+
+        DB::transaction(function () use ($request, $containerPullingPlan) {
+            $newOrder = $request->pulling_order;
+            $oldOrder = $containerPullingPlan->pulling_order;
+            $pullingDate = $request->pulling_date;
+
+            // Only perform swap logic if the order number has actually changed.
+            if ($newOrder != $oldOrder) {
+                // Find the plan that currently occupies the target order number.
+                $otherPlan = ContainerPullingPlan::where('pulling_date', $pullingDate)
+                                                 ->where('pulling_order', $newOrder)
+                                                 ->first();
+
+                // To prevent unique constraint violation, we first set the current plan's order to a temporary null value.
+                $containerPullingPlan->update(['pulling_order' => null]);
+
+                // If another plan exists at the target spot, move it to the old spot of the current plan.
+                if ($otherPlan) {
+                    $otherPlan->update(['pulling_order' => $oldOrder]);
+                }
+            }
+            
+            // Now, update the current plan with all the new data.
+            $containerPullingPlan->update($request->all());
+        });
+
         return redirect()->route('container-pulling-plans.index')->with('success', 'Pulling plan updated successfully.');
     }
 

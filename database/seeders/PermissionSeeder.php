@@ -103,6 +103,8 @@ class PermissionSeeder extends Seeder
             'delete pulling plans',
             'export container transactions',
             'return containers',
+            'exchange containers',
+            'view container exchanges',
             
         ];
 
