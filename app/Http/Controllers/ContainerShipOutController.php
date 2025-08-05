@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\ContainerPullingPlan;
 use App\Models\ContainerStock;
 use App\Models\ContainerTransaction;
+use App\Models\YardLocation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class ContainerShipOutController extends Controller
 {
@@ -38,6 +40,8 @@ class ContainerShipOutController extends Controller
         $request->validate([
             'departure_date' => 'required|date',
             'remarks' => 'nullable|string',
+            'plan_type' => 'required|in:all,pull',
+            'new_yard_location_id' => 'nullable|exists:yard_locations,id',
         ]);
 
         DB::transaction(function () use ($request, $pullingPlan) {
@@ -45,33 +49,55 @@ class ContainerShipOutController extends Controller
             $stock = $orderPlan->containerStock;
 
             if (!$stock) {
-                return back()->with('error', 'Cannot ship out. Stock record not found.');
+                throw ValidationException::withMessages(['general' => 'Cannot ship out. Stock record not found.']);
             }
 
-            // 1. Update Pulling Plan status
+            $newLocationId = $request->new_yard_location_id;
+            $finalLocationId = $stock->yard_location_id;
+
+            // 1. Handle Location Change if a new location is selected
+            if ($newLocationId && $newLocationId != $stock->yard_location_id) {
+                $oldLocationCode = $stock->yardLocation->location_code ?? 'N/A';
+                $newLocation = YardLocation::find($newLocationId);
+                
+                $stock->update(['yard_location_id' => $newLocationId]);
+                $finalLocationId = $newLocationId;
+
+                // Create a 'Move' transaction log
+                ContainerTransaction::create([
+                    'container_order_plan_id' => $orderPlan->id,
+                    'house_bl' => $orderPlan->house_bl,
+                    'user_id' => Auth::id(),
+                    'yard_location_id' => $newLocationId,
+                    'activity_type' => 'Move',
+                    'transaction_date' => now()->subSecond(), // To ensure it's logged before ship out
+                    'remarks' => 'Moved from ' . $oldLocationCode . ' to ' . $newLocation->location_code . ' for shipping out.',
+                ]);
+            }
+
+            // 2. Update the Pulling Plan status and type
             $pullingPlan->status = 3; // Completed
+            $pullingPlan->plan_type = $request->plan_type;
             $pullingPlan->save();
 
-            // 2. Determine new stock status based on plan type
-            $newStockStatus = ($pullingPlan->plan_type === 'All') ? 3 : 2; // 3 = Empty, 2 = Partial
+            // 3. Determine new stock status based on the updated plan type
+            $newStockStatus = ($pullingPlan->plan_type === 'all') ? 3 : 2; // 3 = Empty, 2 = Partial
 
-            // 3. Update Container Stock status
+            // 4. Update Container Stock status
             $stock->status = $newStockStatus;
             $stock->save();
 
-            // 4. Update Order Plan status if the stock is now empty
-            if ($newStockStatus === 3) {
-                $orderPlan->status = 3; // Shipped Out
-                $orderPlan->departure_date = $request->departure_date;
-                $orderPlan->save();
-            }
+            // 5. Update Order Plan status to "Shipped Out"
+            $orderPlan->status = 3;
+            $orderPlan->departure_date = $request->departure_date;
+            $orderPlan->save();
 
-            // 5. Create Transaction Log
+            // 6. Create a 'Ship Out' transaction log
             ContainerTransaction::create([
                 'container_order_plan_id' => $orderPlan->id,
                 'house_bl' => $orderPlan->house_bl,
                 'user_id' => Auth::id(),
-                'yard_location_id' => $stock->yard_location_id,
+                'yard_location_id' => $finalLocationId,
                 'activity_type' => 'Ship Out',
                 'transaction_date' => now(),
                 'remarks' => 'Plan Type: ' . ucfirst($pullingPlan->plan_type) . '. ' . $request->remarks,

@@ -76,3 +76,36 @@
     </div>
 </div>
 @endsection
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Event delegation for modals that are created in a loop
+    document.body.addEventListener('show.bs.modal', function(event) {
+        let modal = event.target;
+        if (modal.id.startsWith('shipOutModal-')) {
+            let selectElement = modal.querySelector('.location-select');
+
+            if (selectElement && !$(selectElement).data('select2')) {
+                $(selectElement).select2({
+                    theme: 'bootstrap-5',
+                    dropdownParent: $(modal),
+                    placeholder: 'Search for a location...',
+                    allowClear: true,
+                    ajax: {
+                        url: '{{ route("yard-locations.search") }}',
+                        dataType: 'json',
+                        delay: 250,
+                        processResults: function(data) {
+                            return {
+                                results: data
+                            };
+                        },
+                        cache: true
+                    }
+                });
+            }
+        }
+    });
+});
+</script>
+@endpush

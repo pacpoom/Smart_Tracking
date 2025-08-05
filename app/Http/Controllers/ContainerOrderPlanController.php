@@ -223,7 +223,9 @@ class ContainerOrderPlanController extends Controller
 
         // แก้ไข: ค้นหา Order Plan ที่มีข้อมูลอยู่ในตาราง container_stocks
         $plans = ContainerOrderPlan::with('container')
-                    ->whereHas('containerStock') // <-- นี่คือส่วนที่แก้ไข
+                    ->whereHas('containerStock', function ($query) {
+                        $query->where('status', '!=', 3); // <-- นี่คือส่วนที่แก้ไข
+                    })
                     ->where(function($query) use ($search) {
                         if ($search) {
                             $query->where('plan_no', 'LIKE', "%{$search}%")
