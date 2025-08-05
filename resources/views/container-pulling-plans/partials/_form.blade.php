@@ -71,7 +71,7 @@
     $(document).ready(function() {
         $('#plan-select').select2({
             theme: 'bootstrap-5',
-            placeholder: 'Search by Plan No, Container No, or B/L...',
+            placeholder: 'Search by',
             ajax: {
                 url: '{{ route("container-order-plans.searchStockPulling") }}',
                 dataType: 'json',
