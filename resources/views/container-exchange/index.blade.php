@@ -36,7 +36,7 @@
                         <input type="date" class="form-control" name="end_date" value="{{ $endDate }}">
                     </div>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-3">
                     <button type="submit" class="btn btn-dark w-100">Search</button>
                 </div>
             </div>
