@@ -16,7 +16,7 @@
         {{-- Search Form --}}
         <form action="{{ route('container-transactions.index') }}" method="GET">
             <div class="row g-3 align-items-end">
-                <div class="col-md-4">
+                <div class="col-md-5">
                     <label class="form-label">Search by Container No.</label>
                     <div class="input-group input-group-outline">
                         <input type="text" class="form-control" name="search" value="{{ request('search') }}">
@@ -34,23 +34,17 @@
                         <input type="date" class="form-control" name="end_date" value="{{ $endDate }}">
                     </div>
                 </div>
-            </div>
-            <div class="row g-3 align-items-end mt-4">
-                <div class="col-md-1">
-                    <div>
-                        <button type="submit" class="btn btn-dark w-100">Search</button>
-                    </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-dark w-80">Search</button>
                 </div>
-                <div class="col-md-1">
-                    <div>
-                        @can('export container transactions')
-                        <a href="{{ route('container-transactions.export', request()->query()) }}" class="btn btn-success w-100">Export</a>
-                        @endcan
-                    </div>
+                <div class="col-md-2">
+                    @can('export container transactions')
+                        <a href="{{ route('container-transactions.export', request()->query()) }}" class="btn btn-success w-80">Export</a>
+                    @endcan
                 </div>
             </div>
+        </div>
         </form>
-
         <div class="table-responsive p-0 mt-4">
             <table class="table align-items-center mb-0">
                 <thead>
