@@ -87,6 +87,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('yard-locations', YardLocationController::class)->except(['show']);
     Route::resource('containers', ContainerController::class)->except(['show']);
     Route::resource('container-order-plans', ContainerOrderPlanController::class)->except(['show']);
+    Route::resource('container-pulling-plans', ContainerPullingPlanController::class)->except(['show']);
 
     // Stock Routes
     Route::get('stocks', [StockController::class, 'index'])->name('stocks.index');
@@ -151,6 +152,10 @@ Route::middleware('auth')->group(function () {
     // We also need a search route for stocks
     Route::get('container-stocks/search', [ContainerStockController::class, 'search'])->name('container-stocks.search');
     Route::resource('container-exchange', ContainerExchangeController::class)->only(['index', 'create', 'store']);
+
+    // Route for printing pulling plan report
+    Route::get('container-pulling-plans/report', [ContainerPullingPlanController::class, 'printReport'])->name('container-pulling-plans.report');
+    
 });
 
 require __DIR__.'/auth.php';
