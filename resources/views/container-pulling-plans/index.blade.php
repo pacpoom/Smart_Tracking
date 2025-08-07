@@ -19,6 +19,9 @@
                         Delete Selected
                     </button>
                 @endcan
+                <button type="button" class="btn btn-info mb-0 me-2" data-bs-toggle="modal" data-bs-target="#printReportModal">
+                    Print Report
+                </button>
                 @can('create pulling plans')
                     <a href="{{ route('container-pulling-plans.create') }}" class="btn btn-dark mb-0">Add New Plan</a>
                 @endcan
@@ -38,9 +41,8 @@
                         <tr>
                             <th class="text-center" style="width: 1%;"><div class="form-check d-flex justify-content-center"><input class="form-check-input" type="checkbox" id="select-all-checkbox"></div></th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Pulling Plan No.</th>
-                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Plan Type</th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Container No.</th>
-                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Destination</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Plan Type</th>
                             <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Pulling Date</th>
                             <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Pulling Order</th>
                             <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
@@ -52,9 +54,8 @@
                         <tr>
                             <td class="text-center"><div class="form-check d-flex justify-content-center"><input class="form-check-input plan-checkbox" type="checkbox" name="ids[]" value="{{ $plan->id }}"></div></td>
                             <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $plan->pulling_plan_no }}</p></td>
-                            <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $plan->plan_type }}</p></td>
                             <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $plan->containerOrderPlan->container->container_no }}</p></td>
-                            <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $plan->destination }}</p></td>
+                            <td><p class="text-xs font-weight-bold mb-0 px-2">{{ ucfirst($plan->plan_type) }}</p></td>
                             <td class="align-middle text-center"><span class="text-secondary text-xs font-weight-bold">{{ $plan->pulling_date?->format('d/m/Y') }}</span></td>
                             <td class="align-middle text-center"><span class="text-secondary text-xs font-weight-bold">{{ $plan->pulling_order }}</span></td>
                             <td class="align-middle text-center text-sm">
@@ -89,6 +90,31 @@
     </div>
 </div>
 @include('container-pulling-plans.partials.bulk-delete-modal')
+
+{{-- Modal for Printing Report --}}
+<div class="modal fade" id="printReportModal" tabindex="-1" aria-labelledby="printReportModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{ route('container-pulling-plans.report') }}" method="GET" target="_blank">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="printReportModalLabel">Print Pulling Report</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Please select a date to generate the report for.</p>
+                    <div class="input-group input-group-outline">
+                        <label class="form-label">Pulling Date</label>
+                        <input type="date" class="form-control" name="pulling_date" value="{{ now()->format('Y-m-d') }}" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-dark">Generate PDF</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')

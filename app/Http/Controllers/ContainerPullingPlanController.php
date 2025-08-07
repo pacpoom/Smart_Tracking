@@ -126,4 +126,28 @@ class ContainerPullingPlanController extends Controller
         ContainerPullingPlan::whereIn('id', $request->ids)->delete();
         return redirect()->route('container-pulling-plans.index')->with('success', 'Selected pulling plans have been deleted successfully.');
     }
+
+        /**
+     * Generate a PDF report for a specific pulling date.
+     */
+    public function printReport(Request $request)
+    {
+        $request->validate([
+            'pulling_date' => 'required|date',
+        ]);
+
+        $pullingDate = $request->pulling_date;
+
+        $plans = ContainerPullingPlan::with(['containerOrderPlan.container', 'containerOrderPlan.containerStock.yardLocation'])
+            ->whereDate('pulling_date', $pullingDate)
+            ->orderBy('pulling_order', 'asc')
+            ->get();
+
+        if ($plans->isEmpty()) {
+            return back()->with('error', 'No pulling plans found for the selected date.');
+        }
+
+        $pdf = Pdf::loadView('container-pulling-plans.report_pdf', compact('plans', 'pullingDate'));
+        return $pdf->stream('pulling_report_' . $pullingDate . '.pdf');
+    }
 }
