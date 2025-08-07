@@ -87,7 +87,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('yard-locations', YardLocationController::class)->except(['show']);
     Route::resource('containers', ContainerController::class)->except(['show']);
     Route::resource('container-order-plans', ContainerOrderPlanController::class)->except(['show']);
-
+    Route::resource('container-pulling-plans', ContainerPullingPlanController::class)->except(['show']);
     // Stock Routes
     Route::get('stocks', [StockController::class, 'index'])->name('stocks.index');
     Route::put('parts/{part}/stock/adjust', [StockController::class, 'adjust'])->name('stocks.adjust');
