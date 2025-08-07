@@ -207,7 +207,8 @@ class ContainerOrderPlanController extends Controller
         foreach ($plans as $plan) {
             $formatted_plans[] = [
                 'id' => $plan->id,
-                'text' => $plan->container->container_no . ' (Plan: ' . $plan->plan_no . ')'
+                'text' => $plan->container->container_no,
+                'house_bl' => $plan->house_bl,
             ];
         }
 

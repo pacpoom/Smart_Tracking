@@ -7,6 +7,7 @@ use App\Models\ContainerPullingPlan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use PDF; // Assuming you are using a package like barryvdh/laravel-dompdf for PDF generation
 
 class ContainerPullingPlanController extends Controller
 {
@@ -149,5 +150,10 @@ class ContainerPullingPlanController extends Controller
 
         $pdf = Pdf::loadView('container-pulling-plans.report_pdf', compact('plans', 'pullingDate'));
         return $pdf->stream('pulling_report_' . $pullingDate . '.pdf');
+    }
+
+    public function show()
+    {
+        return redirect()->route('container-pulling-plans.index')->with('error', '555');
     }
 }

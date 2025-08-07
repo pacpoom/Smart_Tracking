@@ -103,7 +103,6 @@
                 <div class="modal-body">
                     <p>Please select a date to generate the report for.</p>
                     <div class="input-group input-group-outline">
-                        <label class="form-label">Pulling Date</label>
                         <input type="date" class="form-control" name="pulling_date" value="{{ now()->format('Y-m-d') }}" required>
                     </div>
                 </div>

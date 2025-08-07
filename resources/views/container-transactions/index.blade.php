@@ -4,19 +4,16 @@
 
 @section('content')
 <div class="card">
-    {{-- <div class="card-header pb-0">
+    <div class="card-header pb-0">
         <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-md-between">
             <h5 class="mb-3 mb-md-0">Container Transaction Log</h5>
-            @can('export container transactions')
-                <a href="{{ route('container-transactions.export', request()->query()) }}" class="btn btn-success mb-0">Export</a>
-            @endcan
         </div>
-    </div> --}}
+    </div>
     <div class="card-body">
         {{-- Search Form --}}
         <form action="{{ route('container-transactions.index') }}" method="GET">
-            <div class="row g-3 align-items-end">
-                <div class="col-md-5">
+            <div class="row g-4 align-items-end">
+                <div class="col-md-3">
                     <label class="form-label">Search by Container No.</label>
                     <div class="input-group input-group-outline">
                         <input type="text" class="form-control" name="search" value="{{ request('search') }}">
@@ -34,13 +31,15 @@
                         <input type="date" class="form-control" name="end_date" value="{{ $endDate }}">
                     </div>
                 </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-dark w-80">Search</button>
-                </div>
-                <div class="col-md-2">
-                    @can('export container transactions')
-                        <a href="{{ route('container-transactions.export', request()->query()) }}" class="btn btn-success w-80">Export</a>
-                    @endcan
+                <div class="col-md-3">
+                    <div class="btn-group w-50">
+                        <button type="submit" class="btn btn-dark w-50">Search</button>
+                    <div class="btn-group w-50">
+                        @can('export container transactions')
+                        <a href="{{ route('container-transactions.export', request()->query()) }}" class="btn btn-success w-50">Export</a>
+                        @endcan
+                    </div>
+                    </div>
                 </div>
             </div>
         </div>

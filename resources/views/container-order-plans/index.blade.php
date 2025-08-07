@@ -92,6 +92,8 @@
                                     <span class="badge badge-sm bg-gradient-success">Received</span>
                                 @elseif($plan->status == 3)
                                     <span class="badge badge-sm bg-gradient-info">Shipped Out</span>
+                                @elseif($plan->status == 4)
+                                    <span class="badge badge-sm bg-gradient-success">Return</span>
                                 @else
                                     <span class="badge badge-sm bg-gradient-secondary">Unknown</span>
                                 @endif

@@ -12,7 +12,7 @@ class ContainerReturnController extends Controller
 {
     function __construct()
     {
-        ///$this->middleware('permission:return containers');
+        //$this->middleware('permission:return containers');
     }
 
     /**
@@ -44,7 +44,16 @@ class ContainerReturnController extends Controller
         DB::transaction(function () use ($request, $stock) {
             $orderPlan = $stock->containerOrderPlan;
 
-            // 1. Create a Transaction Log for the 'Return' activity
+            if (!$orderPlan) {
+                // This is a safeguard in case the relationship is broken
+                return back()->with('error', 'Associated Order Plan not found for this stock item.');
+            }
+
+            // 1. อัปเดตสถานะของ Order Plan เป็น "Returned" (4)
+            $orderPlan->status = 4;
+            $orderPlan->save();
+
+            // 2. Create a Transaction Log for the 'Return' activity
             ContainerTransaction::create([
                 'container_order_plan_id' => $orderPlan->id,
                 'house_bl' => $orderPlan->house_bl,
@@ -55,7 +64,7 @@ class ContainerReturnController extends Controller
                 'remarks' => 'Container returned to owner.',
             ]);
 
-            // 2. Delete the container from the stock
+            // 3. Delete the container from the stock
             $stock->delete();
         });
 

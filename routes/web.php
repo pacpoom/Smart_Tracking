@@ -46,6 +46,8 @@ Route::middleware('auth')->group(function () {
     Route::put('/password', [ProfileController::class, 'updatePassword'])->name('password.update');
     Route::post('/profile/photo', [ProfileController::class, 'updatePhoto'])->name('profile.photo.update');
     Route::get('/user/profile-photo', [ProfileController::class, 'showPhoto'])->name('profile.photo.show');
+        // Route for printing pulling plan report
+    Route::get('container-pulling-plans/report', [ContainerPullingPlanController::class, 'printReport'])->name('container-pulling-plans.report');
 
     // Bulk Delete Routes
     Route::delete('roles/bulk-destroy', [RolePermissionController::class, 'bulkDestroy'])->name('roles.bulkDestroy');
@@ -88,6 +90,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('containers', ContainerController::class)->except(['show']);
     Route::resource('container-order-plans', ContainerOrderPlanController::class)->except(['show']);
     Route::resource('container-pulling-plans', ContainerPullingPlanController::class)->except(['show']);
+    
     // Stock Routes
     Route::get('stocks', [StockController::class, 'index'])->name('stocks.index');
     Route::put('parts/{part}/stock/adjust', [StockController::class, 'adjust'])->name('stocks.adjust');
@@ -151,6 +154,7 @@ Route::middleware('auth')->group(function () {
     // We also need a search route for stocks
     Route::get('container-stocks/search', [ContainerStockController::class, 'search'])->name('container-stocks.search');
     Route::resource('container-exchange', ContainerExchangeController::class)->only(['index', 'create', 'store']);
+
 });
 
 require __DIR__.'/auth.php';
