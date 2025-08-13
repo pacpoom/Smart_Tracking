@@ -59,16 +59,24 @@ Route::middleware('auth')->group(function () {
     Route::delete('container-order-plans/bulk-destroy', [ContainerOrderPlanController::class, 'bulkDestroy'])->name('container-order-plans.bulkDestroy');
     Route::delete('yard-locations/bulk-destroy', [YardLocationController::class, 'bulkDestroy'])->name('yard-locations.bulkDestroy');
     Route::delete('containers/bulk-destroy', [ContainerController::class, 'bulkDestroy'])->name('containers.bulkDestroy');
+    Route::delete('container-tacking.bulk-destroy', [ContainerTackingController::class, 'bulkDestroy'])->name('container-tacking.bulkDestroy');
+    Route::delete('container-pulling-plans/bulk-destroy', [ContainerPullingPlanController::class, 'bulkDestroy'])->name('container-pulling-plans.bulkDestroy');
 
     // Download Routes
     Route::get('vendors/{vendor}/download', [VendorController::class, 'download'])->name('vendors.download');
     Route::get('part-requests/{partRequest}/download', [PartRequestController::class, 'download'])->name('part-requests.download');
     Route::get('part-requests/{partRequest}/download-delivery-document', [PartRequestController::class, 'downloadDeliveryDocument'])->name('part-requests.downloadDeliveryDocument');
+    Route::get('container-tacking/{containerTacking}/download-photos', [ContainerTackingController::class, 'downloadPhotosAsZip'])->name('container-tacking.downloadPhotos');
 
     // Search Routes
     Route::get('parts/search', [PartController::class, 'search'])->name('parts.search');
     Route::get('containers/search', [ContainerController::class, 'search'])->name('containers.search');
     Route::get('yard-locations/search', [YardLocationController::class, 'search'])->name('yard-locations.search');
+    Route::get('container-order-plans/search', [ContainerOrderPlanController::class, 'search'])->name('container-order-plans.search');
+    Route::get('container-order-plans/search-stock', [ContainerOrderPlanController::class, 'searchStock'])->name('container-order-plans.searchStock');
+    Route::get('container-order-plans/search-stock-pulling', [ContainerOrderPlanController::class, 'searchStockPulling'])->name('container-order-plans.searchStockPulling');
+    Route::get('container-stocks/search', [ContainerStockController::class, 'search'])->name('container-stocks.search');
+
 
     // Import & Export Routes
     Route::get('container-order-plans/template', [ContainerOrderPlanController::class, 'downloadTemplate'])->name('container-order-plans.template');
@@ -76,6 +84,7 @@ Route::middleware('auth')->group(function () {
     Route::get('container-order-plans/export', [ContainerOrderPlanController::class, 'export'])->name('container-order-plans.export');
     Route::get('part-requests/export', [PartRequestController::class, 'export'])->name('part-requests.export');
     Route::get('container-stocks/export', [ContainerStockController::class, 'export'])->name('container-stocks.export');
+    Route::get('container-transactions/export', [ContainerTransactionController::class, 'export'])->name('container-transactions.export');
 
 
     // Resource Routes
@@ -89,7 +98,10 @@ Route::middleware('auth')->group(function () {
     Route::resource('yard-locations', YardLocationController::class)->except(['show']);
     Route::resource('containers', ContainerController::class)->except(['show']);
     Route::resource('container-order-plans', ContainerOrderPlanController::class)->except(['show']);
-    Route::resource('container-pulling-plans', ContainerPullingPlanController::class)->except(['show']);
+    Route::resource('container-pulling-plans', ContainerPullingPlanController::class);
+    Route::resource('container-tacking', ContainerTackingController::class)->except(['edit', 'update', 'show']);
+    Route::resource('container-exchange', ContainerExchangeController::class)->only(['index', 'create', 'store']);
+
     
     // Stock Routes
     Route::get('stocks', [StockController::class, 'index'])->name('stocks.index');
@@ -102,16 +114,14 @@ Route::middleware('auth')->group(function () {
 
     // Container Stock Route
     Route::get('container-stocks', [ContainerStockController::class, 'index'])->name('container-stocks.index');
-
     Route::get('container-transactions', [ContainerTransactionController::class, 'index'])->name('container-transactions.index');
+
     // Container Change Location Routes
     Route::get('container-change-location', [ContainerChangeLocationController::class, 'index'])->name('container-change-location.index');
     Route::put('container-change-location/{stock}', [ContainerChangeLocationController::class, 'update'])->name('container-change-location.update');
-    Route::get('container-transactions', [ContainerTransactionController::class, 'index'])->name('container-transactions.index');
 
     // Container Ship Out Routes
     Route::get('container-ship-out', [ContainerShipOutController::class, 'index'])->name('container-ship-out.index');
-    //Route::put('container-ship-out/{stock}', [ContainerShipOutController::class, 'shipOut'])->name('container-ship-out.shipOut');
     Route::put('container-ship-out/{pullingPlan}', [ContainerShipOutController::class, 'shipOut'])->name('container-ship-out.shipOut');
 
     // Container Yard Dashboard Route
@@ -120,30 +130,10 @@ Route::middleware('auth')->group(function () {
     // Container Tacking Routes
     Route::get('container-tacking/create', [ContainerTackingController::class, 'create'])->name('container-tacking.create');
     Route::post('container-tacking', [ContainerTackingController::class, 'store'])->name('container-tacking.store');
-    // Container Tacking Routes
-    Route::resource('container-tacking', ContainerTackingController::class)->except(['edit', 'update']);
-
     Route::get('container-tacking/photos/{photo}', [ContainerTackingController::class, 'showPhoto'])->name('container-tacking.photo.show');
-
-    Route::resource('container-tacking', ContainerTackingController::class)->except(['show']);
     Route::get('display-dashboard', [App\Http\Controllers\DisplayDashboardController::class, 'index'])->name('display.dashboard');
-
-    // Route for adding more tacking photos
     Route::post('container-tacking/{containerTacking}/add-photos', [ContainerTackingController::class, 'addPhotos'])->name('container-tacking.addPhotos');
-    // Search Route for Container Order Plans
-    Route::get('container-order-plans/search', [ContainerOrderPlanController::class, 'search'])->name('container-order-plans.search');
-     // Bulk Delete Routes
-    // ...
-    Route::delete('container-tacking.bulk-destroy', [ContainerTackingController::class, 'bulkDestroy'])->name('container-tacking.bulkDestroy');
-    // Route for downloading tacking photos as a ZIP
-    Route::get('container-tacking/{containerTacking}/download-photos', [ContainerTackingController::class, 'downloadPhotosAsZip'])->name('container-tacking.downloadPhotos');
-    // Container Pulling Plan Routes
-    Route::delete('container-pulling-plans/bulk-destroy', [ContainerPullingPlanController::class, 'bulkDestroy'])->name('container-pulling-plans.bulkDestroy');
-    Route::resource('container-pulling-plans', ContainerPullingPlanController::class);
-    Route::get('container-order-plans/search-stock', [ContainerOrderPlanController::class, 'searchStock'])->name('container-order-plans.searchStock');
-    Route::get('container-order-plans/search-stock-pulling', [ContainerOrderPlanController::class, 'searchStockPulling'])->name('container-order-plans.searchStockPulling');
-    // Export Route for Container Transactions
-    Route::get('container-transactions/export', [ContainerTransactionController::class, 'export'])->name('container-transactions.export');
+    
     // Container Return Routes
     Route::get('container-return', [ContainerReturnController::class, 'index'])->name('container-return.index');
     Route::put('container-return/{stock}', [ContainerReturnController::class, 'returnContainer'])->name('container-return.return');
@@ -151,9 +141,6 @@ Route::middleware('auth')->group(function () {
     // Container Exchange Routes
     Route::get('container-exchange/create', [ContainerExchangeController::class, 'create'])->name('container-exchange.create');
     Route::post('container-exchange', [ContainerExchangeController::class, 'store'])->name('container-exchange.store');
-    // We also need a search route for stocks
-    Route::get('container-stocks/search', [ContainerStockController::class, 'search'])->name('container-stocks.search');
-    Route::resource('container-exchange', ContainerExchangeController::class)->only(['index', 'create', 'store']);
 
 });
 

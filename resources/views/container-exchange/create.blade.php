@@ -60,7 +60,7 @@
             theme: 'bootstrap-5',
             placeholder: 'Search by',
             ajax: {
-                url: '{{ route("container-stocks.search") }}',
+                url: '/container-stocks/search',
                 dataType: 'json',
                 delay: 250,
                 processResults: function (data) {

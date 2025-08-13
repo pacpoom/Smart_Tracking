@@ -89,7 +89,8 @@
             theme: 'bootstrap-5',
             placeholder: 'Type to search for a part...',
             ajax: {
-                url: '{{ route("parts.search") }}',
+                //url: '{{ route("parts.search") }}',
+                url: '/parts/search',
                 dataType: 'json',
                 delay: 250,
                 processResults: function (data) {

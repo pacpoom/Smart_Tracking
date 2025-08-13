@@ -66,7 +66,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     dropdownParent: $(modal),
                     placeholder: 'Type to search for a location...',
                     ajax: {
-                        url: '{{ route("yard-locations.search") }}',
+                        //url: '{{ route("yard-locations.search") }}',
+                        url: '/yard-locations/search',
                         dataType: 'json',
                         delay: 250,
                         data: function(params) {

@@ -73,7 +73,8 @@
             theme: 'bootstrap-5',
             placeholder: 'Search by',
             ajax: {
-                url: '{{ route("container-order-plans.searchStockPulling") }}',
+                //url: '{{ route("container-order-plans.searchStockPulling") }}',
+                url: '/container-order-plans/search-stock-pulling',
                 dataType: 'json',
                 delay: 250,
                 processResults: function (data) {

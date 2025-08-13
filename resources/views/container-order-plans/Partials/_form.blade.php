@@ -85,7 +85,8 @@
             placeholder: 'Select or type a new Container No...',
             tags: true,
             ajax: {
-                url: '{{ route("containers.search") }}',
+                //url: '{{ route("containers.search") }}',
+                url: '/containers/search',
                 dataType: 'json',
                 delay: 250,
                 processResults: function (data) {

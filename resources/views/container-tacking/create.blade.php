@@ -143,7 +143,9 @@
             placeholder: 'Search by',
             ajax: {
                 // แก้ไข: เปลี่ยนเป็น route 'container-order-plans.searchStock'
-                url: '{{ route("container-order-plans.searchStock") }}',
+                //url: '{{ route("container-order-plans.searchStock") }}',
+                url: '/container-order-plans/search-stock',
+                //url: '/yard-locations/search',
                 dataType: 'json',
                 delay: 250,
                 processResults: function (data) {

@@ -57,7 +57,8 @@
             theme: 'bootstrap-5',
             placeholder: 'Search by',
             ajax: {
-                url: '{{ route("container-order-plans.search") }}', // This route should search for status != 3
+                //url: '{{ route("container-order-plans.search") }}', // This route should search for status != 3
+                url: '/container-order-plans/search',
                 dataType: 'json',
                 delay: 250,
                 processResults: function (data) {
@@ -74,7 +75,8 @@
             theme: 'bootstrap-5',
             placeholder: 'Search for an available location...',
             ajax: {
-                url: '{{ route("yard-locations.search") }}', // This route searches for available locations
+                //url: '{{ route("yard-locations.search") }}', // This route searches for available locations
+                url: '/yard-locations/search',
                 dataType: 'json',
                 delay: 250,
                 processResults: function (data) {
