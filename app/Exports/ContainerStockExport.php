@@ -37,7 +37,8 @@ class ContainerStockExport implements FromCollection, WithHeadings, WithMapping,
             'Original Container No.',
             'Current Container No.', // เพิ่มคอลัมน์นี้
             'House BL.', // เพิ่มคอลัมน์นี้
-            'Size',
+            'model',
+            'type', // เพิ่มคอลัมน์นี้
             'Current Location',
             'Stock Status',
             'ETA Date',
@@ -70,7 +71,8 @@ class ContainerStockExport implements FromCollection, WithHeadings, WithMapping,
             $stock->containerOrderPlan?->container?->container_no ?? 'N/A',
             $stock->Container->container_no ?? $stock->containerOrderPlan?->container?->container_no, // ใช้ข้อมูลจาก Container หรือจาก ContainerOrderPlan
             $stock->containerOrderPlan?->house_bl ?? 'N/A', // เพิ่มข้อมูลนี้
-            $stock->containerOrderPlan?->container?->size ?? 'N/A',
+            $stock->containerOrderPlan?->model ?? 'N/A',
+            $stock->containerOrderPlan?->type ?? 'N/A',
             $stock->yardLocation?->location_code ?? 'N/A',
             $stockStatus,
             $stock->containerOrderPlan?->eta_date?->format('Y-m-d') ?? 'N/A',
