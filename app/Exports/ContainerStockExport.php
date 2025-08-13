@@ -34,7 +34,8 @@ class ContainerStockExport implements FromCollection, WithHeadings, WithMapping,
     {
         return [
             'Plan No.',
-            'Container No.',
+            'Original Container No.',
+            'Current Container No.', // เพิ่มคอลัมน์นี้
             'House BL.', // เพิ่มคอลัมน์นี้
             'Size',
             'Current Location',
@@ -67,6 +68,7 @@ class ContainerStockExport implements FromCollection, WithHeadings, WithMapping,
         return [
             $stock->containerOrderPlan?->plan_no ?? 'N/A',
             $stock->containerOrderPlan?->container?->container_no ?? 'N/A',
+            $stock->Container->container_no ?? $stock->containerOrderPlan?->container?->container_no, // ใช้ข้อมูลจาก Container หรือจาก ContainerOrderPlan
             $stock->containerOrderPlan?->house_bl ?? 'N/A', // เพิ่มข้อมูลนี้
             $stock->containerOrderPlan?->container?->size ?? 'N/A',
             $stock->yardLocation?->location_code ?? 'N/A',
@@ -97,7 +99,7 @@ class ContainerStockExport implements FromCollection, WithHeadings, WithMapping,
             ],
         ];
         // แก้ไข: ปรับ range ให้ครอบคลุมคอลัมน์ใหม่ (A1:J)
-        $sheet->getStyle('A1:J'.$lastRow)->applyFromArray($styleArray);
+        $sheet->getStyle('A1:K'.$lastRow)->applyFromArray($styleArray);
 
         return [];
     }

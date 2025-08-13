@@ -58,7 +58,7 @@
     $(document).ready(function() {
         $('.stock-select').select2({
             theme: 'bootstrap-5',
-            placeholder: 'Search by Container No. or Plan No...',
+            placeholder: 'Search by',
             ajax: {
                 url: '{{ route("container-stocks.search") }}',
                 dataType: 'json',

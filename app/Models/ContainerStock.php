@@ -11,6 +11,7 @@ class ContainerStock extends Model
 
     protected $fillable = [
         'container_order_plan_id',
+        'container_id',
         'yard_location_id',
         'status', // 1: Full, 2: Partial, 3: Empty
         'checkin_date',
@@ -31,5 +32,9 @@ class ContainerStock extends Model
     public function yardLocation()
     {
         return $this->belongsTo(YardLocation::class);
+    }
+    public function container()
+    {
+        return $this->belongsTo(Container::class, 'container_id');
     }
 }

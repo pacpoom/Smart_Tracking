@@ -71,6 +71,13 @@ class ContainerExchangeController extends Controller
         $sourceStock = ContainerStock::find($request->source_container_stock_id);
         $destinationStock = ContainerStock::find($request->destination_container_stock_id);
 
+        $order_plan_id =DB::table('container_order_plans')->where('id', $destinationStock->container_order_plan_id);
+
+        DB::table('container_stocks')
+        ->where('id', $request->source_container_stock_id)
+        ->update(['container_id' => $order_plan_id->value('container_id')]);
+
+
         DB::transaction(function () use ($sourceStock, $destinationStock, $request) {
             // // 1. Swap the container_order_plan_id
             $sourcePlanId = $sourceStock->container_order_plan_id;

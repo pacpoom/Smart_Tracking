@@ -49,8 +49,8 @@ class ContainerOrderPlan extends Model
     public function getExpirationDateAttribute()
     {
         // แก้ไข: เปลี่ยนจาก checkin_date เป็น eta_date
-        if ($this->eta_date && is_numeric($this->free_time)) {
-            return $this->eta_date->copy()->addDays($this->free_time);
+        if ($this->checkin_date && is_numeric($this->free_time)) {
+            return $this->checkin_date->copy()->addDays($this->free_time);
         }
         return null;
     }

@@ -47,6 +47,7 @@ class ContainerReceiveController extends Controller
 
             ContainerStock::create([
                 'container_order_plan_id' => $request->container_order_plan_id,
+                'container_id' => $plan->container_id, // Assuming the plan has a container_id
                 'yard_location_id' => $request->yard_location_id,
                 'status' => 1, // 1 = Full
                 'checkin_date' => $request->checkin_date,

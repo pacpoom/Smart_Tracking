@@ -19,7 +19,7 @@ class ContainerStockController extends Controller
     public function index(Request $request)
     {
         // 2. แก้ไข Query ให้ดึงข้อมูลจาก ContainerStock
-        $query = ContainerStock::with(['containerOrderPlan.container', 'yardLocation']);
+        $query = ContainerStock::with(['containerOrderPlan.container', 'yardLocation','Container']);
 
         if ($request->filled('search')) {
             $search = $request->search;

@@ -29,7 +29,8 @@
                 <thead>
                     <tr>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Plan No.</th>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Container No.</th>
+                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Original Container No.</th>
+                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Current Container No.</th>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">House BL.</th>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Size</th>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Current Location</th>
@@ -44,6 +45,7 @@
                     <tr>
                         <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stock->containerOrderPlan?->plan_no ?? 'N/A' }}</p></td>
                         <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stock->containerOrderPlan?->container?->container_no ?? 'N/A' }}</p></td>
+                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stock->Container->container_no ?? $stock->containerOrderPlan?->container?->container_no }}</p></td>
                         <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stock->containerOrderPlan?->house_bl ?? 'N/A' }}</p></td>
                         <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stock->containerOrderPlan?->container?->size ?? 'N/A' }}</p></td>
                         <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stock->yardLocation?->location_code ?? 'N/A' }}</p></td>
