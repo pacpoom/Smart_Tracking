@@ -107,7 +107,7 @@
                                 @endcan
                             </td>
                         </tr>
-                        @include('container-order-plans.partials.delete-modal', ['plan' => $plan])
+                        @include('container-order-plans.Partials/delete-modal', ['plan' => $plan])
                         @empty
                         <tr><td colspan="8" class="text-center p-3">No container order plans found for the selected date range.</td></tr>
                         @endforelse
@@ -121,7 +121,7 @@
         {{ $plans->withQueryString()->links() }}
     </div>
 </div>
-@include('container-order-plans.partials.bulk-delete-modal')
+@include('container-order-plans.Partials.bulk-delete-modal')
 
 {{-- Import Modal --}}
 <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">

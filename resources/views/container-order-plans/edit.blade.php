@@ -16,7 +16,7 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    @include('container-order-plans.partials._form', ['containerOrderPlan' => $containerOrderPlan])
+                    @include('container-order-plans.Partials._form', ['containerOrderPlan' => $containerOrderPlan])
                 </div>
             </form>
         </div>

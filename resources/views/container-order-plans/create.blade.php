@@ -15,7 +15,7 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    @include('container-order-plans.partials._form')
+                    @include('container-order-plans.Partials._form')
                 </div>
             </form>
         </div>
