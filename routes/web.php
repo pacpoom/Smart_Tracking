@@ -142,6 +142,7 @@ Route::middleware('auth')->group(function () {
     Route::get('container-exchange/create', [ContainerExchangeController::class, 'create'])->name('container-exchange.create');
     Route::post('container-exchange', [ContainerExchangeController::class, 'store'])->name('container-exchange.store');
 
+    Route::resource('container-tacking', ContainerTackingController::class);
 });
 
 require __DIR__.'/auth.php';
