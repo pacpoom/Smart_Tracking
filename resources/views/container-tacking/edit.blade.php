@@ -1,0 +1,241 @@
+@extends('layouts.app')
+
+@section('title', 'Edit Container Tacking')
+
+@section('content')
+<div class="row">
+    <div class="col-lg-6 col-md-8 mx-auto">
+        <form action="{{ route('container-tacking.update', $containerTacking->id) }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            @method('PUT')
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5>Edit Container Tacking</h5>
+                </div>
+                <div class="card-body">
+                    @include('layouts.partials.alerts')
+
+                    @if ($errors->any())
+                        <div class="alert alert-danger text-white">
+                            <ul class="mb-0">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    {{-- Main Details --}}
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Container Plan (In Stock)</label>
+                            <select class="form-control" id="plan-select" name="container_order_plan_id" required>
+                                @if($containerTacking->containerOrderPlan)
+                                    <option value="{{ $containerTacking->container_order_plan_id }}" selected>
+                                        {{ $containerTacking->containerOrderPlan->container->container_no }} (Plan: {{ $containerTacking->containerOrderPlan->plan_no }})
+                                    </option>
+                                @endif
+                            </select>
+                            @error('container_order_plan_id') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
+                        </div>
+                        <div class="col-12 mb-3">
+                             <label class="form-label">Shipment / B/L</label>
+                            <div class="input-group input-group-outline is-filled">
+                                <input type="text" class="form-control" name="shipment" id="shipment-input" value="{{ old('shipment', $containerTacking->shipment) }}">
+                            </div>
+                            @error('shipment') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Job Type</label>
+                            <select class="form-control" name="job_type" required>
+                                <option value="Inbound" {{ old('job_type', $containerTacking->job_type) == 'Inbound' ? 'selected' : '' }}>Inbound</option>
+                                <option value="Outbound" {{ old('job_type', $containerTacking->job_type) == 'Outbound' ? 'selected' : '' }}>Outbound</option>
+                            </select>
+                            @error('job_type') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Container Type</label>
+                            <select class="form-control" name="container_type" required>
+                                <option value="CKD" {{ old('container_type', $containerTacking->container_type) == 'CKD' ? 'selected' : '' }}>CKD</option>
+                                <option value="AIR" {{ old('container_type', $containerTacking->container_type) == 'AIR' ? 'selected' : '' }}>AIR</option>
+                                <option value="LOCAL" {{ old('container_type', $containerTacking->container_type) == 'LOCAL' ? 'selected' : '' }}>LOCAL</option>
+                                <option value="EXPORT" {{ old('container_type', $containerTacking->container_type) == 'EXPORT' ? 'selected' : '' }}>EXPORT</option>
+                            </select>
+                            @error('container_type') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Transport Type</label>
+                            <select class="form-control" name="transport_type" required>
+                                <option value="4W" {{ old('transport_type', $containerTacking->transport_type) == '4W' ? 'selected' : '' }}>4W</option>
+                                <option value="6W" {{ old('transport_type', $containerTacking->transport_type) == '6W' ? 'selected' : '' }}>6W</option>
+                                <option value="10W" {{ old('transport_type', $containerTacking->transport_type) == '10W' ? 'selected' : '' }}>10W</option>
+                                <option value="20'" {{ old('transport_type', $containerTacking->transport_type) == "20'" ? 'selected' : '' }}>20'</option>
+                                <option value="40'" {{ old('transport_type', $containerTacking->transport_type) == "40'" ? 'selected' : '' }}>40'</option>
+                                <option value="40HQ" {{ old('transport_type', $containerTacking->transport_type) == "40HQ" ? 'selected' : '' }}>40' HQ</option>
+                            </select>
+                            @error('transport_type') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
+                        </div>
+                    </div>
+
+                    <hr class="horizontal dark">
+
+                    {{-- Photo Upload Section with Pagination --}}
+                    <div class="d-flex justify-content-between align-items-center mt-4">
+                        <h6 class="mb-0">Photo Upload</h6>
+                        <span id="step-indicator" class="badge bg-gradient-secondary">Step 1 of 3</span>
+                    </div>
+                    @error('photos') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
+
+                    @php
+                        $photoGroups = [
+                            1 => [
+                                'doc_receive_1' => 'รูปเอกสารรับตู้ 1', 'doc_receive_2' => 'รูปเอกสารรับตู้ 2',
+                                'truck_front' => 'รูปหน้ารถ', 'truck_right' => 'รูปรถข้างขวา', 'truck_left' => 'รูปรถข้างซ้าย',
+                                'wheel_chock' => 'รูปหนุนหมอนรองล้อ', 'container_rear' => 'รูปท้ายตู้', 'seal' => 'รูปซีล',
+                                'pallet_check_doc' => 'รูปเอกสารตรวจสอบ Pallet',
+                            ],
+                            2 => [
+                                'open_1' => 'รูปเปิดตู้ 1', 'open_2' => 'รูปเปิดตู้ 2', 'open_3' => 'รูปเปิดตู้ 3', 'open_4' => 'รูปเปิดตู้ 4', 'open_5' => 'รูปเปิดตู้ 5',
+                                'open_6' => 'รูปเปิดตู้ 6', 'open_7' => 'รูปเปิดตู้ 7', 'open_8' => 'รูปเปิดตู้ 8', 'open_9' => 'รูปเปิดตู้ 9', 'open_10' => 'รูปเปิดตู้ 10',
+                            ],
+                            3 => [
+                                'empty_1' => 'รูปตู้เปล่า 1', 'empty_2' => 'รูปตู้เปล่า 2', 'empty_3' => 'รูปตู้เปล่า 3', 'empty_4' => 'รูปตู้เปล่า 4',
+                                'empty_5' => 'รูปตู้เปล่า 5', 'empty_6' => 'รูปตู้เปล่า 6', 'empty_7' => 'รูปตู้เปล่า 7', 'empty_8' => 'รูปตู้เปล่า 8', 'empty_9' => 'รูปตู้เปล่า 9',
+                                'condition_check_doc' => 'รูปเอกสารตรวจสอบสภาพตู้',
+                            ]
+                        ];
+                        $existingPhotos = $containerTacking->photos->keyBy('photo_type');
+                    @endphp
+
+                    {{-- Steps for photo upload --}}
+                    @foreach($photoGroups as $step => $photos)
+                    <div id="step-{{ $step }}" class="photo-step" style="{{ $step > 1 ? 'display: none;' : '' }}">
+                        <div class="row mt-3">
+                            @foreach($photos as $key => $label)
+                                @php
+                                    $existingPhoto = $existingPhotos->get($key);
+                                @endphp
+                                <div class="col-12 mb-3">
+                                    <label for="{{ $key }}" class="form-label">{{ $label }}</label>
+                                    <div class="input-group input-group-outline">
+                                        <input class="form-control photo-input" type="file" name="photos[{{ $key }}]" id="{{ $key }}" accept="image/*" data-preview-id="{{ $key }}-preview">
+                                    </div>
+                                    @error('photos.'.$key) <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
+                                    <div class="mt-2 text-center">
+                                        <img id="{{ $key }}-preview"
+                                             src="{{ $existingPhoto ? route('container-tacking.photo.show', $existingPhoto->id) : '#' }}"
+                                             alt="Image Preview"
+                                             class="img-fluid border-radius-lg"
+                                             style="display: {{ $existingPhoto ? 'block' : 'none' }}; max-height: 150px;"/>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endforeach
+
+                    {{-- Navigation Buttons --}}
+                    <div class="mt-4 d-flex justify-content-between">
+                        <button type="button" class="btn btn-outline-secondary" id="prev-btn" style="display: none;">Previous</button>
+                        <button type="button" class="btn btn-dark" id="next-btn">Next</button>
+                        <button type="submit" class="btn btn-dark" id="save-btn" style="display: none;">Update Tacking</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+@endsection
+
+@push('scripts')
+<script>
+    $(document).ready(function() {
+        $('#plan-select').select2({
+            theme: 'bootstrap-5',
+            placeholder: 'Search by Container No or Plan No',
+            ajax: {
+                url: '{{ route("container-order-plans.searchStock") }}',
+                dataType: 'json',
+                delay: 250,
+                processResults: function (data) {
+                    return {
+                        results: $.map(data, function(item) {
+                            return {
+                                id: item.id,
+                                text: item.text,
+                                house_bl: item.house_bl
+                            }
+                        })
+                    };
+                },
+                cache: true
+            }
+        });
+
+        $('#plan-select').on('select2:select', function (e) {
+            var data = e.params.data;
+            if (data.house_bl) {
+                const shipmentInput = $('#shipment-input');
+                shipmentInput.val(data.house_bl);
+                shipmentInput.parent().addClass('is-filled');
+            }
+        });
+
+        let currentStep = 1;
+        const totalSteps = 3;
+        const nextBtn = $('#next-btn');
+        const prevBtn = $('#prev-btn');
+        const saveBtn = $('#save-btn');
+        const stepIndicator = $('#step-indicator');
+
+        function showStep(step) {
+            $('.photo-step').hide();
+            $('#step-' + step).show();
+            stepIndicator.text('Step ' + step + ' of ' + totalSteps);
+            prevBtn.toggle(step > 1);
+            nextBtn.toggle(step < totalSteps);
+            saveBtn.toggle(step === totalSteps);
+        }
+
+        nextBtn.on('click', function() {
+            if (currentStep < totalSteps) {
+                currentStep++;
+                showStep(currentStep);
+            }
+        });
+
+        prevBtn.on('click', function() {
+            if (currentStep > 1) {
+                currentStep--;
+                showStep(currentStep);
+            }
+        });
+
+        $('.photo-input').on('click', function(e) {
+            const previewId = $(this).data('preview-id');
+            const previewImage = $('#' + previewId);
+            if (previewImage.is(':visible') && previewImage.attr('src') !== '#') {
+                if (!confirm('A photo is already selected. Do you want to choose a new one?')) {
+                    e.preventDefault();
+                }
+            }
+        });
+
+        $('.photo-input').on('change', function() {
+            const previewId = $(this).data('preview-id');
+            const previewImage = $('#' + previewId);
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImage.attr('src', e.target.result).show();
+                }
+                reader.readAsDataURL(this.files[0]);
+            } else {
+                // Don't hide if there was an existing image, let the user decide to remove it
+            }
+        });
+    });
+</script>
+@endpush

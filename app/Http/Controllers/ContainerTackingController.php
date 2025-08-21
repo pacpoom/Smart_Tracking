@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use ZipArchive; // 1. เพิ่ม use statement นี้
+use ZipArchive;
 
 class ContainerTackingController extends Controller
 {
@@ -17,9 +17,9 @@ class ContainerTackingController extends Controller
     {
         // $this->middleware('permission:tack container photos', ['only' => ['create', 'store']]);
         // $this->middleware('permission:view container tackings', ['only' => ['index', 'show', 'showPhoto']]);
+        // $this->middleware('permission:edit container tackings', ['only' => ['edit', 'update']]);
         // $this->middleware('permission:delete container tackings', ['only' => ['destroy', 'bulkDestroy']]);
         // $this->middleware('permission:add damage photos', ['only' => ['addPhotos']]);
-        // // 2. เพิ่ม Middleware สำหรับฟังก์ชัน download
         // $this->middleware('permission:download tacking photos', ['only' => ['downloadPhotosAsZip']]);
     }
 
@@ -92,6 +92,52 @@ class ContainerTackingController extends Controller
         return view('container-tacking.show', compact('containerTacking'));
     }
 
+    public function edit(ContainerTacking $containerTacking)
+    {
+        $containerTacking->load(['containerOrderPlan.container', 'photos']);
+        return view('container-tacking.edit', compact('containerTacking'));
+    }
+
+    public function update(Request $request, ContainerTacking $containerTacking)
+    {
+        $request->validate([
+            'job_type' => 'required|string',
+            'container_type' => 'required|string',
+            'transport_type' => 'required|string',
+            'container_order_plan_id' => 'required|exists:container_order_plans,id',
+            'shipment' => 'nullable|string|max:255',
+            'photos' => 'nullable|array|max:30',
+            'photos.*' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        DB::transaction(function () use ($request, $containerTacking) {
+            $containerTacking->update($request->except(['photos', '_token', '_method']));
+
+            if ($request->hasFile('photos')) {
+                foreach ($request->file('photos') as $photoType => $file) {
+                    if ($file && $file->isValid()) {
+                        $existingPhoto = $containerTacking->photos()->where('photo_type', $photoType)->first();
+                        if ($existingPhoto) {
+                            Storage::disk('public')->delete($existingPhoto->file_path);
+                        }
+                        $path = $file->store("tacking_photos/{$containerTacking->id}", 'public');
+                        ContainerTackingPhoto::updateOrCreate(
+                            [
+                                'container_tacking_id' => $containerTacking->id,
+                                'photo_type' => $photoType,
+                            ],
+                            [
+                                'file_path' => $path,
+                            ]
+                        );
+                    }
+                }
+            }
+        });
+
+        return redirect()->route('container-tacking.index')->with('success', 'Tacking record updated successfully.');
+    }
+
     public function showPhoto(ContainerTackingPhoto $photo)
     {
         if (!Storage::disk('public')->exists($photo->file_path)) {
@@ -100,9 +146,6 @@ class ContainerTackingController extends Controller
         return response()->file(storage_path('app/public/' . $photo->file_path));
     }
 
-    /**
-     * Store additional photos for a tacking record.
-     */
     public function addPhotos(Request $request, ContainerTacking $containerTacking)
     {
         $request->validate([
@@ -112,8 +155,7 @@ class ContainerTackingController extends Controller
         ]);
 
         DB::transaction(function () use ($request, $containerTacking) {
-            $batchKey = Str::uuid(); // Generate a unique key for this batch of photos
-
+            $batchKey = Str::uuid();
             foreach ($request->file('damage_photos') as $key => $file) {
                 if ($file && $file->isValid()) {
                     $path = $file->store("tacking_photos/{$containerTacking->id}", 'public');
@@ -131,9 +173,6 @@ class ContainerTackingController extends Controller
         return back()->with('success', 'Damage photos added successfully.');
     }
 
-    /**
-     * Download all photos for a tacking record as a ZIP file.
-     */
     public function downloadPhotosAsZip(ContainerTacking $containerTacking)
     {
         $zip = new ZipArchive;
@@ -142,11 +181,9 @@ class ContainerTackingController extends Controller
 
         if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
             $photos = $containerTacking->photos;
-
             foreach ($photos as $photo) {
                 if (Storage::disk('public')->exists($photo->file_path)) {
                     $filePath = storage_path('app/public/' . $photo->file_path);
-                    // Create a more descriptive filename inside the zip
                     $newFilename = $photo->photo_type . '_' . basename($photo->file_path);
                     $zip->addFile($filePath, $newFilename);
                 }

@@ -55,6 +55,12 @@
                                 <a href="{{ route('container-tacking.show', $tacking->id) }}" class="btn btn-link text-secondary mb-0" title="View Details">
                                     <i class="material-symbols-rounded">visibility</i>
                                 </a>
+                                {{-- Added Edit Button --}}
+                                @can('edit container tackings')
+                                <a href="{{ route('container-tacking.edit', $tacking->id) }}" class="btn btn-link text-dark px-3 mb-0" title="Edit">
+                                    <i class="material-symbols-rounded">edit</i>
+                                </a>
+                                @endcan
                                 @can('delete container tackings')
                                     <button type="button" class="btn btn-link text-danger mb-0" data-bs-toggle="modal" data-bs-target="#deleteModal-{{ $tacking->id }}" title="Delete">
                                         <i class="material-symbols-rounded">delete</i>
