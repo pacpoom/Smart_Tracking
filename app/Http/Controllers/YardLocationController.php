@@ -7,6 +7,8 @@ use App\Models\YardCategory;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use App\Models\ContainerStock;
+use App\Models\ContainerTransaction;
+use Illuminate\Support\Facades\DB;
 
 class YardLocationController extends Controller
 {
@@ -37,17 +39,17 @@ class YardLocationController extends Controller
             });
         }
 
-        $locations = $query->paginate(10);
+        $locations = $query->latest()->paginate(10);
         return view('yard-locations.index', compact('locations'));
     }
 
     public function create()
     {
         // Fetch categories for dropdowns
-        $locationTypes = YardCategory::where('type', 'location_type')->pluck('name', 'id');
-        $zones = YardCategory::where('type', 'zone')->pluck('name', 'id');
-        $areas = YardCategory::where('type', 'area')->pluck('name', 'id');
-        $bins = YardCategory::where('type', 'bin')->pluck('name', 'id');
+        $locationTypes = YardCategory::where('category_type', 'location_type')->pluck('name', 'id');
+        $zones = YardCategory::where('category_type', 'zone')->pluck('name', 'id');
+        $areas = YardCategory::where('category_type', 'area')->pluck('name', 'id');
+        $bins = YardCategory::where('category_type', 'bin')->pluck('name', 'id');
 
         return view('yard-locations.create', compact('locationTypes', 'zones', 'areas', 'bins'));
     }
@@ -86,10 +88,10 @@ class YardLocationController extends Controller
     public function edit(YardLocation $yardLocation)
     {
         // Fetch categories for dropdowns
-        $locationTypes = YardCategory::where('type', 'location_type')->pluck('name', 'id');
-        $zones = YardCategory::where('type', 'zone')->pluck('name', 'id');
-        $areas = YardCategory::where('type', 'area')->pluck('name', 'id');
-        $bins = YardCategory::where('type', 'bin')->pluck('name', 'id');
+        $locationTypes = YardCategory::where('category_type', 'location_type')->pluck('name', 'id');
+        $zones = YardCategory::where('category_type', 'zone')->pluck('name', 'id');
+        $areas = YardCategory::where('category_type', 'area')->pluck('name', 'id');
+        $bins = YardCategory::where('category_type', 'bin')->pluck('name', 'id');
 
         return view('yard-locations.edit', compact('yardLocation', 'locationTypes', 'zones', 'areas', 'bins'));
     }
@@ -127,6 +129,11 @@ class YardLocationController extends Controller
 
     public function destroy(YardLocation $yardLocation)
     {
+        // Check for related records before deleting
+        if ($yardLocation->containerTransactions()->exists() || ContainerStock::where('yard_location_id', $yardLocation->id)->exists()) {
+            return redirect()->route('yard-locations.index')->with('error', 'Cannot delete location. It is currently in use by a transaction or has stock.');
+        }
+
         $yardLocation->delete();
         return redirect()->route('yard-locations.index')->with('success', 'Location deleted successfully.');
     }
@@ -137,7 +144,37 @@ class YardLocationController extends Controller
             'ids' => 'required|array',
             'ids.*' => 'exists:yard_locations,id',
         ]);
-        YardLocation::whereIn('id', $request->ids)->delete();
+
+        $ids = $request->input('ids');
+        $undeletedLocations = [];
+        $deletedCount = 0;
+
+        // Get all locations to be deleted
+        $locations = YardLocation::find($ids);
+
+        // Get all stock locations for the given IDs to check dependency in one query
+        $stockLocations = ContainerStock::whereIn('yard_location_id', $ids)->pluck('yard_location_id')->unique();
+
+        foreach ($locations as $location) {
+            // Check for container transactions or if it's in the stock locations list
+            if ($location->containerTransactions()->exists() || $stockLocations->contains($location->id)) {
+                $undeletedLocations[] = $location->location_code;
+            } else {
+                $location->delete();
+                $deletedCount++;
+            }
+        }
+
+        if (count($undeletedLocations) > 0) {
+            $message = 'Could not delete locations because they are in use: ' . implode(', ', $undeletedLocations);
+            if ($deletedCount > 0) {
+                return redirect()->route('yard-locations.index')
+                    ->with('success', $deletedCount . ' location(s) deleted successfully.')
+                    ->with('error', $message);
+            }
+            return redirect()->route('yard-locations.index')->with('error', $message);
+        }
+
         return redirect()->route('yard-locations.index')->with('success', 'Selected locations have been deleted successfully.');
     }
 
@@ -149,7 +186,7 @@ class YardLocationController extends Controller
         $search = $request->term;
         $excludeId = $request->exclude;
 
-        // 2. ดึง ID ของ Location ทั้งหมดที่มีตู้คอนเทนเนอร์อยู่
+        // Get IDs of all locations that already have containers
         $occupiedLocationIds = ContainerStock::pluck('yard_location_id')->unique()->toArray();
 
         $query = YardLocation::where('is_active', true);
@@ -162,7 +199,39 @@ class YardLocationController extends Controller
             $query->where('id', '!=', $excludeId);
         }
 
-        // 3. กรองข้อมูลโดยไม่รวม Location ที่มีตู้คอนเทนเนอร์อยู่แล้ว
+        // Filter out locations that are already occupied
+        $query->whereNotIn('id', $occupiedLocationIds);
+
+        $locations = $query->limit(15)->get(['id', 'location_code']);
+
+        $formatted_locations = [];
+        foreach ($locations as $location) {
+            $formatted_locations[] = [
+                'id' => $location->id,
+                'text' => $location->location_code
+            ];
+        }
+
+        return response()->json($formatted_locations);
+    }
+
+    public function searchDock(Request $request)
+    {
+        $search = $request->term;
+        $excludeId = $request->exclude;
+
+        // Get IDs of all locations that already have containers
+        $occupiedLocationIds = ContainerStock::pluck('yard_location_id')->unique()->toArray();
+
+        $query = YardLocation::where('is_active', true);
+
+        $query->where('location_type_id', 179); // Assuming 179 is the ID for 'Dock'
+
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+
+        // Filter out locations that are already occupied
         $query->whereNotIn('id', $occupiedLocationIds);
 
         $locations = $query->limit(15)->get(['id', 'location_code']);

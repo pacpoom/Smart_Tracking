@@ -25,6 +25,7 @@ use App\Http\Controllers\DisplayDashboardController;
 use App\Http\Controllers\ContainerPullingPlanController;
 use App\Http\Controllers\ContainerReturnController;
 use App\Http\Controllers\ContainerExchangeController;
+use App\Http\Controllers\ContainerOpenReturnCyController;
 
 /*
 |--------------------------------------------------------------------------
@@ -48,6 +49,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/user/profile-photo', [ProfileController::class, 'showPhoto'])->name('profile.photo.show');
         // Route for printing pulling plan report
     Route::get('container-pulling-plans/report', [ContainerPullingPlanController::class, 'printReport'])->name('container-pulling-plans.report');
+    Route::put('container-pulling-plans/{containerPullingPlan}/pick', [ContainerPullingPlanController::class, 'pick'])->name('container-pulling-plans.pick');
 
     // Bulk Delete Routes
     Route::delete('roles/bulk-destroy', [RolePermissionController::class, 'bulkDestroy'])->name('roles.bulkDestroy');
@@ -72,6 +74,7 @@ Route::middleware('auth')->group(function () {
     Route::get('parts/search', [PartController::class, 'search'])->name('parts.search');
     Route::get('containers/search', [ContainerController::class, 'search'])->name('containers.search');
     Route::get('yard-locations/search', [YardLocationController::class, 'search'])->name('yard-locations.search');
+    Route::get('yard-locations/searchDock', [YardLocationController::class, 'searchDock'])->name('yard-locations.searchDock');
     Route::get('container-order-plans/search', [ContainerOrderPlanController::class, 'search'])->name('container-order-plans.search');
     Route::get('container-order-plans/search-stock', [ContainerOrderPlanController::class, 'searchStock'])->name('container-order-plans.searchStock');
     Route::get('container-order-plans/search-stock-pulling', [ContainerOrderPlanController::class, 'searchStockPulling'])->name('container-order-plans.searchStockPulling');
@@ -143,6 +146,9 @@ Route::middleware('auth')->group(function () {
     Route::post('container-exchange', [ContainerExchangeController::class, 'store'])->name('container-exchange.store');
 
     Route::resource('container-tacking', ContainerTackingController::class);
+
+    Route::get('/container-open-return-cy', [ContainerOpenReturnCyController::class, 'index'])->name('container-open-return-cy.index');
+    Route::post('/container-open-return-cy', [ContainerOpenReturnCyController::class, 'store'])->name('container-open-return-cy.store');
 });
 
 require __DIR__.'/auth.php';

@@ -18,12 +18,6 @@ class YardLocation extends Model
         'is_active',
     ];
 
-    protected $casts = [
-        'is_active' => 'boolean',
-    ];
-
-    // --- เพิ่ม Relationships เหล่านี้เข้ามา ---
-
     public function locationType()
     {
         return $this->belongsTo(YardCategory::class, 'location_type_id');
@@ -42,5 +36,13 @@ class YardLocation extends Model
     public function bin()
     {
         return $this->belongsTo(YardCategory::class, 'bin_id');
+    }
+
+    /**
+     * Get the container transactions for the yard location.
+     */
+    public function containerTransactions()
+    {
+        return $this->hasMany(ContainerTransaction::class);
     }
 }
