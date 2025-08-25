@@ -26,6 +26,7 @@ use App\Http\Controllers\ContainerPullingPlanController;
 use App\Http\Controllers\ContainerReturnController;
 use App\Http\Controllers\ContainerExchangeController;
 use App\Http\Controllers\ContainerOpenReturnCyController;
+use App\Http\Controllers\ContainerReturnCyController;
 
 /*
 |--------------------------------------------------------------------------
@@ -126,6 +127,10 @@ Route::middleware('auth')->group(function () {
     // Container Ship Out Routes
     Route::get('container-ship-out', [ContainerShipOutController::class, 'index'])->name('container-ship-out.index');
     Route::put('container-ship-out/{pullingPlan}', [ContainerShipOutController::class, 'shipOut'])->name('container-ship-out.shipOut');
+
+    // Container Open Routes
+    Route::get('container-open', [ContainerReturnCyController::class, 'index'])->name('container-open.index');
+    Route::put('container-open/{pullingPlan}', [ContainerReturnCyController::class, 'shipOut'])->name('container-open.shipOut');
 
     // Container Yard Dashboard Route
     Route::get('container-yard/dashboard', [ContainerYardDashboardController::class, 'index'])->name('container-yard.dashboard');

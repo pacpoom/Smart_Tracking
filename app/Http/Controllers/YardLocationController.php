@@ -227,12 +227,12 @@ class YardLocationController extends Controller
 
         $query->where('location_type_id', 179); // Assuming 179 is the ID for 'Dock'
 
-        if ($excludeId) {
-            $query->where('id', '!=', $excludeId);
-        }
+        // if ($excludeId) {
+        //     $query->where('id', '!=', $excludeId);
+        // }
 
         // Filter out locations that are already occupied
-        $query->whereNotIn('id', $occupiedLocationIds);
+        //$query->whereNotIn('id', $occupiedLocationIds);
 
         $locations = $query->limit(15)->get(['id', 'location_code']);
 

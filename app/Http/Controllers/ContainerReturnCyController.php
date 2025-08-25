@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
-class ContainerShipOutController extends Controller
+class ContainerReturnCyController extends Controller
 {
     function __construct()
     {
@@ -20,7 +20,7 @@ class ContainerShipOutController extends Controller
 
     public function index(Request $request)
     {
-        $query = ContainerPullingPlan::where('status', 1)
+        $query = ContainerPullingPlan::where('status', 2)
             ->with(['containerOrderPlan.container', 'containerOrderPlan.containerStock.yardLocation']);
 
         if ($request->filled('search')) {
@@ -32,7 +32,7 @@ class ContainerShipOutController extends Controller
 
         $pullingPlans = $query->paginate(10);
 
-        return view('container-ship-out.index', compact('pullingPlans'));
+        return view('container-open.index', compact('pullingPlans'));
     }
 
     public function shipOut(Request $request, ContainerPullingPlan $pullingPlan)
@@ -76,16 +76,16 @@ class ContainerShipOutController extends Controller
             }
 
             // 2. Update the Pulling Plan status and type
-            $pullingPlan->status = 2; // In Progress
+            $pullingPlan->status = 3; // Completed
             $pullingPlan->plan_type = $request->plan_type;
             $pullingPlan->save();
 
             // // 3. Determine new stock status based on the updated plan type
-            // $newStockStatus = ($pullingPlan->plan_type === 'all') ? 3 : 2; // 3 = Empty, 2 = Partial
+            $newStockStatus = ($pullingPlan->plan_type === 'all') ? 3 : 2; // 3 = Empty, 2 = Partial
 
-            // // 4. Update Container Stock status
-            // $stock->status = $newStockStatus;
-            // $stock->save();
+            // 4. Update Container Stock status
+            $stock->status = $newStockStatus;
+            $stock->save();
 
             // 5. Update Order Plan status to "Shipped Out"
             $orderPlan->status = 3;
@@ -98,7 +98,7 @@ class ContainerShipOutController extends Controller
                 'house_bl' => $orderPlan->house_bl,
                 'user_id' => Auth::id(),
                 'yard_location_id' => $finalLocationId,
-                'activity_type' => 'Ship Out',
+                'activity_type' => 'Container Open',
                 'transaction_date' => now(),
                 'remarks' => 'Plan Type: ' . ucfirst($pullingPlan->plan_type) . '. ' . $request->remarks,
             ]);
