@@ -1,20 +1,7 @@
 # File: docker-compose.yml
-# คำอธิบาย: ลบ attribute 'version' ที่ไม่จำเป็นออกไป
+# คำอธิบาย: เพิ่ม service 'db' และ 'cloudflared' เพื่อจัดการ container ทั้งหมดในโปรเจกต์
 
 services:
-  # Service สำหรับ PHP Application (Laravel)
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: laravel_app
-    restart: unless-stopped
-    working_dir: /var/www
-    volumes:
-      - ./:/var/www
-    networks:
-      - laravel
-
   # Service สำหรับ Nginx (Web Server)
   nginx:
     image: nginx:1.19-alpine
@@ -25,6 +12,50 @@ services:
     volumes:
       - ./:/var/www
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - laravel
+    depends_on:
+      - app
+
+  # Service สำหรับ PHP Application (Laravel)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: laravel_app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+      # เพิ่มบรรทัดนี้เพื่อ mount ไฟล์ config ของ PHP
+      - ./docker/php/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+    networks:
+      - laravel
+    depends_on:
+      - db
+
+  # Service สำหรับ Database (MySQL)
+  db:
+    image: mysql:8.0
+    container_name: laravel_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-laravel}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-secret}
+      MYSQL_USER: ${DB_USERNAME:-user}
+    volumes:
+      - ./docker/db_data:/var/lib/mysql
+    networks:
+      - laravel
+
+  # Service สำหรับ Cloudflare Tunnel
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: laravel_cloudflared
+    restart: unless-stopped
+    # อย่าลืมเปลี่ยน YOUR_CLOUDFLARE_TOKEN เป็น token จริงของคุณ
+    command: tunnel --no-autoupdate run --token YOUR_CLOUDFLARE_TOKEN
     networks:
       - laravel
 
