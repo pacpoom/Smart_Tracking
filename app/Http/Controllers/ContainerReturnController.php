@@ -21,7 +21,7 @@ class ContainerReturnController extends Controller
     public function index(Request $request)
     {
         // ดึงข้อมูลจาก Container Stocks ที่มีสถานะเป็น "Empty" (3)
-        $query = ContainerStock::where('status', 3)
+        $query = ContainerStock::where('status', '!=',4)
             ->with(['containerOrderPlan.container', 'yardLocation']);
 
         if ($request->filled('search')) {

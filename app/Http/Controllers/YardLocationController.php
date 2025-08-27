@@ -45,13 +45,14 @@ class YardLocationController extends Controller
 
     public function create()
     {
-        // Fetch categories for dropdowns
-        $locationTypes = YardCategory::where('category_type', 'location_type')->pluck('name', 'id');
-        $zones = YardCategory::where('category_type', 'zone')->pluck('name', 'id');
-        $areas = YardCategory::where('category_type', 'area')->pluck('name', 'id');
-        $bins = YardCategory::where('category_type', 'bin')->pluck('name', 'id');
+        
+        $locationTypes = YardCategory::where('type', 'location_type')->pluck('name', 'id');
+        $zones = YardCategory::where('type', 'zone')->pluck('name', 'id');
+        $areas = YardCategory::where('type', 'area')->pluck('name', 'id');
+        $bins = YardCategory::where('type', 'bin')->pluck('name', 'id');
 
         return view('yard-locations.create', compact('locationTypes', 'zones', 'areas', 'bins'));
+
     }
 
     public function store(Request $request)
