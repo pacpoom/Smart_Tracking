@@ -92,7 +92,7 @@ class PartRequestController extends Controller
             'required_date' => 'required|date|after_or_equal:today',
             'reason' => 'nullable|string',
             'foc_no' => 'nullable|string|max:255', // เพิ่ม validation
-            'attachment' => 'nullable|file|mimes:xls,xlsx,doc,docx,ppt,pptx,jpg,jpeg,png,zip,pdf|max:10240',
+            'attachment' => 'nullable|file|mimes:xls,xlsx,doc,docx,ppt,pptx,jpg,jpeg,png,zip,pdf,msg|max:10240',
         ]);
 
         $data = $request->except('attachment');
