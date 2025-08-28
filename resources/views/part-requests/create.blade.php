@@ -61,7 +61,7 @@
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">FOC No.</label>
+                        <label class="form-label">Dealer Name</label>
                         <div class="input-group input-group-outline">
                             <input type="text" class="form-control" name="foc_no" value="{{ old('foc_no') }}">
                         </div>
