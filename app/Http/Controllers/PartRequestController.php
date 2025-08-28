@@ -9,7 +9,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Exports\PartRequestExport;
 use Maatwebsite\Excel\Facades\Excel;
-
+use Illuminate\Support\Facades\DB;
+use App\Models\Stock;
 class PartRequestController extends Controller
 {
     function __construct()
@@ -123,17 +124,47 @@ class PartRequestController extends Controller
             'delivery_document' => 'nullable|file|mimes:pdf,jpg,png,doc,docx|max:10240',
         ]);
 
-        $data = $request->except('delivery_document');
+        DB::transaction(function () use ($request, $partRequest) {
+            $oldStatus = $partRequest->status;
+            $newStatus = $request->status;
 
-        if ($request->hasFile('delivery_document')) {
-            if ($partRequest->delivery_document_path) {
-                Storage::delete($partRequest->delivery_document_path);
+            // ตรวจสอบว่าสถานะเปลี่ยนเป็น 'approved' จากสถานะอื่นหรือไม่
+            if ($newStatus === 'approved' && $oldStatus !== 'approved') {
+                $stock = Stock::where('part_id', $partRequest->part_id)->first();
+
+                // ตรวจสอบว่ามีสต็อกและเพียงพอหรือไม่
+                if ($stock && $stock->qty >= $partRequest->quantity) {
+                    $stock->decrement('qty', $partRequest->quantity);
+                } else {
+                    // หากสต็อกไม่พอ ให้ยกเลิก transaction และส่ง error กลับไป
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'status' => 'Cannot approve request. Insufficient stock available.',
+                    ]);
+                }
             }
-            $path = $request->file('delivery_document')->store('public/delivery_documents');
-            $data['delivery_document_path'] = $path;
-        }
 
-        $partRequest->update($data);
+            // (เพิ่ม) กรณีเปลี่ยนสถานะจาก 'approved' กลับไปเป็นอย่างอื่น (เช่น pending) ให้นำสต็อกคืน
+            if ($oldStatus === 'approved' && $newStatus !== 'approved' && $newStatus !== 'delivery') {
+                 $stock = Stock::where('part_id', $partRequest->part_id)->first();
+                 if($stock) {
+                    $stock->increment('qty', $partRequest->quantity);
+                 }
+            }
+
+
+            $data = $request->except('delivery_document');
+
+            if ($request->hasFile('delivery_document')) {
+                if ($partRequest->delivery_document_path) {
+                    Storage::delete($partRequest->delivery_document_path);
+                }
+                $path = $request->file('delivery_document')->store('public/delivery_documents');
+                $data['delivery_document_path'] = $path;
+            }
+
+            $partRequest->update($data);
+        });
+
 
         return redirect()->route('part-requests.index')->with('success', 'Part request updated successfully.');
     }
