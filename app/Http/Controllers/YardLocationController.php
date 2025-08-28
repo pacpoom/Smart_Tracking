@@ -201,7 +201,7 @@ class YardLocationController extends Controller
         }
 
         // Filter out locations that are already occupied
-        $query->whereNotIn('id', $occupiedLocationIds);
+        //$query->whereNotIn('id', $occupiedLocationIds);
 
         $locations = $query->limit(15)->get(['id', 'location_code']);
 
