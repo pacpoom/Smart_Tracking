@@ -20,14 +20,21 @@ class ContainerReturnController extends Controller
      */
     public function index(Request $request)
     {
-        // ดึงข้อมูลจาก Container Stocks ที่มีสถานะเป็น "Empty" (3)
-        $query = ContainerStock::where('status', '!=',4)
-            ->with(['containerOrderPlan.container', 'yardLocation']);
+        // Fetch Container Stocks that are not 'Returned' (status != 4)
+        $query = ContainerStock::where('status', '!=', 4)
+            ->with(['containerOrderPlan.container', 'yardLocation', 'container']); // Eager load relationships
 
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->whereHas('containerOrderPlan.container', function ($q) use ($search) {
-                $q->where('container_no', 'like', '%' . $search . '%');
+            $query->where(function ($q) use ($search) {
+                // Search by the Original Container Number from the order plan
+                $q->whereHas('containerOrderPlan.container', function ($subQ) use ($search) {
+                    $subQ->where('container_no', 'like', '%' . $search . '%');
+                })
+                // Also search by the Current Container Number from the stock record itself
+                ->orWhereHas('container', function ($subQ) use ($search) {
+                    $subQ->where('container_no', 'like', '%' . $search . '%');
+                });
             });
         }
 
@@ -36,13 +43,15 @@ class ContainerReturnController extends Controller
         return view('container-return.index', compact('stocks'));
     }
 
+
     /**
      * Process the container return.
      */
-    public function returnContainer(Request $request, ContainerStock $stock)
+     public function returnContainer(Request $request, ContainerStock $stock)
     {
         DB::transaction(function () use ($request, $stock) {
             $orderPlan = $stock->containerOrderPlan;
+            $containerIdToDelete = $stock->container_id; // Get the container_id to delete all related stocks
 
             if (!$orderPlan) {
                 // This is a safeguard in case the relationship is broken
@@ -64,8 +73,13 @@ class ContainerReturnController extends Controller
                 'remarks' => 'Container returned to owner.',
             ]);
 
-            // 3. Delete the container from the stock
-            $stock->delete();
+            // 3. Delete all container stock records with the same container_id
+            if ($containerIdToDelete) {
+                ContainerStock::where('container_id', $containerIdToDelete)->delete();
+            } else {
+                // Fallback for safety, though container_id should exist
+                $stock->delete();
+            }
         });
 
         return back()->with('success', 'Container has been returned successfully.');

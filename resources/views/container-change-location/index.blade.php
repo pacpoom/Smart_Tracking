@@ -19,7 +19,8 @@
         @include('layouts.partials.alerts')
         
         <div class="row">
-            @forelse ($stocks as $stock)
+            {{-- FIX: Change $stocks to $containers to match the variable from the controller --}}
+            @forelse ($containers as $stock)
                 <div class="col-md-6 col-lg-4 mb-4">
                     <div class="card border">
                         <div class="card-header border-bottom pb-2">
@@ -47,7 +48,8 @@
     </div>
     <div class="card-footer d-flex justify-content-center">
         {{-- Pagination --}}
-        {{ $stocks->withQueryString()->links() }}
+        {{-- FIX: Change $stocks to $containers for the pagination links --}}
+        {{ $containers->withQueryString()->links() }}
     </div>
 </div>
 @endsection
