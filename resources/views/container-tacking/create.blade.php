@@ -52,6 +52,12 @@
                             <label class="form-label">Container Type</label>
                             <select class="form-control" name="container_type" required>
                                 <option value="CKD">CKD</option>
+                                <option value="KD">KD</option>
+                                <option value="SKD">SKD</option>
+                                <option value="MIXED">MIXED</option>
+                                <option value="BODY">BODY</option>
+                                <option value="ENGINE">ENGINE</option>
+                                <option value="BATTERY">BATTERY</option>
                                 <option value="AIR">AIR</option>
                                 <option value="LOCAL">LOCAL</option>
                                 <option value="EXPORT">EXPORT</option>
