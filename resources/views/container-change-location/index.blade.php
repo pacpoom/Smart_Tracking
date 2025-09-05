@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', function() {
         placeholder: 'Search for a container...',
         allowClear: true,
         ajax: {
-            url: '{{ route("container-stocks.search") }}',
+            url: '/container-stocks/search',
             dataType: 'json',
             delay: 250,
             data: function(params) {
@@ -99,7 +99,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     dropdownParent: $(modal),
                     placeholder: 'Type to search for a location...',
                     ajax: {
-                        url: '{{ route("yard-locations.search") }}',
+                        //url: '{{ route("yard-locations.search") }}',
+                        url: '/yard-locations/search',
                         dataType: 'json',
                         delay: 250,
                         data: function(params) {
