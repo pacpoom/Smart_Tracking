@@ -35,6 +35,7 @@
                         <tr>
                             <th class="text-center" style="width: 1%;"><div class="form-check d-flex justify-content-center"><input class="form-check-input" type="checkbox" id="select-all-checkbox"></div></th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Container No.</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Container Type</th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Shipment / B/L</th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Job Type</th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">User</th>
@@ -47,6 +48,7 @@
                         <tr>
                             <td class="text-center"><div class="form-check d-flex justify-content-center"><input class="form-check-input tacking-checkbox" type="checkbox" name="ids[]" value="{{ $tacking->id }}"></div></td>
                             <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $tacking->containerOrderPlan?->container?->container_no ?? 'N/A' }}</p></td>
+                            <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $tacking->containerOrderPlan?->type ?? 'N/A' }}</p></td>
                             <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $tacking->containerOrderPlan?->house_bl ?? $tacking->shipment }}</p></td>
                             <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $tacking->job_type }}</p></td>
                             <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $tacking->user->name }}</p></td>
