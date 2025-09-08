@@ -75,7 +75,7 @@ class ContainerExchangeController extends Controller
 
         DB::table('container_stocks')
         ->where('id', $request->source_container_stock_id)
-        ->update(['container_id' => $order_plan_id->value('container_id')]);
+        ->update(['container_id' => $order_plan_id->value('container_id'), 'status' => 3]);
 
 
         DB::transaction(function () use ($sourceStock, $destinationStock, $request) {
