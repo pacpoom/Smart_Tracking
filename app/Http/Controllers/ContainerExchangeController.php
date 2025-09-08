@@ -9,7 +9,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
-use Carbon\Carbon; // 1. เพิ่ม use statement นี้
+use Carbon\Carbon;
+use App\Models\ContainerExchangePhoto;
+use Illuminate\Support\Facades\Storage; // เพิ่ม Storage facade
 
 class ContainerExchangeController extends Controller
 {
@@ -55,6 +57,19 @@ class ContainerExchangeController extends Controller
         return view('container-exchange.index', compact('exchanges', 'startDate', 'endDate'));
     }
 
+    public function show(ContainerExchange $containerExchange)
+    {
+        // โหลดความสัมพันธ์ที่จำเป็นเพื่อแสดงผล
+        $containerExchange->load([
+            'sourceStock.containerOrderPlan.container',
+            'destinationStock.containerOrderPlan.container',
+            'user',
+            'photos'
+        ]);
+        
+        return view('container-exchange.show', compact('containerExchange'));
+    }
+
     public function create()
     {
         return view('container-exchange.create');
@@ -66,31 +81,33 @@ class ContainerExchangeController extends Controller
             'source_container_stock_id' => 'required|exists:container_stocks,id',
             'destination_container_stock_id' => 'required|exists:container_stocks,id|different:source_container_stock_id',
             'remarks' => 'nullable|string',
+            'photos' => 'nullable|array',
+            'photos.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
-        $sourceStock = ContainerStock::find($request->source_container_stock_id);
-        $destinationStock = ContainerStock::find($request->destination_container_stock_id);
+        DB::transaction(function () use ($request) {
+            $sourceStock = ContainerStock::find($request->source_container_stock_id);
+            $destinationStock = ContainerStock::find($request->destination_container_stock_id);
+            
+            // ใช้ Container ID ของ Source Stock ก่อนที่จะถูกอัปเดต
+            $oldSourceContainerId = $sourceStock->container_id;
 
-        $order_plan_id =DB::table('container_order_plans')->where('id', $destinationStock->container_order_plan_id);
+            // 1. อัปเดตข้อมูลของ source stock
+            $sourceStock->update([
+                'container_id' => $destinationStock->container_id,
+                'container_order_plan_id' => $destinationStock->container_order_plan_id,
+                'status' => 3 // Empty
+            ]);
 
-        DB::table('container_stocks')
-        ->where('id', $request->source_container_stock_id)
-        ->update(['container_id' => $order_plan_id->value('container_id'), 'status' => 3]);
+            // 2. อัปเดตข้อมูลของ destination stock
+            $destinationStock->update([
+                'container_id' => $oldSourceContainerId,
+                'container_order_plan_id' => $sourceStock->container_order_plan_id,
+                'status' => 1 // Full
+            ]);
 
-
-        DB::transaction(function () use ($sourceStock, $destinationStock, $request) {
-            // // 1. Swap the container_order_plan_id
-            $sourcePlanId = $sourceStock->container_order_plan_id;
-            $destinationPlanId = $destinationStock->container_order_plan_id;
-
-            // $sourceStock->update(['container_order_plan_id' => $destinationPlanId]);
-            // $destinationStock->update(['container_order_plan_id' => $sourcePlanId]);
-
-            // 2. Set destination stock status to Full (1)
-            $destinationStock->update(['status' => 1]);
-            $sourceStock->update(['status' => 3]);
             // 3. Create a history log in container_exchanges
-            ContainerExchange::create([
+            $containerExchange = ContainerExchange::create([
                 'source_container_stock_id' => $sourceStock->id,
                 'destination_container_stock_id' => $destinationStock->id,
                 'user_id' => Auth::id(),
@@ -98,25 +115,39 @@ class ContainerExchangeController extends Controller
                 'remarks' => $request->remarks,
             ]);
 
-            // 4. Insert into transaction log for both containers
+            // 4. Handle photo uploads
+            if ($request->hasFile('photos')) {
+                foreach ($request->file('photos') as $type => $photo) {
+                    if ($photo && $photo->isValid()) {
+                        $path = $photo->store('photos/container_exchanges', 'public');
+                        ContainerExchangePhoto::create([
+                            'container_exchange_id' => $containerExchange->id,
+                            'photo_type' => $type,
+                            'photo_path' => $path,
+                        ]);
+                    }
+                }
+            }
+
+            // 5. Insert into transaction log for both containers
             ContainerTransaction::create([
-                'container_order_plan_id' => $sourcePlanId,
+                'container_order_plan_id' => $sourceStock->container_order_plan_id,
                 'house_bl' => $sourceStock->containerOrderPlan->house_bl,
                 'user_id' => Auth::id(),
                 'yard_location_id' => $destinationStock->yard_location_id,
                 'activity_type' => 'Exchange (To)',
                 'transaction_date' => now(),
-                'remarks' => 'Exchanged with ' . $destinationStock->containerOrderPlan->container->container_no,
+                'remarks' => 'Exchanged with ' . $destinationStock->container->container_no,
             ]);
 
             ContainerTransaction::create([
-                'container_order_plan_id' => $destinationPlanId,
+                'container_order_plan_id' => $destinationStock->container_order_plan_id,
                 'house_bl' => $destinationStock->containerOrderPlan->house_bl,
                 'user_id' => Auth::id(),
                 'yard_location_id' => $sourceStock->yard_location_id,
                 'activity_type' => 'Exchange (From)',
                 'transaction_date' => now(),
-                'remarks' => 'Exchanged with ' . $sourceStock->containerOrderPlan->container->container_no,
+                'remarks' => 'Exchanged with ' . $sourceStock->container->container_no,
             ]);
         });
 

@@ -104,7 +104,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('container-order-plans', ContainerOrderPlanController::class)->except(['show']);
     Route::resource('container-pulling-plans', ContainerPullingPlanController::class);
     Route::resource('container-tacking', ContainerTackingController::class)->except(['edit', 'update', 'show']);
-    Route::resource('container-exchange', ContainerExchangeController::class)->only(['index', 'create', 'store']);
+    Route::resource('container-exchange', ContainerExchangeController::class)->only(['index', 'create', 'store', 'show']);
 
     
     // Stock Routes

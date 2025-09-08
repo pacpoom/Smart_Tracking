@@ -36,12 +36,13 @@
                         <input type="date" class="form-control" name="end_date" value="{{ $endDate }}">
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <button type="submit" class="btn btn-dark w-50">Search</button>
+                <div class="col-md-2 d-grid">
+                    <button class="btn btn-dark mb-0" type="submit">Search</button>
                 </div>
             </div>
         </form>
 
+        {{-- Table --}}
         <div class="table-responsive p-0 mt-4">
             <table class="table align-items-center mb-0">
                 <thead>
@@ -50,18 +51,25 @@
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Destination Container</th>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">User</th>
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Exchange Date</th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse ($exchanges as $exchange)
                     <tr>
-                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $exchange->sourceStock?->containerOrderPlan?->container?->container_no ?? 'N/A' }}</p></td>
-                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $exchange->destinationStock?->containerOrderPlan?->container?->container_no ?? 'N/A' }}</p></td>
+                        {{-- แก้ไข: เปลี่ยนการเรียกใช้ความสัมพันธ์ให้ถูกต้อง --}}
+                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $exchange->sourceStock?->container?->container_no ?? 'N/A' }}</p></td>
+                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $exchange->destinationStock?->container?->container_no ?? 'N/A' }}</p></td>
                         <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $exchange->user?->name ?? 'N/A' }}</p></td>
                         <td class="align-middle text-center"><span class="text-secondary text-xs font-weight-bold">{{ $exchange->exchange_date?->format('d/m/Y H:i') }}</span></td>
+                        <td class="align-middle text-center">
+                            <a href="{{ route('container-exchange.show', $exchange->id) }}" class="btn btn-link text-secondary mb-0" title="View Photos">
+                                <i class="material-symbols-rounded">photo_album</i>
+                            </a>
+                        </td>
                     </tr>
                     @empty
-                    <tr><td colspan="4" class="text-center p-3">No exchange history found.</td></tr>
+                    <tr><td colspan="5" class="text-center p-3">No exchange history found.</td></tr>
                     @endforelse
                 </tbody>
             </table>
