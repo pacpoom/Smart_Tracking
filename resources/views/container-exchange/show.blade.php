@@ -11,8 +11,8 @@
     <div class="card-body">
         {{-- Main Details --}}
         <div class="row">
-            <div class="col-md-6 mb-3"><strong>Source Container (From):</strong> {{ $containerExchange->sourceContainerStock?->container?->container_no ?? 'N/A' }}</div>
-            <div class="col-md-6 mb-3"><strong>Destination Container (To):</strong> {{ $containerExchange->destinationContainerStock?->container?->container_no ?? 'N/A' }}</div>
+            <div class="col-md-6 mb-3"><strong>Source Container (From):</strong> {{ $containerExchange->sourceStock?->container?->container_no ?? 'N/A' }}</div>
+            <div class="col-md-6 mb-3"><strong>Destination Container (To):</strong> {{ $containerExchange->destinationStock?->container?->container_no ?? 'N/A' }}</div>
         </div>
         <div class="row mt-2">
             <div class="col-md-6 mb-3"><strong>Exchanged By:</strong> {{ $containerExchange->user->name }}</div>
@@ -48,8 +48,9 @@
             <div class="col-xl-3 col-md-4 col-sm-6 mb-4">
                 <div class="card">
                     <div class="card-header p-0 mx-3 mt-3 position-relative z-index-1">
-                        <a href="{{ asset('storage/' . $photo->photo_path) }}" target="_blank">
-                            <img src="{{ asset('storage/' . $photo->photo_path) }}" class="img-fluid border-radius-lg" style="height: 200px; width: 100%; object-fit: cover;">
+                        {{-- แก้ไขการเรียกใช้รูปภาพให้เหมือนกับ container-tacking --}}
+                        <a href="{{ route('container-exchange.showPhoto', $photo->id) }}" target="_blank">
+                            <img src="{{ route('container-exchange.showPhoto', $photo->id) }}" class="img-fluid border-radius-lg" style="height: 200px; width: 100%; object-fit: cover;">
                         </a>
                     </div>
                     <div class="card-body pt-2">

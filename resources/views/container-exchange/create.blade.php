@@ -95,7 +95,7 @@
                                     </div>
                                     @error('photos.' . str_replace('photos_', '', $key)) <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
                                     <div class="mt-2 text-center">
-                                        <img id="{{ $key }}-preview" src="#" alt="Image Preview" class="img-fluid border-radius-lg photo-preview"/>
+                                        <img id="{{ $key }}-preview" src="#" alt="Image Preview" class="img-fluid border-radius-lg" style="display: none; max-height: 150px;"/>
                                     </div>
                                 </div>
                             @endforeach

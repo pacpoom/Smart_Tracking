@@ -51,7 +51,8 @@ Route::middleware('auth')->group(function () {
         // Route for printing pulling plan report
     Route::get('container-pulling-plans/report', [ContainerPullingPlanController::class, 'printReport'])->name('container-pulling-plans.report');
     Route::put('container-pulling-plans/{containerPullingPlan}/pick', [ContainerPullingPlanController::class, 'pick'])->name('container-pulling-plans.pick');
-
+    Route::get('container-exchange/photo/{photo}', [ContainerExchangeController::class, 'showPhoto'])->name('container-exchange.showPhoto');
+    
     // Bulk Delete Routes
     Route::delete('roles/bulk-destroy', [RolePermissionController::class, 'bulkDestroy'])->name('roles.bulkDestroy');
     Route::delete('permissions/bulk-destroy', [PermissionController::class, 'bulkDestroy'])->name('permissions.bulkDestroy');

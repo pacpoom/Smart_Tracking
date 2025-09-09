@@ -30,11 +30,19 @@ class ContainerExchangeController extends Controller
         $startDate = $request->input('start_date', Carbon::now()->startOfMonth()->toDateString());
         $endDate = $request->input('end_date', Carbon::now()->endOfMonth()->toDateString());
 
+        // แก้ไข: เปลี่ยนการ eager load ความสัมพันธ์ให้สอดคล้องกับการ Join ตาราง containers
         $query = ContainerExchange::with([
-            'sourceStock.containerOrderPlan.container',
-            'destinationStock.containerOrderPlan.container',
             'user'
         ]);
+        
+        // เพิ่ม Join เพื่อเข้าถึงข้อมูล containers โดยตรง
+        $query->join('container_stocks AS source_stock', 'container_exchanges.source_container_stock_id', '=', 'source_stock.id')
+              ->join('container_stocks AS destination_stock', 'container_exchanges.destination_container_stock_id', '=', 'destination_stock.id')
+              ->join('containers AS source_container', 'source_stock.container_id', '=', 'source_container.id')
+              ->join('containers AS destination_container', 'destination_stock.container_id', '=', 'destination_container.id')
+              ->select('container_exchanges.*', 
+                       'source_container.container_no AS source_container_no',
+                       'destination_container.container_no AS destination_container_no');
 
         // 3. กรองข้อมูลตามช่วงวันที่
         $query->whereBetween('exchange_date', [$startDate, $endDate]);
@@ -42,12 +50,8 @@ class ContainerExchangeController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
-                $q->whereHas('sourceStock.containerOrderPlan.container', function ($subQ) use ($search) {
-                    $subQ->where('container_no', 'like', '%' . $search . '%');
-                })
-                ->orWhereHas('destinationStock.containerOrderPlan.container', function ($subQ) use ($search) {
-                    $subQ->where('container_no', 'like', '%' . $search . '%');
-                });
+                $q->where('source_container.container_no', 'like', '%' . $search . '%')
+                  ->orWhere('destination_container.container_no', 'like', '%' . $search . '%');
             });
         }
 
@@ -56,6 +60,7 @@ class ContainerExchangeController extends Controller
         // 4. ส่งค่าวันที่กลับไปที่ View
         return view('container-exchange.index', compact('exchanges', 'startDate', 'endDate'));
     }
+
 
     public function show(ContainerExchange $containerExchange)
     {
@@ -68,6 +73,15 @@ class ContainerExchangeController extends Controller
         ]);
         
         return view('container-exchange.show', compact('containerExchange'));
+    }
+    
+    // เพิ่มฟังก์ชัน showPhoto เพื่อแสดงรูปภาพตาม route ใหม่
+    public function showPhoto(ContainerExchangePhoto $photo)
+    {
+        if (!Storage::disk('public')->exists($photo->photo_path)) {
+            abort(404);
+        }
+        return response()->file(storage_path('app/public/' . $photo->photo_path));
     }
 
     public function create()
