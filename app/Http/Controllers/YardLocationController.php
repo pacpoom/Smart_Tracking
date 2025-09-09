@@ -193,7 +193,7 @@ class YardLocationController extends Controller
         $query = YardLocation::where('is_active', true);
 
         if ($search) {
-            $query->where('location_code', 'LIKE', "%{$search}%");
+            $query->where('location_code', 'LIKE', "{$search}%");
         }
 
         if ($excludeId) {
