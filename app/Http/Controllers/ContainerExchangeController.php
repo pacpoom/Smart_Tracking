@@ -109,21 +109,18 @@ class ContainerExchangeController extends Controller
             // 1. อัปเดตข้อมูลของ source stock
             $sourceStock->update([
                 'container_id' => $destinationStock->container_id,
-                'container_order_plan_id' => $destinationStock->container_order_plan_id,
                 'status' => 3 // Empty
             ]);
 
             // 2. อัปเดตข้อมูลของ destination stock
             $destinationStock->update([
-                'container_id' => $oldSourceContainerId,
-                'container_order_plan_id' => $sourceStock->container_order_plan_id,
                 'status' => 1 // Full
             ]);
 
             // 3. Create a history log in container_exchanges
             $containerExchange = ContainerExchange::create([
-                'source_container_stock_id' => $sourceStock->id,
-                'destination_container_stock_id' => $destinationStock->id,
+                'source_container_stock_id' => $sourceStock->container_id,
+                'destination_container_stock_id' => $destinationStock->container_id,
                 'user_id' => Auth::id(),
                 'exchange_date' => now(),
                 'remarks' => $request->remarks,
@@ -154,15 +151,15 @@ class ContainerExchangeController extends Controller
                 'remarks' => 'Exchanged with ' . $destinationStock->container->container_no,
             ]);
 
-            ContainerTransaction::create([
-                'container_order_plan_id' => $destinationStock->container_order_plan_id,
-                'house_bl' => $destinationStock->containerOrderPlan->house_bl,
-                'user_id' => Auth::id(),
-                'yard_location_id' => $sourceStock->yard_location_id,
-                'activity_type' => 'Exchange (From)',
-                'transaction_date' => now(),
-                'remarks' => 'Exchanged with ' . $sourceStock->container->container_no,
-            ]);
+            // ContainerTransaction::create([
+            //     'container_order_plan_id' => $destinationStock->container_order_plan_id,
+            //     'house_bl' => $destinationStock->containerOrderPlan->house_bl,
+            //     'user_id' => Auth::id(),
+            //     'yard_location_id' => $sourceStock->yard_location_id,
+            //     'activity_type' => 'Exchange (From)',
+            //     'transaction_date' => now(),
+            //     'remarks' => 'Exchanged with ' . $sourceStock->container->container_no,
+            // ]);
         });
 
         return back()->with('success', 'Containers exchanged successfully.');
