@@ -18,11 +18,20 @@ class ContainerOrderPlanImport implements ToModel, WithHeadingRow, WithValidatio
     */
     public function model(array $row)
     {
-        // 1. ค้นหา Container จาก container_no
-        //    ถ้าไม่เจอ จะสร้าง Container ใหม่ให้โดยอัตโนมัติ
+
         $container = Container::firstOrCreate(
-            ['container_no' => $row['container_no']]
+        ['container_no' => $row['container_no'],'size' => 40 , 'agent' => $row['agent']],
         );
+
+        // Check for existing record with the same container_id and house_bl
+        $existingPlan = ContainerOrderPlan::where('container_id', $container->id)
+            ->where('house_bl', $row['house_bl'])
+            ->first();
+
+        // If a duplicate is found, skip this row
+        if ($existingPlan) {
+            return null;
+        }
 
         return new ContainerOrderPlan([
             'plan_no'      => ContainerOrderPlan::generatePlanNumber(),
@@ -33,6 +42,7 @@ class ContainerOrderPlanImport implements ToModel, WithHeadingRow, WithValidatio
             'eta_date'     => $this->transformDate($row['eta_date']),
             'free_time'    => $row['free_time'],
             'checkin_date' => $this->transformDate($row['checkin_date']),
+            'depot'        => $row['depot'] ?? null,
             'status'       => 1, // Default to Pending
         ]);
     }
@@ -43,6 +53,7 @@ class ContainerOrderPlanImport implements ToModel, WithHeadingRow, WithValidatio
             // 2. แก้ไข: เปลี่ยนจาก 'exists' เป็น 'string'
             //    เพื่อให้สามารถรับค่า container_no ใหม่ๆ ได้
             'container_no' => 'required|string',
+            'house_bl' => 'required|string',
             'eta_date' => 'nullable|date_format:Ymd',
             'checkin_date' => 'nullable|date_format:Ymd',
         ];

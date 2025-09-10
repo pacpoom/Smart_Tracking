@@ -21,6 +21,7 @@ class ContainerOrderPlan extends Model
         'checkin_date',
         'departure_date',
         'status',
+        'depot'
     ];
 
     protected $casts = [
