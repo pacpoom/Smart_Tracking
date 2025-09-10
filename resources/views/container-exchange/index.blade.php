@@ -57,9 +57,9 @@
                 <tbody>
                     @forelse ($exchanges as $exchange)
                     <tr>
-                        {{-- แก้ไข: เปลี่ยนการเรียกใช้ความสัมพันธ์ให้ถูกต้อง --}}
-                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $exchange->sourceStock?->container?->container_no ?? 'N/A' }}</p></td>
-                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $exchange->destinationStock?->container?->container_no ?? 'N/A' }}</p></td>
+                        {{-- แก้ไข: เปลี่ยนการเรียกใช้เพื่อดึงค่าจาก join table --}}
+                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $exchange->source_container_no ?? 'N/A' }}</p></td>
+                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $exchange->destination_container_no ?? 'N/A' }}</p></td>
                         <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $exchange->user?->name ?? 'N/A' }}</p></td>
                         <td class="align-middle text-center"><span class="text-secondary text-xs font-weight-bold">{{ $exchange->exchange_date?->format('d/m/Y H:i') }}</span></td>
                         <td class="align-middle text-center">

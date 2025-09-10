@@ -11,8 +11,9 @@
     <div class="card-body">
         {{-- Main Details --}}
         <div class="row">
-            <div class="col-md-6 mb-3"><strong>Source Container (From):</strong> {{ $containerExchange->sourceStock?->container?->container_no ?? 'N/A' }}</div>
-            <div class="col-md-6 mb-3"><strong>Destination Container (To):</strong> {{ $containerExchange->destinationStock?->container?->container_no ?? 'N/A' }}</div>
+            {{-- แก้ไข: เปลี่ยนการเรียกใช้ความสัมพันธ์ --}}
+            <div class="col-md-6 mb-3"><strong>Source Container (From):</strong> {{ $exchange->source_container_no ?? 'N/A' }}</div>
+            <div class="col-md-6 mb-3"><strong>Destination Container (To):</strong> {{ $exchange->destination_container_no ?? 'N/A' }}</div>
         </div>
         <div class="row mt-2">
             <div class="col-md-6 mb-3"><strong>Exchanged By:</strong> {{ $containerExchange->user->name }}</div>

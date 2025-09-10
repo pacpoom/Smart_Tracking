@@ -10,8 +10,8 @@ class ContainerExchange extends Model
     use HasFactory;
 
     protected $fillable = [
-        'source_container_stock_id',
-        'destination_container_stock_id',
+        'source_container_id',
+        'destination_container_id',
         'user_id',
         'exchange_date',
         'remarks',

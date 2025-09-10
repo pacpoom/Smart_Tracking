@@ -36,10 +36,8 @@ class ContainerExchangeController extends Controller
         ]);
         
         // เพิ่ม Join เพื่อเข้าถึงข้อมูล containers โดยตรง
-        $query->join('container_stocks AS source_stock', 'container_exchanges.source_container_stock_id', '=', 'source_stock.id')
-              ->join('container_stocks AS destination_stock', 'container_exchanges.destination_container_stock_id', '=', 'destination_stock.id')
-              ->join('containers AS source_container', 'source_stock.container_id', '=', 'source_container.id')
-              ->join('containers AS destination_container', 'destination_stock.container_id', '=', 'destination_container.id')
+        $query->join('containers AS source_container', 'container_exchanges.source_container_id', '=', 'source_container.id')
+              ->join('containers AS destination_container', 'container_exchanges.destination_container_id', '=', 'destination_container.id')
               ->select('container_exchanges.*', 
                        'source_container.container_no AS source_container_no',
                        'destination_container.container_no AS destination_container_no');
@@ -102,25 +100,27 @@ class ContainerExchangeController extends Controller
         DB::transaction(function () use ($request) {
             $sourceStock = ContainerStock::find($request->source_container_stock_id);
             $destinationStock = ContainerStock::find($request->destination_container_stock_id);
-            
-            // ใช้ Container ID ของ Source Stock ก่อนที่จะถูกอัปเดต
-            $oldSourceContainerId = $sourceStock->container_id;
 
-            // 1. อัปเดตข้อมูลของ source stock
+            // เก็บ container_id เดิมของตู้ต้นทางและปลายทางไว้ก่อน
+            $sourceContainerId = $sourceStock->container_id;
+            $destinationContainerId = $destinationStock->container_id;
+
+            // 1. อัปเดตข้อมูลของ source stock ด้วย container_id ของ destination stock
             $sourceStock->update([
-                'container_id' => $destinationStock->container_id,
+                'container_id' => $destinationContainerId,
                 'status' => 3 // Empty
             ]);
-
-            // 2. อัปเดตข้อมูลของ destination stock
+            
+            // 2. อัปเดตข้อมูลของ destination stock ด้วย container_id ของ source stock
             $destinationStock->update([
                 'status' => 1 // Full
             ]);
 
             // 3. Create a history log in container_exchanges
             $containerExchange = ContainerExchange::create([
-                'source_container_stock_id' => $sourceStock->container_id,
-                'destination_container_stock_id' => $destinationStock->container_id,
+                // แก้ไข foreign key ให้เป็น container_id
+                'source_container_id' => $sourceContainerId,
+                'destination_container_id' => $destinationContainerId,
                 'user_id' => Auth::id(),
                 'exchange_date' => now(),
                 'remarks' => $request->remarks,
@@ -145,21 +145,12 @@ class ContainerExchangeController extends Controller
                 'container_order_plan_id' => $sourceStock->container_order_plan_id,
                 'house_bl' => $sourceStock->containerOrderPlan->house_bl,
                 'user_id' => Auth::id(),
-                'yard_location_id' => $destinationStock->yard_location_id,
+                'yard_location_id' => $sourceStock->yard_location_id, // ใช้ location เดิมของ source
                 'activity_type' => 'Exchange (To)',
                 'transaction_date' => now(),
                 'remarks' => 'Exchanged with ' . $destinationStock->container->container_no,
             ]);
 
-            // ContainerTransaction::create([
-            //     'container_order_plan_id' => $destinationStock->container_order_plan_id,
-            //     'house_bl' => $destinationStock->containerOrderPlan->house_bl,
-            //     'user_id' => Auth::id(),
-            //     'yard_location_id' => $sourceStock->yard_location_id,
-            //     'activity_type' => 'Exchange (From)',
-            //     'transaction_date' => now(),
-            //     'remarks' => 'Exchanged with ' . $sourceStock->container->container_no,
-            // ]);
         });
 
         return back()->with('success', 'Containers exchanged successfully.');
