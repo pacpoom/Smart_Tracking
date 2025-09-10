@@ -40,6 +40,7 @@
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Container No.</th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Size</th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Agent</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Container Owner</th>
                             <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Actions</th>
                         </tr>
                     </thead>
@@ -50,6 +51,11 @@
                             <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $container->container_no }}</p></td>
                             <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $container->size }}</p></td>
                             <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $container->agent }}</p></td>
+                            @if ($container->container_owner == 0)
+                            <td><p class="text-xs font-weight-bold mb-0 px-2">Rental</p></td>
+                            @elseif ($container->container_owner == 1)
+                            <td><p class="text-xs font-weight-bold mb-0 px-2">Owner</p></td>
+                            @endif
                             <td class="align-middle text-center">
                                 @can('edit containers')
                                     <a href="{{ route('containers.edit', $container->id) }}" class="btn btn-link text-secondary mb-0" title="Edit"><i class="material-symbols-rounded">edit</i></a>
