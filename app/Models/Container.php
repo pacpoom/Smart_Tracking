@@ -18,5 +18,6 @@ class Container extends Model
         'container_no',
         'size',
         'agent',
+        'container_owner',
     ];
 }
