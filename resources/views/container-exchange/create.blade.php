@@ -20,11 +20,13 @@
 @section('content')
 <div class="row">
     <div class="col-md-8 mx-auto">
-        <form action="{{ route('container-exchange.store') }}" method="POST" enctype="multipart/form-data">
+        {{-- เพิ่ม ID ให้กับ form เพื่อใช้ใน JavaScript --}}
+        <form action="{{ route('container-exchange.store') }}" method="POST" enctype="multipart/form-data" id="exchange-form">
             @csrf
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                     <h5 class="mb-2 mb-md-0">Exchange Container</h5>
+                    {{-- เพิ่ม ID ให้ปุ่ม Submit เพื่อใช้ใน JavaScript --}}
                     <button type="submit" class="btn btn-dark" id="save-btn" style="display: none;">Confirm Exchange</button>
                 </div>
                 <div class="card-body">
@@ -184,6 +186,23 @@
         
         // Initial state
         showStep(currentStep);
+        
+        // FIX: Add this JavaScript to prevent duplicate form submissions
+        $('#exchange-form').on('submit', function(e) {
+            const form = $(this);
+            const submitButton = form.find('button[type="submit"]');
+
+            if (submitButton.data('clicked')) {
+                // Prevent form submission if the button was already clicked
+                e.preventDefault();
+                return;
+            }
+
+            // Set a flag to indicate the button has been clicked
+            submitButton.data('clicked', true);
+            submitButton.prop('disabled', true);
+            submitButton.text('Processing...');
+        });
     });
 </script>
 @endpush

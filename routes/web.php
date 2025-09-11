@@ -81,6 +81,7 @@ Route::middleware('auth')->group(function () {
     Route::get('container-order-plans/search-stock', [ContainerOrderPlanController::class, 'searchStock'])->name('container-order-plans.searchStock');
     Route::get('container-order-plans/search-stock-pulling', [ContainerOrderPlanController::class, 'searchStockPulling'])->name('container-order-plans.searchStockPulling');
     Route::get('container-stocks/search', [ContainerStockController::class, 'search'])->name('container-stocks.search');
+    Route::get('container-stocks/search-empty', [ContainerReturnController::class, 'search'])->name('container-stocks.search-empty');
 
 
     // Import & Export Routes

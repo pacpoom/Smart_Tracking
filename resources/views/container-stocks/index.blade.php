@@ -34,6 +34,8 @@
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">House BL.</th>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Model</th>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Type</th>
+                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Agent</th>
+                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Depot</th>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Current Location</th>
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Stock Status</th>
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">ETA Date</th>
@@ -50,6 +52,8 @@
                         <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stock->containerOrderPlan?->house_bl ?? 'N/A' }}</p></td>
                         <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stock->containerOrderPlan?->model ?? 'N/A' }}</p></td>
                         <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stock->containerOrderPlan?->type ?? 'N/A' }}</p></td>
+                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stock->containerOrderPlan?->container?->agent ?? 'N/A' }}</p></td>
+                        <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stock->containerOrderPlan?->depot ?? 'N/A' }}</p></td>
                         <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stock->yardLocation?->location_code ?? 'N/A' }}</p></td>
                         <td class="align-middle text-center text-sm">
                             @if($stock->status == 1)

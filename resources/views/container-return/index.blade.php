@@ -7,12 +7,11 @@
     <div class="card-header pb-0">
         <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-md-between">
             <h5 class="mb-3 mb-md-0">Container Return (Empty Containers)</h5>
-            <form action="{{ route('container-return.index') }}" method="GET" class="w-100 w-md-auto">
-                <div class="input-group input-group-outline">
-                    <label class="form-label">Search by Container No...</label>
-                    <input type="text" class="form-control" name="search" value="{{ request('search') }}">
-                </div>
-            </form>
+            {{-- 1. เปลี่ยนจากช่อง input ธรรมดาเป็น select2 --}}
+            <div class="input-group input-group-outline w-100 w-md-auto">
+                <label class="form-label">Search by Container No...</label>
+                <select id="container-search" class="form-control" style="width: 100%;"></select>
+            </div>
         </div>
     </div>
     <div class="card-body">
@@ -50,3 +49,42 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 2. Initialise the main search bar with Select2 for AJAX
+    $('#container-search').select2({
+        theme: 'bootstrap-5',
+        width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
+        placeholder: 'Search for a container...',
+        allowClear: true,
+        ajax: {
+            url: '/container-stocks/search-empty',
+            dataType: 'json',
+            delay: 250,
+            data: function(params) {
+                return {
+                    term: params.term // search term
+                };
+            },
+            processResults: function(data) {
+                return {
+                    results: data
+                };
+            },
+            cache: true
+        }
+    }).on('select2:select', function(e) {
+        // เมื่อเลือก container จาก dropdown ให้เปลี่ยน URL เพื่อทำการค้นหา
+        let stockId = e.params.data.id;
+        // ส่งค่า 'search' ไปที่ URL เพื่อให้ Controller ทำการค้นหา
+        window.location.href = '{{ route("container-return.index") }}?search=' + encodeURIComponent(e.params.data.text.split(' ')[0]);
+
+    }).on('select2:unselect', function(e) {
+        // เมื่อยกเลิกการเลือก ให้รีโหลดหน้าเดิมเพื่อแสดงข้อมูลทั้งหมด
+        window.location.href = '{{ route("container-return.index") }}';
+    });
+});
+</script>
+@endpush

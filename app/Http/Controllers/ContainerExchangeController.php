@@ -105,6 +105,96 @@ class ContainerExchangeController extends Controller
             $sourceContainerId = $sourceStock->container_id;
             $destinationContainerId = $destinationStock->container_id;
 
+            // เพิ่มการตรวจสอบว่าตู้คอนเทนเนอร์ที่จะแลกเปลี่ยนเป็นตู้เดียวกันหรือไม่
+            if ($sourceContainerId == $destinationContainerId) {
+                throw ValidationException::withMessages([
+                   'destination_container_stock_id' => 'Source and destination containers cannot be the same.',
+                ]);
+            }
+
+            $sourceStock->update([
+                'status' => 3 // Empty
+            ]);
+
+            // 1. สร้าง ContainerStock ใหม่โดยใช้ข้อมูลจาก destinationStock แต่เปลี่ยน container_order_plan_id
+            ContainerStock::create([
+                'container_order_plan_id' => $sourceStock->container_order_plan_id,
+                'container_id' => $destinationStock->container_id,
+                'yard_location_id' => $destinationStock->yard_location_id,
+                'status' => 1, // Full
+                'exchange_flg' => 1, // กำหนดค่า exchange_flg เป็น 1
+                'checkin_date' => $destinationStock->checkin_date,
+                'remarks' => $destinationStock->remarks,
+            ]);
+
+            ContainerStock::where('exchange_flg', 1)
+            ->where('container_id', $sourceContainerId)
+            ->update(['container_id' => $destinationContainerId]);
+
+            // 4. Create a history log in container_exchanges
+            $containerExchange = ContainerExchange::create([
+                // แก้ไข foreign key ให้เป็น container_id
+                'source_container_id' => $sourceContainerId,
+                'destination_container_id' => $destinationContainerId,
+                'user_id' => Auth::id(),
+                'exchange_date' => now(),
+                'remarks' => $request->remarks,
+            ]);
+
+            // 5. Handle photo uploads
+            if ($request->hasFile('photos')) {
+                foreach ($request->file('photos') as $type => $photo) {
+                    if ($photo && $photo->isValid()) {
+                        $path = $photo->store('photos/container_exchanges', 'public');
+                        ContainerExchangePhoto::create([
+                            'container_exchange_id' => $containerExchange->id,
+                            'photo_type' => $type,
+                            'photo_path' => $path,
+                        ]);
+                    }
+                }
+            }
+
+            // 6. Insert into transaction log for both containers
+            ContainerTransaction::create([
+                'container_order_plan_id' => $sourceStock->container_order_plan_id,
+                'house_bl' => $sourceStock->containerOrderPlan->house_bl,
+                'user_id' => Auth::id(),
+                'yard_location_id' => $sourceStock->yard_location_id, // ใช้ location เดิมของ source
+                'activity_type' => 'Exchange (To)',
+                'transaction_date' => now(),
+                'remarks' => 'Exchanged with ' . $destinationStock->container->container_no,
+            ]);
+        });
+
+        return back()->with('success', 'Containers exchanged successfully.');
+    }
+
+    public function store_old(Request $request)
+    {
+        $request->validate([
+            'source_container_stock_id' => 'required|exists:container_stocks,id',
+            'destination_container_stock_id' => 'required|exists:container_stocks,id|different:source_container_stock_id',
+            'remarks' => 'nullable|string',
+            'photos' => 'nullable|array',
+            'photos.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
+
+        DB::transaction(function () use ($request) {
+            $sourceStock = ContainerStock::find($request->source_container_stock_id);
+            $destinationStock = ContainerStock::find($request->destination_container_stock_id);
+
+            // เก็บ container_id เดิมของตู้ต้นทางและปลายทางไว้ก่อน
+            $sourceContainerId = $sourceStock->container_id;
+            $destinationContainerId = $destinationStock->container_id;
+
+                        // เพิ่มการตรวจสอบว่าตู้คอนเทนเนอร์ที่จะแลกเปลี่ยนเป็นตู้เดียวกันหรือไม่
+            if ($sourceContainerId == $destinationContainerId) {
+                throw ValidationException::withMessages([
+                   'destination_container_stock_id' => 'Source and destination containers cannot be the same.',
+                ]);
+            }
+
             // 1. อัปเดตข้อมูลของ source stock ด้วย container_id ของ destination stock
             $sourceStock->update([
                 'container_id' => $destinationContainerId,

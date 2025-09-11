@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ContainerStock;
 use App\Models\ContainerTransaction;
+use App\Models\ContainerOrderPlan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -24,25 +25,52 @@ class ContainerReturnController extends Controller
         $query = ContainerStock::where('status', '!=', 4)
             ->with(['containerOrderPlan.container', 'yardLocation', 'container']); // Eager load relationships
 
+        // แก้ไขการค้นหา: ถ้ามีการส่ง container_id มาจาก search dropdown
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                // Search by the Original Container Number from the order plan
-                $q->whereHas('containerOrderPlan.container', function ($subQ) use ($search) {
-                    $subQ->where('container_no', 'like', '%' . $search . '%');
-                })
-                // Also search by the Current Container Number from the stock record itself
-                ->orWhereHas('container', function ($subQ) use ($search) {
-                    $subQ->where('container_no', 'like', '%' . $search . '%');
-                });
+            $query->whereHas('containerOrderPlan.container', function ($q) use ($search) {
+                $q->where('container_no', 'like', '%' . $search . '%');
             });
         }
-
+        
         $stocks = $query->paginate(6); // 6 cards per page for PDA layout
 
         return view('container-return.index', compact('stocks'));
     }
+    
+    /**
+     * Search for containers for Select2 AJAX.
+     */
+    public function search(Request $request)
+    {
 
+        // ค้นหาเฉพาะตู้ที่ยังไม่ถูก Return (4)
+
+        $search = $request->term;
+
+        // แก้ไข: ใช้ join และ group by container_no
+        $query = ContainerStock::join('containers', 'container_stocks.container_id', '=', 'containers.id')
+                    ->where('containers.container_no', 'LIKE', "%{$search}%")
+                    ->groupBy('containers.container_no')
+                    ->select(
+                        'container_stocks.container_id',
+                        'containers.container_no as text'
+                    );
+        
+        $stocks = $query->limit(15)->get();
+        
+        $formatted_stocks = [];
+        foreach ($stocks as $stock) {
+            if ($stock->container) {
+                $formatted_stocks[] = [
+                    'id' => $stock->container_id, // ใช้ container_id เป็น ID เพื่อใช้ในการลบ
+                    'text' => $stock->container->container_no,
+                ];
+            }
+        }
+        
+        return response()->json($formatted_stocks);
+    }
 
     /**
      * Process the container return.
@@ -51,16 +79,17 @@ class ContainerReturnController extends Controller
     {
         DB::transaction(function () use ($request, $stock) {
             $orderPlan = $stock->containerOrderPlan;
-            $containerIdToDelete = $stock->container_id; // Get the container_id to delete all related stocks
+            $containerIdToReturn = $stock->container_id;
 
             if (!$orderPlan) {
                 // This is a safeguard in case the relationship is broken
-                return back()->with('error', 'Associated Order Plan not found for this stock item.');
+                // ใช้ ValidationException เพื่อให้สามารถส่ง error กลับไปหน้า view ได้
+                throw ValidationException::withMessages(['general' => 'Associated Order Plan not found for this stock item.']);
             }
 
-            // 1. อัปเดตสถานะของ Order Plan เป็น "Returned" (4)
-            $orderPlan->status = 4;
-            $orderPlan->save();
+            // 1. อัปเดตสถานะของ Order Plan ทุกรายการที่เกี่ยวข้องกับ container_id นี้
+            ContainerOrderPlan::where('container_id', $containerIdToReturn)
+                ->update(['status' => 4]);
 
             // 2. Create a Transaction Log for the 'Return' activity
             ContainerTransaction::create([
@@ -74,8 +103,8 @@ class ContainerReturnController extends Controller
             ]);
 
             // 3. Delete all container stock records with the same container_id
-            if ($containerIdToDelete) {
-                ContainerStock::where('container_id', $containerIdToDelete)->delete();
+            if ($containerIdToReturn) {
+                ContainerStock::where('container_id', $containerIdToReturn)->delete();
             } else {
                 // Fallback for safety, though container_id should exist
                 $stock->delete();

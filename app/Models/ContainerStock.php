@@ -17,6 +17,7 @@ class ContainerStock extends Model
         'checkin_date',
         'eta_date',
         'remarks',
+        'exchange_flg'
     ];
 
     protected $casts = [
