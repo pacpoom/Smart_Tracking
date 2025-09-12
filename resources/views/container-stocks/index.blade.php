@@ -34,6 +34,7 @@
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">House BL.</th>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Model</th>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Type</th>
+                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Owner / Rental</th>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Agent</th>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Depot</th>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Current Location</th>
@@ -52,6 +53,13 @@
                         <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stock->containerOrderPlan?->house_bl ?? 'N/A' }}</p></td>
                         <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stock->containerOrderPlan?->model ?? 'N/A' }}</p></td>
                         <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stock->containerOrderPlan?->type ?? 'N/A' }}</p></td>
+                        <td><p class="text-xs font-weight-bold mb-0 px-2">
+                            @if ($stock->containerOrderPlan?->container?->container_owner == 0)
+                                Rental
+                            @else
+                                Owner
+                            @endif
+                        </p></td>
                         <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stock->containerOrderPlan?->container?->agent ?? 'N/A' }}</p></td>
                         <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stock->containerOrderPlan?->depot ?? 'N/A' }}</p></td>
                         <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $stock->yardLocation?->location_code ?? 'N/A' }}</p></td>
@@ -69,10 +77,14 @@
                         <td class="align-middle text-center"><span class="text-secondary text-xs font-weight-bold">{{ $stock->containerOrderPlan?->eta_date?->format('d/m/Y') ?? 'N/A' }}</span></td>
                         <td class="align-middle text-center"><span class="text-secondary text-xs font-weight-bold">{{ $stock->checkin_date?->format('d/m/Y') }}</span></td>
                         <td class="align-middle text-center">
-                            @if($stock->containerOrderPlan?->remaining_free_time === 'Expired')
-                                <span class="badge badge-sm bg-gradient-danger">Expired</span>
+                            @if($stock->containerOrderPlan?->container?->container_owner == 0)
+                                @if($stock->containerOrderPlan?->remaining_free_time === 'Expired')
+                                    <span class="badge badge-sm bg-gradient-danger">Expired</span>
+                                @else
+                                    <span class="text-secondary text-xs font-weight-bold">{{ $stock->containerOrderPlan?->remaining_free_time }} days</span>
+                                @endif
                             @else
-                                <span class="text-secondary text-xs font-weight-bold">{{ $stock->containerOrderPlan?->remaining_free_time }} days</span>
+                                <span class="text-secondary text-xs font-weight-bold">N/A</span>
                             @endif
                         </td>
                     </tr>

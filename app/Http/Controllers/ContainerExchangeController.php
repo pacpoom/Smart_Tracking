@@ -101,11 +101,19 @@ class ContainerExchangeController extends Controller
             $sourceStock = ContainerStock::find($request->source_container_stock_id);
             $destinationStock = ContainerStock::find($request->destination_container_stock_id);
 
-            // เก็บ container_id เดิมของตู้ต้นทางและปลายทางไว้ก่อน
             $sourceContainerId = $sourceStock->container_id;
             $destinationContainerId = $destinationStock->container_id;
 
-            // เพิ่มการตรวจสอบว่าตู้คอนเทนเนอร์ที่จะแลกเปลี่ยนเป็นตู้เดียวกันหรือไม่
+            $check_ = ContainerStock::where('container_order_plan_id', $sourceStock->container_order_plan_id)
+                                     ->where('container_id', $destinationContainerId)
+                                     ->first();
+
+            if($check_){
+                throw ValidationException::withMessages([
+                    'destination_container_stock_id' => 'The destination container already exists in the same order plan.',
+                 ]);
+            }
+
             if ($sourceContainerId == $destinationContainerId) {
                 throw ValidationException::withMessages([
                    'destination_container_stock_id' => 'Source and destination containers cannot be the same.',
@@ -116,7 +124,6 @@ class ContainerExchangeController extends Controller
                 'status' => 3 // Empty
             ]);
 
-            // 1. สร้าง ContainerStock ใหม่โดยใช้ข้อมูลจาก destinationStock แต่เปลี่ยน container_order_plan_id
             ContainerStock::create([
                 'container_order_plan_id' => $sourceStock->container_order_plan_id,
                 'container_id' => $destinationStock->container_id,
@@ -131,7 +138,6 @@ class ContainerExchangeController extends Controller
             ->where('container_id', $sourceContainerId)
             ->update(['container_id' => $destinationContainerId]);
 
-            // 4. Create a history log in container_exchanges
             $containerExchange = ContainerExchange::create([
                 // แก้ไข foreign key ให้เป็น container_id
                 'source_container_id' => $sourceContainerId,
@@ -141,7 +147,6 @@ class ContainerExchangeController extends Controller
                 'remarks' => $request->remarks,
             ]);
 
-            // 5. Handle photo uploads
             if ($request->hasFile('photos')) {
                 foreach ($request->file('photos') as $type => $photo) {
                     if ($photo && $photo->isValid()) {
@@ -155,7 +160,6 @@ class ContainerExchangeController extends Controller
                 }
             }
 
-            // 6. Insert into transaction log for both containers
             ContainerTransaction::create([
                 'container_order_plan_id' => $sourceStock->container_order_plan_id,
                 'house_bl' => $sourceStock->containerOrderPlan->house_bl,
