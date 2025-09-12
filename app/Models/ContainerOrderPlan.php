@@ -96,4 +96,12 @@ class ContainerOrderPlan extends Model
         return $this->hasOne(ContainerPullingPlan::class);
     }
 
+    public function getAgeInDaysAttribute()
+    {
+        if ($this->checkin_date) {
+            return $this->checkin_date->diffInDays(Carbon::today());
+        }
+        return 'N/A';
+    }
+
 }

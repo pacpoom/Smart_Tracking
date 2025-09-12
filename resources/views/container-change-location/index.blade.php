@@ -24,6 +24,9 @@
                         <div class="card-header border-bottom pb-2">
                             <h6 class="mb-0">{{ $stock->containerOrderPlan?->container?->container_no ?? 'N/A' }}</h6>
                             <p class="text-sm mb-0">Size: {{ $stock->containerOrderPlan?->container?->size ?? 'N/A' }}</p>
+                            <p class="text-sm mb-0">Agent: {{ $stock->containerOrderPlan?->container?->agent ?? 'N/A' }}</p>
+                            <p class="text-sm mb-0">Depot: {{ $stock->containerOrderPlan?->depot ?? 'N/A' }}</p>
+                            <p class="text-sm mb-0">Age in yard: {{ $stock->containerOrderPlan?->age_in_days ?? 'N/A' }} days</p>
                         </div>
                         <div class="card-body">
                             <p class="mb-1"><strong>Current Location:</strong></p>
