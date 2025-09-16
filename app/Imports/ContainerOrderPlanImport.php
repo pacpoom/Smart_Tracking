@@ -20,8 +20,12 @@ class ContainerOrderPlanImport implements ToModel, WithHeadingRow, WithValidatio
     {
 
         $container = Container::firstOrCreate(
-        ['container_no' => $row['container_no'],'size' => 40 , 'agent' => $row['agent']],
+        ['container_no' => $row['container_no']],
         );
+
+        Container::where('container_no', $container->container_no)
+        ->update(['agent' => $row['agent']]);
+
 
         // Check for existing record with the same container_id and house_bl
         $existingPlan = ContainerOrderPlan::where('container_id', $container->id)
