@@ -41,8 +41,10 @@ class ContainerStockExport implements FromQuery, WithHeadings, WithMapping, Shou
             'Stock Status',
             'ETA Date',
             'Check-in Date',
-            'Expiration Date',
-            'Remaining Free Time',
+            'Detention',
+            'Expired Date',
+            'Aging (Days)',
+
         ];
     }
 
@@ -67,22 +69,14 @@ class ContainerStockExport implements FromQuery, WithHeadings, WithMapping, Shou
             $ownerRental = $isOwner ? 'Owner' : 'Rental';
         }
 
-        // ================== START: LOGIC ที่แก้ไขและง่ายขึ้น ==================
+        // Logic สำหรับ Detention 
+        $detentionTime = $stock->containerOrderPlan?->remaining_free_time;
 
-        // 1. ดึงค่าที่คำนวณแล้วจาก Model มาโดยตรง (Model จะคืนค่า Expired, N/A, หรือตัวเลข)
-        $remainingTimeValue = $stock->containerOrderPlan?->remaining_free_time;
-
-        // 2. กำหนดค่าที่จะแสดงผลเริ่มต้น
-        $finalDisplayTime = $remainingTimeValue;
-
-        // 3. จัดการการแสดงผล
         if ($isOwner) {
-            $finalDisplayTime = 0;
-        } elseif (is_numeric($remainingTimeValue)) {
-            $finalDisplayTime = $remainingTimeValue . ' days';
+            $detentionTime = 'N/A'; // ถ้าเป็น Owner จะไม่มี Detention
+        } elseif (is_numeric($detentionTime)) {
+            $detentionTime = $detentionTime . ' days';
         }
-
-        // =================== END: LOGIC ที่แก้ไขและง่ายขึ้น ===================
 
         return [
             $stock->containerOrderPlan?->plan_no ?? 'N/A',
@@ -98,16 +92,16 @@ class ContainerStockExport implements FromQuery, WithHeadings, WithMapping, Shou
             $stockStatus,
             $stock->containerOrderPlan?->eta_date?->format('Y-m-d') ?? 'N/A',
             $stock->checkin_date?->format('Y-m-d'),
-            $stock->containerOrderPlan?->expiration_date?->format('Y-m-d') ?? 'N/A',
-            $finalDisplayTime,
+            $detentionTime,
+            $stock->expired_date ? $stock->expired_date->format('Y-m-d') : 'N/A',
+            $stock->aging_days,
+
         ];
     }
 
     public function styles(Worksheet $sheet)
     {
         $sheet->getStyle('1:1')->getFont()->setBold(true);
-        // เนื่องจากใช้ FromQuery เราไม่สามารถนับแถวเพื่อใส่ Border ได้โดยตรง
-        // หากจำเป็นต้องใส่เส้นขอบจริงๆ อาจต้องใช้วิธีอื่นที่ซับซ้อนกว่า
         return [];
     }
 }

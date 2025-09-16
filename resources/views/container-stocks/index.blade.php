@@ -94,6 +94,13 @@
                                 Check-in Date</th>
                             <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
                                 Detention</th>
+
+                            {{-- ======== หัวตารางใหม่ที่เพิ่มเข้ามา ======== --}}
+                            <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                Expired Date</th>
+                            <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                Aging Date</th>
+                            {{-- ========================================== --}}
                         </tr>
                     </thead>
                     <tbody>
@@ -159,21 +166,29 @@
                                 </td>
                                 <td class="align-middle text-center">
                                     @if (isset($stock->Container->container_owner) && $stock->Container->container_owner == 0)
-                                        @if ($stock->containerOrderPlan?->remaining_free_time === 'Expired')
-                                            <span class="badge badge-sm bg-gradient-danger">Expired</span>
-                                        @else
-                                            <span
-                                                class="text-secondary text-xs font-weight-bold">{{ $stock->containerOrderPlan?->remaining_free_time }}
-                                                days</span>
-                                        @endif
+                                        <span
+                                            class="text-secondary text-xs font-weight-bold">{{ $stock->containerOrderPlan?->free_time ?? 'N/A' }}
+                                            days</span>
                                     @else
                                         <span class="text-secondary text-xs font-weight-bold">N/A</span>
                                     @endif
                                 </td>
+
+                                {{-- ======== ข้อมูลใหม่ที่เพิ่มเข้ามา ======== --}}
+                                <td class="align-middle text-center">
+                                    <span
+                                        class="text-secondary text-xs font-weight-bold">{{ $stock->expired_date ? $stock->expired_date->format('d/m/Y') : 'N/A' }}</span>
+                                </td>
+                                <td class="align-middle text-center">
+                                    <span class="text-secondary text-xs font-weight-bold">{{ $stock->aging_days }}
+                                        days</span>
+                                </td>
+                                {{-- ======================================= --}}
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="14" class="text-center p-3">No containers currently in stock.</td>
+                                {{-- ปรับ colspan เป็น 16 เพื่อให้ครอบคลุมคอลัมน์ใหม่ --}}
+                                <td colspan="16" class="text-center p-3">No containers currently in stock.</td>
                             </tr>
                         @endforelse
                     </tbody>
