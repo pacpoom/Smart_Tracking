@@ -2,15 +2,16 @@
 
 namespace App\Exports;
 
-use App\Models\ContainerOrderPlan;
-use Maatwebsite\Excel\Concerns\FromCollection;
+use App\Models\ContainerStock;
+use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Carbon\Carbon;
 
-class ContainerStockExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize, WithStyles
+class ContainerStockExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSize, WithStyles
 {
     protected $query;
 
@@ -19,90 +20,94 @@ class ContainerStockExport implements FromCollection, WithHeadings, WithMapping,
         $this->query = $query;
     }
 
-    /**
-    * @return \Illuminate\Support\Collection
-    */
-    public function collection()
+    public function query()
     {
-        return $this->query->get();
+        return $this->query;
     }
 
-    /**
-     * @return array
-     */
     public function headings(): array
     {
         return [
             'Plan No.',
             'Original Container No.',
-            'Current Container No.', // เพิ่มคอลัมน์นี้
-            'House BL.', // เพิ่มคอลัมน์นี้
+            'Current Container No.',
+            'House BL.',
             'model',
-            'type', // เพิ่มคอลัมน์นี้
+            'type',
+            'Owner / Rental',
+            'Agent',
+            'Depot',
             'Current Location',
             'Stock Status',
             'ETA Date',
             'Check-in Date',
-            'Expiration Date', // เพิ่มคอลัมน์นี้
+            'Expiration Date',
             'Remaining Free Time',
         ];
     }
 
     /**
-     * @param ContainerOrderPlan $stockPlan
+     * @param ContainerStock $stock
      * @return array
      */
     public function map($stock): array
     {
+        // --- ส่วนของการเตรียมข้อมูล ---
         $stockStatus = match ($stock->status) {
             1 => 'Full',
             2 => 'Partial',
             3 => 'Empty',
-            default => 'Unknown',
+            default => 'Unknown'
         };
 
-        $remainingTime = $stock->containerOrderPlan?->remaining_free_time;
-        if ($remainingTime !== 'Expired' && $remainingTime !== 'N/A') {
-            $remainingTime .= ' days';
+        $ownerRental = 'N/A';
+        $isOwner = false;
+        if (isset($stock->Container->container_owner)) {
+            $isOwner = ($stock->Container->container_owner == 1);
+            $ownerRental = $isOwner ? 'Owner' : 'Rental';
         }
+
+        // ================== START: LOGIC ที่แก้ไขและง่ายขึ้น ==================
+
+        // 1. ดึงค่าที่คำนวณแล้วจาก Model มาโดยตรง (Model จะคืนค่า Expired, N/A, หรือตัวเลข)
+        $remainingTimeValue = $stock->containerOrderPlan?->remaining_free_time;
+
+        // 2. กำหนดค่าที่จะแสดงผลเริ่มต้น
+        $finalDisplayTime = $remainingTimeValue;
+
+        // 3. จัดการการแสดงผล
+        if ($isOwner) {
+            $finalDisplayTime = 0;
+        } elseif (is_numeric($remainingTimeValue)) {
+            $finalDisplayTime = $remainingTimeValue . ' days';
+        }
+
+        // =================== END: LOGIC ที่แก้ไขและง่ายขึ้น ===================
 
         return [
             $stock->containerOrderPlan?->plan_no ?? 'N/A',
             $stock->containerOrderPlan?->container?->container_no ?? 'N/A',
-            $stock->Container->container_no ?? $stock->containerOrderPlan?->container?->container_no, // ใช้ข้อมูลจาก Container หรือจาก ContainerOrderPlan
-            $stock->containerOrderPlan?->house_bl ?? 'N/A', // เพิ่มข้อมูลนี้
+            $stock->Container->container_no ?? 'N/A',
+            $stock->containerOrderPlan?->house_bl ?? 'N/A',
             $stock->containerOrderPlan?->model ?? 'N/A',
             $stock->containerOrderPlan?->type ?? 'N/A',
+            $ownerRental,
+            $stock->Container->agent ?? 'N/A',
+            $stock->Container?->depot ?? 'N/A',
             $stock->yardLocation?->location_code ?? 'N/A',
             $stockStatus,
             $stock->containerOrderPlan?->eta_date?->format('Y-m-d') ?? 'N/A',
             $stock->checkin_date?->format('Y-m-d'),
-            $stock->containerOrderPlan?->expiration_date?->format('Y-m-d'), // เพิ่มข้อมูลนี้
-            $remainingTime,
+            $stock->containerOrderPlan?->expiration_date?->format('Y-m-d') ?? 'N/A',
+            $finalDisplayTime,
         ];
     }
 
-    /**
-     * @param Worksheet $sheet
-     * @return array
-     */
     public function styles(Worksheet $sheet)
     {
-        // Style the first row (headings) to be bold.
         $sheet->getStyle('1:1')->getFont()->setBold(true);
-
-        // Apply borders to all cells
-        $lastRow = $this->collection()->count() + 1;
-        $styleArray = [
-            'borders' => [
-                'allBorders' => [
-                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
-                ],
-            ],
-        ];
-        // แก้ไข: ปรับ range ให้ครอบคลุมคอลัมน์ใหม่ (A1:J)
-        $sheet->getStyle('A1:K'.$lastRow)->applyFromArray($styleArray);
-
+        // เนื่องจากใช้ FromQuery เราไม่สามารถนับแถวเพื่อใส่ Border ได้โดยตรง
+        // หากจำเป็นต้องใส่เส้นขอบจริงๆ อาจต้องใช้วิธีอื่นที่ซับซ้อนกว่า
         return [];
     }
 }

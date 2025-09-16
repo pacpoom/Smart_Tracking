@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Carbon\Carbon;
 
 class ContainerOrderPlan extends Model
 {
@@ -42,25 +42,14 @@ class ContainerOrderPlan extends Model
         return $this->hasOne(ContainerStock::class);
     }
 
-    /**
-     * Calculate the expiration date based on ETA Date.
-     *
-     * @return \Carbon\Carbon|null
-     */
     public function getExpirationDateAttribute()
     {
-        // แก้ไข: เปลี่ยนจาก checkin_date เป็น eta_date
         if ($this->checkin_date && is_numeric($this->free_time)) {
             return $this->checkin_date->copy()->addDays($this->free_time);
         }
         return null;
     }
 
-    /**
-     * Calculate the remaining free time in days from today.
-     *
-     * @return int|string
-     */
     public function getRemainingFreeTimeAttribute()
     {
         $expirationDate = $this->getExpirationDateAttribute();
@@ -70,9 +59,26 @@ class ContainerOrderPlan extends Model
             if ($expirationDate < $today) {
                 return 'Expired';
             }
-            return $today->diffInDays($expirationDate);
+
+            $remainingDays = $today->diff($expirationDate)->days;
+
+            // เงื่อนไขหลัก: ถ้าวันที่เหลือเกิน 33 วัน ให้เป็น Expired
+            if ($remainingDays > 33) {
+                return 'Expired';
+            }
+
+            // ถ้าไม่เข้าเงื่อนไขไหนเลย ให้คืนค่าเป็นตัวเลข
+            return $remainingDays;
         }
 
+        return 'N/A';
+    }
+
+    public function getAgeInDaysAttribute()
+    {
+        if ($this->checkin_date) {
+            return $this->checkin_date->diff(Carbon::today())->days;
+        }
         return 'N/A';
     }
 
@@ -80,14 +86,7 @@ class ContainerOrderPlan extends Model
     {
         $prefix = 'ORDER' . date('ymd');
         $lastPlan = self::where('plan_no', 'like', $prefix . '%')->latest('id')->first();
-
-        if ($lastPlan) {
-            $lastNumber = (int) substr($lastPlan->plan_no, -4);
-            $newNumber = $lastNumber + 1;
-        } else {
-            $newNumber = 1;
-        }
-
+        $newNumber = $lastPlan ? ((int) substr($lastPlan->plan_no, -4)) + 1 : 1;
         return $prefix . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
     }
 
@@ -95,13 +94,4 @@ class ContainerOrderPlan extends Model
     {
         return $this->hasOne(ContainerPullingPlan::class);
     }
-
-    public function getAgeInDaysAttribute()
-    {
-        if ($this->checkin_date) {
-            return $this->checkin_date->diffInDays(Carbon::today());
-        }
-        return 'N/A';
-    }
-
 }
