@@ -27,6 +27,7 @@ use App\Http\Controllers\ContainerReturnController;
 use App\Http\Controllers\ContainerExchangeController;
 use App\Http\Controllers\ContainerOpenReturnCyController;
 use App\Http\Controllers\ContainerReturnCyController;
+use App\Http\Controllers\PackingListController;
 
 /*
 |--------------------------------------------------------------------------
@@ -48,11 +49,11 @@ Route::middleware('auth')->group(function () {
     Route::put('/password', [ProfileController::class, 'updatePassword'])->name('password.update');
     Route::post('/profile/photo', [ProfileController::class, 'updatePhoto'])->name('profile.photo.update');
     Route::get('/user/profile-photo', [ProfileController::class, 'showPhoto'])->name('profile.photo.show');
-        // Route for printing pulling plan report
+    // Route for printing pulling plan report
     Route::get('container-pulling-plans/report', [ContainerPullingPlanController::class, 'printReport'])->name('container-pulling-plans.report');
     Route::put('container-pulling-plans/{containerPullingPlan}/pick', [ContainerPullingPlanController::class, 'pick'])->name('container-pulling-plans.pick');
     Route::get('container-exchange/photo/{photo}', [ContainerExchangeController::class, 'showPhoto'])->name('container-exchange.showPhoto');
-    
+
     // Bulk Delete Routes
     Route::delete('roles/bulk-destroy', [RolePermissionController::class, 'bulkDestroy'])->name('roles.bulkDestroy');
     Route::delete('permissions/bulk-destroy', [PermissionController::class, 'bulkDestroy'])->name('permissions.bulkDestroy');
@@ -108,7 +109,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('container-tacking', ContainerTackingController::class)->except(['edit', 'update', 'show']);
     Route::resource('container-exchange', ContainerExchangeController::class)->only(['index', 'create', 'store', 'show']);
 
-    
+
     // Stock Routes
     Route::get('stocks', [StockController::class, 'index'])->name('stocks.index');
     Route::put('parts/{part}/stock/adjust', [StockController::class, 'adjust'])->name('stocks.adjust');
@@ -125,6 +126,7 @@ Route::middleware('auth')->group(function () {
     // Container Change Location Routes
     Route::get('container-change-location', [ContainerChangeLocationController::class, 'index'])->name('container-change-location.index');
     Route::put('container-change-location/{stock}', [ContainerChangeLocationController::class, 'update'])->name('container-change-location.update');
+    Route::get('/packing-list', [PackingListController::class, 'index'])->name('packing-list.index');
 
     // Container Ship Out Routes
     Route::get('container-ship-out', [ContainerShipOutController::class, 'index'])->name('container-ship-out.index');
@@ -143,7 +145,7 @@ Route::middleware('auth')->group(function () {
     Route::get('container-tacking/photos/{photo}', [ContainerTackingController::class, 'showPhoto'])->name('container-tacking.photo.show');
     Route::get('display-dashboard', [App\Http\Controllers\DisplayDashboardController::class, 'index'])->name('display.dashboard');
     Route::post('container-tacking/{containerTacking}/add-photos', [ContainerTackingController::class, 'addPhotos'])->name('container-tacking.addPhotos');
-    
+
     // Container Return Routes
     Route::get('container-return', [ContainerReturnController::class, 'index'])->name('container-return.index');
     Route::put('container-return/{stock}', [ContainerReturnController::class, 'returnContainer'])->name('container-return.return');
@@ -158,4 +160,4 @@ Route::middleware('auth')->group(function () {
     Route::post('/container-open-return-cy', [ContainerOpenReturnCyController::class, 'store'])->name('container-open-return-cy.store');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
