@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Container;
+use App\Models\Material; // อย่าลืมนำเข้า Model Material
 
 class PackingList extends Model
 {
