@@ -16,20 +16,16 @@
     <link rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
 
-<<<<<<< HEAD
+    {{-- ✅ FIX: Kept the custom.css link --}}
     <link href="{{ asset('assets/css/custom.css') }}" rel="stylesheet" />
 
-
-    @vite('resources/js/app.js')
-=======
-    {{-- Add a check to prevent crash if manifest.json is missing --}}
+    {{-- ✅ FIX: Kept the Vite manifest check --}}
     @if (file_exists(public_path('build/manifest.json')))
         @vite('resources/js/app.js')
     @endif
->>>>>>> 7258bd0e14e590eb5be43ad3f421c1018ded398e
 
 
-    {{-- CSS для Preloader --}}
+    {{-- CSS for Preloader --}}
     <style>
         #preloader {
             position: fixed;
@@ -74,7 +70,7 @@
 
 <body class="g-sidenav-show bg-gray-200" data-sidenav-target="#sidenav-main">
 
-    {{-- HTML của Preloader --}}
+    {{-- Preloader HTML --}}
     <div id="preloader">
         <div class="spinner"></div>
     </div>
@@ -103,11 +99,10 @@
 
     @stack('scripts')
 
-    {{-- JavaScript для скрытия Preloader --}}
+    {{-- Preloader JavaScript --}}
     <script>
         window.addEventListener('load', function() {
             const preloader = document.getElementById('preloader');
-            // เพิ่มดีเลย์เล็กน้อยเพื่อให้ดูสวยงาม
             setTimeout(function() {
                 preloader.classList.add('fade-out');
             }, 250);

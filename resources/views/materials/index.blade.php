@@ -7,7 +7,7 @@
         <div class="card-header pb-0">
             <div class="d-flex align-items-center justify-content-between">
                 <h5 class="mb-0">Material Master</h5>
-                <a href="{{ route('pfeps.create') }}" class="btn btn-primary mb-0">Add New Material</a>
+                <a href="{{ route('materials.create') }}" class="btn btn-dark mb-0">Add New Material</a>
             </div>
         </div>
         <div class="card-body px-0 pt-0 pb-2">
