@@ -25,9 +25,5 @@ class Material extends Model
         'unit',
     ];
 
-    /**
-     * ไม่มีการใช้ timestamps (created_at, updated_at) ในตารางนี้
-     * (หากตาราง materials ของคุณไม่มี 2 คอลัมน์นี้)
-     * public $timestamps = false; 
-     */
+    public $timestamps = false;
 }

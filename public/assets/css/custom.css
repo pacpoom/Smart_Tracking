@@ -1,0 +1,10 @@
+/* public/assets/css/custom.css */
+.sidenav .nav-link-text {
+    font-size: 15px;
+    font-weight: 500;
+
+}
+
+.sidenav .nav-item .nav-link:after {
+    display: none !important;
+}

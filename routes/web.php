@@ -28,6 +28,8 @@ use App\Http\Controllers\ContainerExchangeController;
 use App\Http\Controllers\ContainerOpenReturnCyController;
 use App\Http\Controllers\ContainerReturnCyController;
 use App\Http\Controllers\PackingListController;
+use App\Http\Controllers\MaterialController;
+use App\Http\Controllers\PfepController;
 
 /*
 |--------------------------------------------------------------------------
@@ -83,6 +85,7 @@ Route::middleware('auth')->group(function () {
     Route::get('container-order-plans/search-stock-pulling', [ContainerOrderPlanController::class, 'searchStockPulling'])->name('container-order-plans.searchStockPulling');
     Route::get('container-stocks/search', [ContainerStockController::class, 'search'])->name('container-stocks.search');
     Route::get('container-stocks/search-empty', [ContainerReturnController::class, 'search'])->name('container-stocks.search-empty');
+    Route::get('materials/search', [MaterialController::class, 'search'])->name('materials.search');
 
 
     // Import & Export Routes
@@ -108,6 +111,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('container-pulling-plans', ContainerPullingPlanController::class);
     Route::resource('container-tacking', ContainerTackingController::class)->except(['edit', 'update', 'show']);
     Route::resource('container-exchange', ContainerExchangeController::class)->only(['index', 'create', 'store', 'show']);
+    Route::resource('materials', MaterialController::class);
+    Route::resource('pfeps', PfepController::class);
 
 
     // Stock Routes
