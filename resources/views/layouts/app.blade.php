@@ -16,16 +16,11 @@
     <link rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
 
-    {{-- ✅ FIX: Kept the custom.css link --}}
     <link href="{{ asset('assets/css/custom.css') }}" rel="stylesheet" />
-
-    {{-- ✅ FIX: Kept the Vite manifest check --}}
     @if (file_exists(public_path('build/manifest.json')))
         @vite('resources/js/app.js')
     @endif
 
-
-    {{-- CSS for Preloader --}}
     <style>
         #preloader {
             position: fixed;

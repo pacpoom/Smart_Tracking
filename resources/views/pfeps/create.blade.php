@@ -5,9 +5,10 @@
 @section('content')
     <div class="card">
         <div class="card-header">
-            <h5>Add New PFEP</h5>
+            <h5 class="mb-0">Add New PFEP</h5>
         </div>
         <div class="card-body">
+            @include('layouts.partials.alerts')
             <form action="{{ route('pfeps.store') }}" method="POST">
                 @include('pfeps.partials._form')
                 <div class="mt-4">

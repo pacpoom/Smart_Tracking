@@ -8,6 +8,7 @@
             <h5>Edit PFEP for: {{ $pfep->material->material_number }}</h5>
         </div>
         <div class="card-body">
+            @include('layouts.partials.alerts')
             <form action="{{ route('pfeps.update', $pfep->id) }}" method="POST">
                 @method('PUT')
                 @include('pfeps.partials._form', ['pfep' => $pfep])

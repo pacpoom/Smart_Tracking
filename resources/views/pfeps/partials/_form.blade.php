@@ -1,83 +1,68 @@
 @csrf
 <div class="row">
-    <div class="col-md-12 mb-3">
-        <label class="form-label">Select Material</label>
-        <select class="form-control" id="material-select" name="material_id" required>
-            {{-- Pre-populate for edit form --}}
-            @if (isset($pfep) && $pfep->material)
-                <option value="{{ $pfep->material_id }}" selected>
-                    {{ $pfep->material->material_number }} - {{ $pfep->material->material_name }}
-                </option>
-            @endif
-        </select>
-        @error('material_id')
+    <div class="col-md-6 mb-3">
+        <div class="input-group input-group-static">
+            <label>Material Number</label>
+            <input type="text" class="form-control" name="material_number"
+                value="{{ old('material_number', $pfep->material->material_number ?? '') }}" required>
+        </div>
+        @error('material_number')
             <p class="text-danger text-xs pt-1"> {{ $message }} </p>
         @enderror
     </div>
-</div>
-<div class="row">
     <div class="col-md-6 mb-3">
-        <label class="form-label">Model</label>
-        <div class="input-group input-group-outline">
+        <div class="input-group input-group-static">
+            <label>Model</label>
             <input type="text" class="form-control" name="model" value="{{ old('model', $pfep->model ?? '') }}">
         </div>
     </div>
+</div>
+<div class="row">
     <div class="col-md-6 mb-3">
-        <label class="form-label">Part Type</label>
-        <div class="input-group input-group-outline">
-            <input type="text" class="form-control" name="part_type"
-                value="{{ old('part_type', $pfep->part_type ?? '') }}">
+        <div class="input-group input-group-static">
+            <label for="part-type-select">Part Type</label>
+            <select class="form-control ps-2" id="part-type-select" name="part_type">
+                <option value="">-- Select --</option>
+                @foreach ($part_types as $part_type)
+                    <option value="{{ $part_type }}"
+                        {{ old('part_type', $pfep->part_type ?? '') == $part_type ? 'selected' : '' }}>
+                        {{ $part_type }}</option>
+                @endforeach
+            </select>
+        </div>
+    </div>
+    <div class="col-md-6 mb-3">
+        <div class="input-group input-group-static">
+            <label>Uloc</label>
+            <input type="text" class="form-control" name="uloc" value="{{ old('uloc', $pfep->uloc ?? '') }}">
         </div>
     </div>
 </div>
 <div class="row">
-    <div class="col-md-4 mb-3">
-        <label class="form-label">Uloc</label>
-        <div class="input-group input-group-outline">
-            <input type="text" class="form-control" name="uloc" value="{{ old('uloc', $pfep->uloc ?? '') }}">
+    <div class="col-md-6 mb-3">
+        <div class="input-group input-group-static">
+            <label for="pull-type-select">Pull Type</label>
+            <select class="form-control ps-2" id="pull-type-select" name="pull_type">
+                <option value="">-- Select --</option>
+                @foreach ($pull_types as $pull_type)
+                    <option value="{{ $pull_type }}"
+                        {{ old('pull_type', $pfep->pull_type ?? '') == $pull_type ? 'selected' : '' }}>
+                        {{ $pull_type }}</option>
+                @endforeach
+            </select>
         </div>
     </div>
-    <div class="col-md-4 mb-3">
-        <label class="form-label">Pull Type</label>
-        <div class="input-group input-group-outline">
-            <input type="text" class="form-control" name="pull_type"
-                value="{{ old('pull_type', $pfep->pull_type ?? '') }}">
-        </div>
-    </div>
-    <div class="col-md-4 mb-3">
-        <label class="form-label">Line Side</label>
-        <div class="input-group input-group-outline">
-            <input type="text" class="form-control" name="line_side"
-                value="{{ old('line_side', $pfep->line_side ?? '') }}">
+    <div class="col-md-6 mb-3">
+        <div class="input-group input-group-static">
+            <label for="line-side-select">Line Side</label>
+            <select class="form-control ps-2" id="line-side-select" name="line_side">
+                <option value="">-- Select --</option>
+                @foreach ($line_sides as $line_side)
+                    <option value="{{ $line_side }}"
+                        {{ old('line_side', $pfep->line_side ?? '') == $line_side ? 'selected' : '' }}>
+                        {{ $line_side }}</option>
+                @endforeach
+            </select>
         </div>
     </div>
 </div>
-
-@push('scripts')
-    <script>
-        // Initialize Select2 for Material Search
-        $(document).ready(function() {
-            $('#material-select').select2({
-                theme: 'bootstrap-5',
-                placeholder: 'Type to search for a material...',
-                ajax: {
-                    // We will create this route later
-                    url: '{{ route('materials.search') }}',
-                    dataType: 'json',
-                    delay: 250,
-                    processResults: function(data) {
-                        return {
-                            results: $.map(data, function(item) {
-                                return {
-                                    id: item.id,
-                                    text: item.material_number + ' - ' + item.material_name
-                                }
-                            })
-                        };
-                    },
-                    cache: true
-                }
-            });
-        });
-    </script>
-@endpush

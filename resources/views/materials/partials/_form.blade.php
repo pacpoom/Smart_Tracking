@@ -1,7 +1,5 @@
 @csrf
-{{-- We'll put all fields in a single row for a more compact layout --}}
 <div class="row">
-    {{-- FIX: Changed width from col-md-6 to col-md-4 --}}
     <div class="col-md-4 mb-3">
         <label class="form-label">Material Number</label>
         <div class="input-group input-group-outline">
@@ -13,7 +11,6 @@
         @enderror
     </div>
 
-    {{-- FIX: Changed width from col-md-6 to col-md-5 (name can be longer) --}}
     <div class="col-md-5 mb-3">
         <label class="form-label">Material Name</label>
         <div class="input-group input-group-outline">
@@ -25,20 +22,25 @@
         @enderror
     </div>
 
-    {{-- FIX: Changed width from col-md-6 to col-md-2 (unit is short) --}}
+    {{-- ✅ FIX: Changed the 'Unit' input to a dropdown select --}}
     <div class="col-md-2 mb-3">
         <label class="form-label">Unit</label>
         <div class="input-group input-group-outline">
-            <input type="text" class="form-control" name="unit" value="{{ old('unit', $material->unit ?? '') }}">
+            <select class="form-control" name="unit">
+                <option value="">-- Select --</option>
+                @php
+                    $units = ['EA', 'M2', 'KG', 'G', 'M', 'L'];
+                    $selectedValue = old('unit', $material->unit ?? '');
+                @endphp
+                @foreach ($units as $unit)
+                    <option value="{{ $unit }}" {{ $selectedValue == $unit ? 'selected' : '' }}>
+                        {{ $unit }}
+                    </option>
+                @endforeach
+            </select>
         </div>
         @error('unit')
             <p class="text-danger text-xs pt-1"> {{ $message }} </p>
         @enderror
     </div>
 </div>
-
-{{-- This part is for the buttons, you should add it if it's not in your create/edit files --}}
-{{-- <div class="mt-4">
-    <button type="submit" class="btn btn-primary">{{ $submitButtonText ?? 'Submit' }}</button>
-    <a href="{{ route('materials.index') }}" class="btn btn-secondary">Cancel</a>
-</div> --}}
