@@ -9,13 +9,17 @@
                 <h5 class="mb-3 mb-md-0">PFEP Master</h5>
                 <div class="d-flex align-items-center">
 
-                    {{-- ✅ FIX: Changed back to a simple placeholder to prevent text overlap --}}
+                    {{-- === จุดที่แก้ไข === --}}
                     <form action="{{ route('pfeps.index') }}" method="GET" class="me-2">
-                        <div class="input-group input-group-outline">
-                            <input type="text" class="form-control" name="search" value="{{ request('search') }}"
-                                placeholder="Search by Material/Model...">
+                        {{-- 1. เพิ่ม class is-filled แบบมีเงื่อนไข --}}
+                        <div class="input-group input-group-outline {{ request('search') ? 'is-filled' : '' }}">
+                            {{-- 2. เพิ่ม label กลับเข้ามา --}}
+                            <label class="form-label">Search by Material/Model...</label>
+                            {{-- 3. ลบ placeholder ออก --}}
+                            <input type="text" class="form-control" name="search" value="{{ request('search') }}">
                         </div>
                     </form>
+                    {{-- === สิ้นสุดจุดที่แก้ไข === --}}
 
                     <a href="{{ route('pfeps.create') }}" class="btn btn-dark mb-0">Add New PFEP</a>
                 </div>

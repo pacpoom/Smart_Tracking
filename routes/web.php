@@ -30,6 +30,7 @@ use App\Http\Controllers\ContainerReturnCyController;
 use App\Http\Controllers\PackingListController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\PfepController;
+use App\Http\Controllers\BomController;
 
 /*
 |--------------------------------------------------------------------------
@@ -158,9 +159,8 @@ Route::middleware('auth')->group(function () {
     // Container Exchange Routes
     Route::get('container-exchange/create', [ContainerExchangeController::class, 'create'])->name('container-exchange.create');
     Route::post('container-exchange', [ContainerExchangeController::class, 'store'])->name('container-exchange.store');
-
+    Route::get('/bill-of-materials', [BomController::class, 'index'])->name('bom.index');
     Route::resource('container-tacking', ContainerTackingController::class);
-
     Route::get('/container-open-return-cy', [ContainerOpenReturnCyController::class, 'index'])->name('container-open-return-cy.index');
     Route::post('/container-open-return-cy', [ContainerOpenReturnCyController::class, 'store'])->name('container-open-return-cy.store');
 });

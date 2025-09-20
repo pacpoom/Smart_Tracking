@@ -9,10 +9,9 @@
                 <h5 class="mb-3 mb-md-0">Menu Structure</h5>
                 <div class="d-flex align-items-center">
                     <form action="{{ route('menus.index') }}" method="GET" class="me-2">
-                        <div class="input-group input-group-outline">
-                            {{-- ลบ label และเพิ่ม placeholder แทน --}}
-                            <input type="text" class="form-control" name="search" value="{{ request('search') }}"
-                                placeholder="Search by Title...">
+                        <div class="input-group input-group-outline {{ request('search') ? 'is-filled' : '' }}">
+                            <label class="form-label">Search by Title...</label>
+                            <input type="text" class="form-control" name="search" value="{{ request('search') }}">
                         </div>
                     </form>
                     @can('manage menus')
