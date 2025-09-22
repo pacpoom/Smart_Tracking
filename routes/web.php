@@ -31,6 +31,7 @@ use App\Http\Controllers\PackingListController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\PfepController;
 use App\Http\Controllers\BomController;
+use App\Http\Controllers\FileUploadController;
 
 /*
 |--------------------------------------------------------------------------
@@ -114,6 +115,16 @@ Route::middleware('auth')->group(function () {
     Route::resource('container-exchange', ContainerExchangeController::class)->only(['index', 'create', 'store', 'show']);
     Route::resource('materials', MaterialController::class);
     Route::resource('pfeps', PfepController::class);
+
+
+    // File Upload Routes
+    Route::get('files', [FileUploadController::class, 'index'])->name('files.index');
+    Route::get('files/create', [FileUploadController::class, 'create'])->name('files.create');
+    Route::post('files', [FileUploadController::class, 'store'])->name('files.store');
+    Route::get('files/{file}/download', [FileUploadController::class, 'download'])->name('files.download');
+    Route::delete('files/{file}', [FileUploadController::class, 'destroy'])->name('files.destroy');
+    Route::get('files/{file}/edit', [FileUploadController::class, 'edit'])->name('files.edit');
+    Route::put('files/{file}', [FileUploadController::class, 'update'])->name('files.update');
 
 
     // Stock Routes

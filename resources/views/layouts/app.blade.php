@@ -17,10 +17,10 @@
         href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
 
     <link href="{{ asset('assets/css/custom.css') }}" rel="stylesheet" />
-    {{-- @if (file_exists(public_path('build/manifest.json')))
+    @if (file_exists(public_path('build/manifest.json')))
         @vite('resources/js/app.js')
-    @endif --}}
-    @vite('resources/js/app.js')
+    @endif
+    {{-- @vite('resources/js/app.js') --}}
 
     <style>
         #preloader {
