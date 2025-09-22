@@ -1,52 +1,41 @@
 @extends('layouts.app')
 
-@section('title', 'Packing List')
+@section('title', 'Plan Report')
 
 @section('content')
     <div class="card">
         <div class="card-header pb-0">
-            <h5 class="mb-3">Packing List</h5>
+            <h5 class="mb-3">Plan Report</h5>
 
+            {{-- 1. ปรับปรุงฟอร์มค้นหาให้ตรงกับ Controller --}}
             <form action="{{ route('packing-list.index') }}" method="GET">
                 <div class="row g-3 mb-3 align-items-end">
-                    <div class="col-md-4">
-                        <div class="row">
-                            <div class="col-sm-6">
-                                <div class="input-group input-group-static">
-                                    <label>Delivery Date From</label>
-                                    <input type="date" name="delivery_date_from" class="form-control"
-                                        value="{{ request('delivery_date_from') }}">
-                                </div>
-                            </div>
-                            <div class="col-sm-6">
-                                <div class="input-group input-group-static">
-                                    <label>Delivery Date To</label>
-                                    <input type="date" name="delivery_date_to" class="form-control"
-                                        value="{{ request('delivery_date_to') }}">
-                                </div>
-                            </div>
+                    <div class="col-md-3">
+                        <div class="input-group input-group-static">
+                            <label>Plan No</label>
+                            <input type="text" name="plan_no" class="form-control"
+                                value="{{ request('plan_no') }}">
                         </div>
                     </div>
-
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <div class="input-group input-group-static">
-                            <label>Container No.</label>
-                            <input type="text" class="form-control" name="container_no"
+                            <label>Container No</label>
+                            <input type="text" name="container_no" class="form-control"
                                 value="{{ request('container_no') }}">
                         </div>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <div class="input-group input-group-static">
-                            <label>Material Number</label>
-                            <input type="text" class="form-control" name="material_number"
-                                value="{{ request('material_number') }}">
+                            <label>Material No</label>
+                            <input type="text" name="material_no" class="form-control"
+                                value="{{ request('material_no') }}">
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <button type="submit" class="btn btn-primary btn-sm mb-0">Search</button>
-                        <button type="submit" name="export" value="1"
-                            class="btn btn-success btn-sm mb-0">Export</button>
-                        <a href="{{ route('packing-list.index') }}" class="btn btn-secondary btn-sm mb-0">Clear</a>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-primary">Search</button>
+                        <a href="{{ route('packing-list.index') }}" class="btn btn-secondary">Reset</a>
+                        {{-- หมายเหตุ: การ Export อาจต้องปรับปรุงเพิ่มเติม --}}
+                        <button type="submit" name="export" value="1" class="btn btn-success">Export</button>
                     </div>
                 </div>
             </form>
@@ -54,99 +43,64 @@
         <div class="card-body px-0 pt-0 pb-2">
             <div class="table-responsive p-0">
                 <table class="table align-items-center mb-0">
+                    {{-- 2. แก้ไขส่วนหัวของตาราง --}}
                     <thead>
                         <tr>
-                            <th
-                                class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 px-2">
-                                Storage Location</th>
-                            <th
-                                class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 px-2">
-                                Item Number</th>
-                            <th
-                                class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 px-2">
-                                Delivery Order</th>
-                            <th
-                                class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 px-2">
-                                Delivery Item Number</th>
-                            <th
-                                class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 px-2">
-                                Delivery Date</th>
-                            <th
-                                class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 px-2">
-                                Container No</th>
-                            <th
-                                class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 px-2">
-                                Agent</th>
-                            <th
-                                class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 px-2">
-                                Material Number</th>
-                            <th
-                                class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 px-2">
-                                Material Name</th>
-                            <th
-                                class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 px-2">
-                                Unit</th>
-                            <th
-                                class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 px-2">
-                                Case Number</th>
-                            <th
-                                class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 px-2">
-                                Box ID</th>
-                            <th
-                                class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 px-2">
-                                Quantity</th>
+                            <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">#</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Plan No</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Container No</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Agent</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Material No</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Model</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Part Type</th>
+                            <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Uloc</th>
+                            <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Pull Type</th>
+                            <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Quantity</th>
+                            <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Unit</th>
                         </tr>
                     </thead>
+                    {{-- 3. แก้ไขส่วนเนื้อหาของตาราง --}}
                     <tbody>
-                        @forelse ($packing_lists as $list)
+                        @forelse ($packingLists as $key => $list)
                             <tr>
                                 <td class="text-center px-2">
-                                    <p class="text-xs font-weight-bold mb-0">{{ $list->storage_location }}</p>
+                                    <p class="text-xs font-weight-bold mb-0">{{ $packingLists->firstItem() + $key }}</p>
                                 </td>
-                                <td class="text-center px-2">
-                                    <p class="text-xs font-weight-bold mb-0">{{ $list->item_number }}</p>
+                                <td>
+                                    <p class="text-xs font-weight-bold mb-0">{{ $list->plan_no }}</p>
                                 </td>
-                                <td class="text-center px-2">
-                                    <p class="text-xs font-weight-bold mb-0">{{ $list->delivery_order }}</p>
+                                <td>
+                                    <p class="text-xs font-weight-bold mb-0">{{ $list->container_no }}</p>
                                 </td>
-                                <td class="text-center px-2">
-                                    <p class="text-xs font-weight-bold mb-0">{{ $list->delivery_item_number }}</p>
+                                <td>
+                                    <p class="text-xs font-weight-bold mb-0">{{ $list->agent }}</p>
                                 </td>
-                                <td class="text-center px-2">
-                                    <p class="text-xs font-weight-bold mb-0">
-                                        {{ $list->delivery_date ? $list->delivery_date->format('d/m/Y') : 'N/A' }}</p>
+                                <td>
+                                    <p class="text-xs font-weight-bold mb-0">{{ $list->material_number }}</p>
                                 </td>
-                                <td class="text-center px-2">
-                                    <p class="text-xs font-weight-bold mb-0">{{ $list->container?->container_no ?? 'N/A' }}
-                                    </p>
+                                <td>
+                                    <p class="text-xs font-weight-bold mb-0">{{ $list->model }}</p>
                                 </td>
-                                <td class="text-center px-2">
-                                    <p class="text-xs font-weight-bold mb-0">{{ $list->container?->agent ?? 'N/A' }}</p>
+                                <td>
+                                    <p class="text-xs font-weight-bold mb-0">{{ $list->part_type }}</p>
                                 </td>
-                                <td class="text-center px-2">
-                                    <p class="text-xs font-weight-bold mb-0">
-                                        {{ $list->material?->material_number ?? 'N/A' }}</p>
+                                <td class="text-center">
+                                    <p class="text-xs font-weight-bold mb-0">{{ $list->uloc }}</p>
                                 </td>
-                                <td class="text-center px-2">
-                                    <p class="text-xs font-weight-bold mb-0">{{ $list->material?->material_name ?? 'N/A' }}
-                                    </p>
+                                <td class="text-center">
+                                    <p class="text-xs font-weight-bold mb-0">{{ $list->pull_type }}</p>
                                 </td>
-                                <td class="text-center px-2">
-                                    <p class="text-xs font-weight-bold mb-0">{{ $list->material?->unit ?? 'N/A' }}</p>
+                                <td class="text-center">
+                                    <p class="text-xs font-weight-bold mb-0">{{ $list->Qty }}</p>
                                 </td>
-                                <td class="text-center px-2">
-                                    <p class="text-xs font-weight-bold mb-0">{{ $list->case_number }}</p>
-                                </td>
-                                <td class="text-center px-2">
-                                    <p class="text-xs font-weight-bold mb-0">{{ $list->box_id }}</p>
-                                </td>
-                                <td class="text-center px-2">
-                                    <p class="text-xs font-weight-bold mb-0">{{ $list->quantity }}</p>
+                                <td class="text-center">
+                                    <p class="text-xs font-weight-bold mb-0">{{ $list->unit }}</p>
                                 </td>
                             </tr>
                         @empty
+                            {{-- 4. ปรับ Colspan ให้ตรงกับจำนวนคอลัมน์ --}}
                             <tr>
-                                <td colspan="13" class="text-center p-3">No data found matching your search criteria.</td>
+                                <td colspan="11" class="text-center p-3">No data found matching your search criteria.</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -154,7 +108,7 @@
             </div>
         </div>
         <div class="card-footer d-flex justify-content-between">
-            {{ $packing_lists->withQueryString()->links() }}
+            {{ $packingLists->withQueryString()->links() }}
         </div>
     </div>
 @endsection

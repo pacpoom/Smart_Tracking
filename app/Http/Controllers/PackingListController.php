@@ -2,46 +2,45 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\PackingList;
+use App\Models\PackingList; // 1. Import Model PackingList
 use Illuminate\Http\Request;
+// 2. ลบ DB Facade ออกไป เพราะเราจะใช้ Eloquent Model แทน
+// use Illuminate\Support\Facades\DB; 
 use App\Exports\PackingListExport;
 use Maatwebsite\Excel\Facades\Excel;
 
 class PackingListController extends Controller
 {
+    
     public function index(Request $request)
     {
-        $query = PackingList::with(['container', 'material']);
-        $dateFrom = $request->input('delivery_date_from');
-        $dateTo = $request->input('delivery_date_to');
+        // สร้าง query เริ่มต้นโดยเรียกใช้ฟังก์ชัน getPlanReportData() จาก Model
+        $query = PackingList::getPlanReportData();
 
-        if ($dateFrom && $dateTo) {
-            $query->whereBetween('delivery_date', [$dateFrom, $dateTo]);
-        } elseif ($dateFrom) {
-            $query->whereDate('delivery_date', $dateFrom);
+        // เพิ่มเงื่อนไขการค้นหาข้อมูลตามฟอร์มในหน้า View
+        if ($request->filled('plan_no')) {
+            $query->where('plans.plan_no', 'like', '%' . $request->plan_no . '%');
         }
-
         if ($request->filled('container_no')) {
-            $searchContainer = $request->container_no;
-            $query->whereHas('container', function ($q) use ($searchContainer) {
-                $q->where('container_no', 'like', '%' . $searchContainer . '%');
-            });
+            $query->where('containers.container_no', 'like', '%' . $request->container_no . '%');
+        }
+        if ($request->filled('material_no')) {
+            $query->where('materials.material_number', 'like', '%' . $request->material_no . '%');
         }
 
-        if ($request->filled('material_number')) {
-            $searchMaterial = $request->material_number;
-            $query->whereHas('material', function ($q) use ($searchMaterial) {
-                $q->where('material_number', 'like', '%' . $searchMaterial . '%');
-            });
-        }
-
+        // หมายเหตุ: การ Export อาจจะต้องมีการปรับปรุงเพิ่มเติมเพื่อให้รองรับข้อมูลชุดใหม่
         if ($request->has('export')) {
-            set_time_limit(300);
-
-            return Excel::download(new PackingListExport($query), 'packing_list.xlsx');
+            // return Excel::download(new YourNewExport($query->get()), 'plan_report.xlsx');
         }
-        $packing_lists = $query->orderBy('id', 'desc')->paginate(20)->withQueryString();
 
-        return view('packing-list.index', compact('packing_lists'));
+        // ดึงข้อมูลและแบ่งหน้า (Paginate)
+        $packingLists = $query->paginate(20)->withQueryString();
+
+        return view('packing-list.index', compact('packingLists'));
+    }
+
+    public function export(Request $request)
+    {
+        return Excel::download(new PackingListExport($request->all()), 'packing-list.xlsx');
     }
 }
