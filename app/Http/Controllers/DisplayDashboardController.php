@@ -106,8 +106,8 @@ class DisplayDashboardController extends Controller
             ->orderBy('pulling_order', 'asc')
             ->get();
 
-        // 6. Total Containers in Master
-        $totalContainers = ContainerStock::count();
+        // 6. Total Containers in Stock (Count unique containers currently in stock)
+        $totalContainers = ContainerStock::where('exchange_flg', 0)->distinct()->count('container_id');
 
         // 7. Expired Containers Count
         $expiredCount = ContainerOrderPlan::where('status', 2) // Received

@@ -57,7 +57,8 @@ Route::middleware('auth')->group(function () {
     Route::get('container-pulling-plans/report', [ContainerPullingPlanController::class, 'printReport'])->name('container-pulling-plans.report');
     Route::put('container-pulling-plans/{containerPullingPlan}/pick', [ContainerPullingPlanController::class, 'pick'])->name('container-pulling-plans.pick');
     Route::get('container-exchange/photo/{photo}', [ContainerExchangeController::class, 'showPhoto'])->name('container-exchange.showPhoto');
-    Route::get('container-stock/by-current', [ContainerStockController::class, 'byCurrent'])->name('container-stock.by-current');
+    // ✅ CHANGED: Corrected the route name to be plural
+    Route::get('container-stock/by-current', [ContainerStockController::class, 'byCurrent'])->name('container-stocks.by-current');
 
     // Bulk Delete Routes
     Route::delete('roles/bulk-destroy', [RolePermissionController::class, 'bulkDestroy'])->name('roles.bulkDestroy');
