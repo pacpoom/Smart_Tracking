@@ -75,4 +75,20 @@ class ContainerStock extends Model
         }
         return null;
     }
+
+    public static function getByCurrent()
+    {
+        // Note: The user's original query had a duplicate "T2.agent", which has been corrected here.
+        return DB::select("
+            SELECT T2.container_no, T2.size, T2.agent, T2.container_owner, T3.location_code
+            FROM (
+                SELECT container_id, yard_location_id, status
+                FROM container_stocks
+                WHERE exchange_flg = 0
+                GROUP BY container_id, yard_location_id, status
+            ) AS T1
+            LEFT JOIN containers AS T2 ON T1.container_id = T2.id
+            LEFT JOIN yard_locations AS T3 ON T1.yard_location_id = T3.id
+        ");
+    }
 }

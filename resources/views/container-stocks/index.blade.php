@@ -90,6 +90,7 @@
                                 Stock Status</th>
                             <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">ETA
                                 Date</th>
+                            <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Week Lot</th>
                             <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
                                 Check-in Date</th>
                             <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
@@ -160,6 +161,9 @@
                                 </td>
                                 <td class="align-middle text-center"><span
                                         class="text-secondary text-xs font-weight-bold">{{ $stock->containerOrderPlan?->eta_date?->format('d/m/Y') ?? 'N/A' }}</span>
+                                </td>
+                                <td class="align-middle text-center"><span
+                                        class="text-secondary text-xs font-weight-bold">{{ $stock->containerOrderPlan?->week_lot ?? 'N/A' }}</span>
                                 </td>
                                 <td class="align-middle text-center"><span
                                         class="text-secondary text-xs font-weight-bold">{{ $stock->checkin_date?->format('d/m/Y') }}</span>

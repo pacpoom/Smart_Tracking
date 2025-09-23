@@ -7,6 +7,7 @@ use App\Models\ContainerOrderPlan;
 use Illuminate\Http\Request;
 use App\Exports\ContainerStockExport;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\DB;
 
 class ContainerStockController extends Controller
 {
@@ -14,6 +15,41 @@ class ContainerStockController extends Controller
     {
         // $this->middleware('permission:view container stock');
         // $this->middleware('permission:export container stock');
+    }
+
+ public function byCurrent(Request $request)
+    {
+        // Subquery to get the latest stock ID for each container that is currently in stock
+        $latestStockIds = ContainerStock::select(DB::raw('MAX(id) as id'))
+            ->where('exchange_flg', 0) // Assuming 0 means currently in stock
+            ->groupBy('container_id');
+
+        // Main query to get the full stock records for the latest entries
+        $query = ContainerStock::with([
+            'Container',
+            'yardLocation',
+            'containerOrderPlan',
+            'containerOrderPlan.container'
+        ])
+        ->whereIn('id', $latestStockIds);
+
+        // Apply search filters for container number or location
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('Container', function ($subQ) use ($search) {
+                    $subQ->where('container_no', 'like', '%' . $search . '%');
+                })
+                ->orWhereHas('yardLocation', function ($subQ) use ($search) {
+                    $subQ->where('location_code', 'like', '%' . $search . '%');
+                });
+            });
+        }
+
+        $stocks = $query->latest('id')->paginate(10)->withQueryString();
+        
+        // Corrected view path to be consistent with the index view path
+        return view('container-stocks.by-current', compact('stocks'));
     }
 
     public function index(Request $request)
