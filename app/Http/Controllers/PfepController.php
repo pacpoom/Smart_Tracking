@@ -62,14 +62,9 @@ class PfepController extends Controller
         $data = $request->except('material_number');
         $data['material_id'] = $material->id;
 
-        $existingPfep = Pfep::where('material_id', $material->id)->first();
-        if ($existingPfep) {
-            return back()->with('error', 'This material already has a PFEP record.')->withInput();
-        }
-
         Pfep::create($data);
 
-        return redirect()->route('pfeps.index')->with('success', 'PFEP record created successfully.');
+        return redirect()->route('materials.index')->with('success', 'PFEP record created successfully.');
     }
 
     public function edit(Pfep $pfep)
@@ -107,19 +102,37 @@ class PfepController extends Controller
         $data = $request->except('material_number');
         $data['material_id'] = $material->id;
 
-        $existingPfep = Pfep::where('material_id', $material->id)->where('id', '!=', $pfep->id)->first();
-        if ($existingPfep) {
-            return back()->with('error', 'This material already has a PFEP record.')->withInput();
-        }
-
         $pfep->update($data);
 
-        return redirect()->route('pfeps.index')->with('success', 'PFEP record updated successfully.');
+        return redirect()->route('materials.index')->with('success', 'PFEP record updated successfully.');
     }
 
     public function destroy(Pfep $pfep)
     {
         $pfep->delete();
-        return redirect()->route('pfeps.index')->with('success', 'PFEP record deleted successfully.');
+        return redirect()->route('materials.index')->with('success', 'PFEP record deleted successfully.');
+    }
+
+    /**
+     * Set the given PFEP as the primary one for its material.
+     *
+     * @param  \App\Models\Pfep  $pfep
+     * @return \Illuminate\Http\Response
+     */
+    public function setPrimary(Pfep $pfep)
+    {
+        DB::transaction(function () use ($pfep) {
+            // First, set all existing primary flags to 0 for this material
+            Pfep::where('material_id', $pfep->material_id)
+                ->update(['is_primary' => 0]);
+
+            // Then, set the selected PFEP's primary flag to 1 and save it.
+            // Using direct assignment and save() avoids mass assignment issues.
+            $pfep->is_primary = 1;
+            $pfep->save();
+        });
+
+        return redirect()->route('materials.index')
+            ->with('success', 'Primary PFEP for material ' . $pfep->material->material_number . ' has been updated.');
     }
 }

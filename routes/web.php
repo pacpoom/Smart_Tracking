@@ -115,6 +115,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('container-exchange', ContainerExchangeController::class)->only(['index', 'create', 'store', 'show']);
     Route::resource('materials', MaterialController::class);
     Route::resource('pfeps', PfepController::class);
+    // ✅ ADD: Route for setting a PFEP as primary
+    Route::post('pfeps/{pfep}/set-primary', [PfepController::class, 'setPrimary'])->name('pfeps.setPrimary');
 
 
     // File Upload Routes

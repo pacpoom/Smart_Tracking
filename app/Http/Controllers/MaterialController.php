@@ -13,10 +13,25 @@ class MaterialController extends Controller
      */
     public function index(Request $request)
     {
+        // Get per_page value from request, default to 15
+        $perPage = $request->input('per_page', 15);
 
-        $perPage = $request->input('per_page', 25);
-        $materials = Material::orderBy('id', 'desc')->paginate($perPage);
+        // Eager load both all pfeps and the primary one for efficiency
+        $query = Material::with(['pfeps', 'primaryPfep']);
 
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            // Group the search conditions to avoid conflicts with other clauses
+            $query->where(function ($q) use ($search) {
+                $q->where('material_number', 'like', "%{$search}%")
+                  ->orWhere('material_name', 'like', "%{$search}%");
+            });
+        }
+
+        // Use the perPage variable for pagination and order by latest
+        $materials = $query->latest()->paginate($perPage);
+        
+        // Pass materials and perPage to the view
         return view('materials.index', compact('materials', 'perPage'));
     }
 
