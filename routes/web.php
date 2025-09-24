@@ -32,6 +32,8 @@ use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\PfepController;
 use App\Http\Controllers\BomController;
 use App\Http\Controllers\FileUploadController;
+use App\Http\Controllers\WarehouseStockController;
+use App\Http\Controllers\ProductionPlanController; // Add this line
 
 /*
 |--------------------------------------------------------------------------
@@ -99,7 +101,8 @@ Route::middleware('auth')->group(function () {
     Route::get('part-requests/export', [PartRequestController::class, 'export'])->name('part-requests.export');
     Route::get('container-stocks/export', [ContainerStockController::class, 'export'])->name('container-stocks.export');
     Route::get('container-transactions/export', [ContainerTransactionController::class, 'export'])->name('container-transactions.export');
-
+    Route::get('warehouse-stock/export', [WarehouseStockController::class, 'export'])->name('warehouse-stock.export');
+    Route::get('production-plans/export', [ProductionPlanController::class, 'export'])->name('production-plans.export');
 
     // Resource Routes
     Route::resource('roles', RolePermissionController::class);
@@ -117,6 +120,11 @@ Route::middleware('auth')->group(function () {
     Route::resource('container-exchange', ContainerExchangeController::class)->only(['index', 'create', 'store', 'show']);
     Route::resource('materials', MaterialController::class);
     Route::resource('pfeps', PfepController::class);
+
+    // AJAX route for fetching BOM details - MOVED HERE
+    Route::get('/production-plans/get-bom', [ProductionPlanController::class, 'getBom'])->name('production-plans.getBom');
+    Route::resource('production-plans', ProductionPlanController::class); 
+
     // ✅ ADD: Route for setting a PFEP as primary
     Route::post('pfeps/{pfep}/set-primary', [PfepController::class, 'setPrimary'])->name('pfeps.setPrimary');
 
@@ -133,6 +141,7 @@ Route::middleware('auth')->group(function () {
 
     // Stock Routes
     Route::get('stocks', [StockController::class, 'index'])->name('stocks.index');
+    Route::get('warehouse-stock', [WarehouseStockController::class, 'index'])->name('warehouse-stock.index');
     Route::put('parts/{part}/stock/adjust', [StockController::class, 'adjust'])->name('stocks.adjust');
     Route::post('stocks/store-part', [StockController::class, 'storePartAndStock'])->name('stocks.storePartAndStock');
 
