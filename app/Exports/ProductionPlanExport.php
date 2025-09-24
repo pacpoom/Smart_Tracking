@@ -29,7 +29,9 @@ class ProductionPlanExport implements FromCollection, WithHeadings, ShouldAutoSi
                 foreach ($plan->details as $index => $detail) {
                     $stockQty = $detail['stock_qty'] ?? 0;
                     $requiredQty = $detail['required_qty'] ?? 0;
-                    $balance = $stockQty - $requiredQty;
+                    $cyQty = $detail['cy_qty'] ?? 0;
+                    $balance = ($stockQty + $cyQty) - $requiredQty;
+
 
                     // For the first detail row, print the plan info. For subsequent rows, leave it blank for readability.
                     $rows[] = [
@@ -45,7 +47,8 @@ class ProductionPlanExport implements FromCollection, WithHeadings, ShouldAutoSi
                         'material_name' => $detail['material_name'] ?? 'N/A',
                         'bom_qty' => $detail['bom_qty'] ?? 0,
                         'required_qty' => $requiredQty,
-                        'stock_qty' => $stockQty,
+                        'stock_qty' => $stockQty ?? 0,
+                        'cy_qty' => $cyQty ?? 0,
                         'balance' => $balance,
                     ];
                 }
@@ -65,6 +68,7 @@ class ProductionPlanExport implements FromCollection, WithHeadings, ShouldAutoSi
                     'bom_qty' => '',
                     'required_qty' => '',
                     'stock_qty' => '',
+                    'cy_qty' => '',
                     'balance' => '',
                 ];
             }
@@ -89,6 +93,7 @@ class ProductionPlanExport implements FromCollection, WithHeadings, ShouldAutoSi
             'BOM Qty',
             'Required Qty',
             'Stock Qty',
+            'CY Qty',
             'Balance',
         ];
     }

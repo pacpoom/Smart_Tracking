@@ -47,6 +47,7 @@
                             <th>BOM Qty</th>
                             <th>Required Qty</th>
                             <th>Stock Qty</th>
+                            <th>CY Qty</th>
                             <th>Balance</th>
                         </tr>
                     </thead>
@@ -107,6 +108,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         <td class="text-end">${item.bom_qty}</td>
                         <td class="text-end">${item.required_qty}</td>
                         <td class="text-end">${item.stock_qty}</td>
+                        <td class="text-end">${item.cy_qty}</td>
                         <td class="text-end ${balanceClass}">${item.balance}</td>
                     </tr>
                 `;

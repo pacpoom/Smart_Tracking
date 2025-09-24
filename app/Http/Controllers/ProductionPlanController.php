@@ -48,6 +48,8 @@ class ProductionPlanController extends Controller
      */
     public function store(Request $request)
     {
+        set_time_limit(300);
+
         $request->validate([
             'vc_master_id' => 'required|exists:vc_master,id',
             'production_order' => 'required|integer|min:1',
@@ -66,6 +68,7 @@ class ProductionPlanController extends Controller
             $requiredQty = $bom->qty * $productionOrder;
             $stock = WarehouseStock::where('material_id', $bom->material_id)->first();
             $stockQty = $stock ? $stock->qty : 0;
+            $cyQty = $stock ? $stock->cy_qty : 0;
 
             return [
                 'material_id' => $bom->material_id,
@@ -74,6 +77,7 @@ class ProductionPlanController extends Controller
                 'bom_qty' => $bom->qty,
                 'required_qty' => $requiredQty,
                 'stock_qty' => $stockQty,
+                'cy_qty' => $cyQty,
             ];
         })->filter()->values()->all();
 
@@ -136,6 +140,7 @@ class ProductionPlanController extends Controller
             $requiredQty = $bom->qty * $productionOrder;
             $stock = WarehouseStock::where('material_id', $bom->material_id)->first();
             $stockQty = $stock ? $stock->qty : 0;
+            $cyQty = $stock ? $stock->cy_qty : 0;
 
             return [
                 'material_id' => $bom->material_id,
@@ -144,6 +149,7 @@ class ProductionPlanController extends Controller
                 'bom_qty' => $bom->qty,
                 'required_qty' => $requiredQty,
                 'stock_qty' => $stockQty,
+                'cy_qty' => $cyQty,
             ];
         })->filter()->values()->all();
 
@@ -192,6 +198,8 @@ class ProductionPlanController extends Controller
      */
     public function getBom(Request $request)
     {
+        set_time_limit(300);
+
         $request->validate([
             'vc_code_id' => 'required|integer|exists:vc_master,id',
             'production_order' => 'required|integer|min:1',
@@ -211,7 +219,8 @@ class ProductionPlanController extends Controller
             $requiredQty = $bom->qty * $productionOrder;
             $stock = WarehouseStock::where('material_id', $bom->material_id)->first();
             $stockQty = $stock ? $stock->qty : 0;
-            $balance = $stockQty - $requiredQty;
+            $cyQty = $stock ? $stock->cy_qty : 0;
+            $balance = ($stockQty + $cyQty) - $requiredQty;
 
             return [
                 'material_number' => $bom->childMaterial->material_number,
@@ -220,6 +229,7 @@ class ProductionPlanController extends Controller
                 'bom_qty' => (float) $bom->qty,
                 'required_qty' => $requiredQty,
                 'stock_qty' => $stockQty,
+                'cy_qty' => $cyQty,
                 'balance' => $balance,
             ];
         })->filter();

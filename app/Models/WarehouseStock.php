@@ -24,6 +24,7 @@ class WarehouseStock extends Model
     protected $fillable = [
         'material_id',
         'qty',
+        'cy_qty',
     ];
 
     /**

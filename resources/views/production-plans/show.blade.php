@@ -40,6 +40,7 @@
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Material Name</th>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 text-end">Required Qty</th>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 text-end">Stock Qty</th>
+                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 text-end">CY Qty</th>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 text-end">Balance</th>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 text-center">Status</th>
                     </tr>
@@ -49,14 +50,16 @@
                         @foreach($productionPlan->details as $detail)
                             @php
                                 $stockQty = $detail['stock_qty'] ?? 0;
+                                $cyQty = $detail['cy_qty'] ?? 0;
                                 $requiredQty = $detail['required_qty'] ?? 0;
-                                $balance = $stockQty - $requiredQty;
+                                $balance = ($stockQty + $cyQty) - $requiredQty;
                             @endphp
                             <tr>
                                 <td><p class="text-xs font-weight-bold mb-0">{{ $detail['material_number'] ?? 'N/A' }}</p></td>
                                 <td><p class="text-xs font-weight-bold mb-0">{{ $detail['material_name'] ?? 'N/A' }}</p></td>
                                 <td class="text-end"><p class="text-xs font-weight-bold mb-0">{{ number_format($requiredQty, 3) }}</p></td>
                                 <td class="text-end"><p class="text-xs font-weight-bold mb-0">{{ number_format($stockQty, 3) }}</p></td>
+                                <td class="text-end"><p class="text-xs font-weight-bold mb-0">{{ number_format($cyQty, 3) }}</p></td>
                                 <td class="text-end">
                                     <p class="text-xs font-weight-bold mb-0 {{ $balance < 0 ? 'text-danger' : '' }}">
                                         {{ number_format($balance, 3) }}
