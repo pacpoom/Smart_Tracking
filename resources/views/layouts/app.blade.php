@@ -63,8 +63,10 @@
         }
 
         /* Added CSS for increasing menu font size */
-        .sidenav .navbar-nav .nav-link .nav-link-text, .sidenav .navbar-nav .nav-link .sidenav-normal {
-            font-size: 0.9rem; /* You can adjust this value */
+        .sidenav .navbar-nav .nav-link .nav-link-text,
+        .sidenav .navbar-nav .nav-link .sidenav-normal {
+            font-size: 0.9rem;
+            /* You can adjust this value */
         }
     </style>
 </head>
