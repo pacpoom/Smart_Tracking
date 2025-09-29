@@ -25,6 +25,7 @@ class WarehouseStock extends Model
         'material_id',
         'qty',
         'cy_qty',
+        'line_side_qty',
     ];
 
     /**

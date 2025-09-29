@@ -68,6 +68,7 @@ class ProductionPlanController extends Controller
             $requiredQty = $bom->qty * $productionOrder;
             $stock = WarehouseStock::where('material_id', $bom->material_id)->first();
             $stockQty = $stock ? $stock->qty : 0;
+            $lineSideQty = $stock ? $stock->line_side_qty : 0;
             $cyQty = $stock ? $stock->cy_qty : 0;
 
             return [
@@ -77,6 +78,7 @@ class ProductionPlanController extends Controller
                 'bom_qty' => $bom->qty,
                 'required_qty' => $requiredQty,
                 'stock_qty' => $stockQty,
+                'line_side_qty' => $lineSideQty,
                 'cy_qty' => $cyQty,
             ];
         })->filter()->values()->all();
@@ -149,6 +151,7 @@ class ProductionPlanController extends Controller
                 'bom_qty' => $bom->qty,
                 'required_qty' => $requiredQty,
                 'stock_qty' => $stockQty,
+                'line_side_qty' => $lineSideQty,
                 'cy_qty' => $cyQty,
             ];
         })->filter()->values()->all();
@@ -193,9 +196,7 @@ class ProductionPlanController extends Controller
         return Excel::download(new ProductionPlanExport($query), 'production_plans.csv');
     }
 
-    /**
-     * Fetch BOM details for a given VC Code via AJAX.
-     */
+
     public function getBom(Request $request)
     {
         set_time_limit(300);
@@ -220,7 +221,8 @@ class ProductionPlanController extends Controller
             $stock = WarehouseStock::where('material_id', $bom->material_id)->first();
             $stockQty = $stock ? $stock->qty : 0;
             $cyQty = $stock ? $stock->cy_qty : 0;
-            $balance = ($stockQty + $cyQty) - $requiredQty;
+            $lineSideQty = $stock ? $stock->line_side_qty : 0; // ดึงค่า line_side_qty
+            $balance = ($stockQty + $cyQty + $lineSideQty) - $requiredQty; // เพิ่ม line_side_qty ในการคำนวณ
 
             return [
                 'material_number' => $bom->childMaterial->material_number,
@@ -230,6 +232,7 @@ class ProductionPlanController extends Controller
                 'required_qty' => $requiredQty,
                 'stock_qty' => $stockQty,
                 'cy_qty' => $cyQty,
+                'line_side_qty' => $lineSideQty, // เพิ่ม line_side_qty ในผลลัพธ์
                 'balance' => $balance,
             ];
         })->filter();
