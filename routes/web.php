@@ -33,8 +33,8 @@ use App\Http\Controllers\PfepController;
 use App\Http\Controllers\BomController;
 use App\Http\Controllers\FileUploadController;
 use App\Http\Controllers\WarehouseStockController;
-use App\Http\Controllers\ProductionPlanController; // Add this line
-use App\Http\Controllers\ProductionPlanMonitorController; // Add this line
+use App\Http\Controllers\ProductionPlanController;
+use App\Http\Controllers\MonitoringPlanController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -62,9 +62,10 @@ Route::middleware('auth')->group(function () {
     // ✅ CHANGED: Corrected the route name to be plural
     Route::get('container-stock/by-current', [ContainerStockController::class, 'byCurrent'])->name('container-stocks.by-current');
 
-    Route::get('/production-plans/monitor', [ProductionPlanMonitorController::class, 'index'])->name('production-plans.monitor');
-    Route::get('/production-plans/monitor/data', [ProductionPlanMonitorController::class, 'getData'])->name('production-plans.monitor.data');
-
+    Route::get('monitoring-plan', [MonitoringPlanController::class, 'index'])->name('monitoring-plan.index');
+    Route::post('monitoring-plan/update', [MonitoringPlanController::class, 'update'])->name('monitoring-plan.update');
+    Route::get('monitoring-plan/export', [MonitoringPlanController::class, 'exportCsv'])->name('monitoring-plan.exportCsv');
+   
     // Bulk Delete Routes
     Route::delete('roles/bulk-destroy', [RolePermissionController::class, 'bulkDestroy'])->name('roles.bulkDestroy');
     Route::delete('permissions/bulk-destroy', [PermissionController::class, 'bulkDestroy'])->name('permissions.bulkDestroy');

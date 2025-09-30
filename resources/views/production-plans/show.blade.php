@@ -54,7 +54,7 @@
                                 $lineSideQty = $detail['line_side_qty'] ?? 0;
                                 $cyQty = $detail['cy_qty'] ?? 0;
                                 $requiredQty = $detail['required_qty'] ?? 0;
-                                $balance = ($stockQty + $cyQty) - $requiredQty;
+                                $balance = ($stockQty + $cyQty + $lineSideQty) - $requiredQty;
                             @endphp
                             <tr>
                                 <td><p class="text-xs font-weight-bold mb-0">{{ $detail['material_number'] ?? 'N/A' }}</p></td>
