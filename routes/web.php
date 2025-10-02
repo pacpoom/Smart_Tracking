@@ -188,6 +188,8 @@ Route::middleware('auth')->group(function () {
     Route::get('container-exchange/create', [ContainerExchangeController::class, 'create'])->name('container-exchange.create');
     Route::post('container-exchange', [ContainerExchangeController::class, 'store'])->name('container-exchange.store');
     Route::get('/bill-of-materials', [BomController::class, 'index'])->name('bom.index');
+    Route::post('/bom/import', [BomController::class, 'import'])->name('bom.import');
+    Route::get('/bom/template', [BomController::class, 'exportTemplate'])->name('bom.template');
     Route::resource('container-tacking', ContainerTackingController::class);
     Route::get('/container-open-return-cy', [ContainerOpenReturnCyController::class, 'index'])->name('container-open-return-cy.index');
     Route::post('/container-open-return-cy', [ContainerOpenReturnCyController::class, 'store'])->name('container-open-return-cy.store');

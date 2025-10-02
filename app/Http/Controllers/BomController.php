@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Bom;
+use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\BomImport;
+use App\Exports\BomTemplateExport;
 
 class BomController extends Controller
 {
@@ -24,5 +27,26 @@ class BomController extends Controller
         $boms = $query->orderBy('id', 'desc')->paginate($perPage);
 
         return view('bom.index', compact('boms', 'perPage'));
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls'
+        ]);
+
+        try {
+            Excel::import(new BomImport, $request->file('file'));
+
+            return redirect()->route('bom.index')->with('success', 'นำเข้าข้อมูล BOM สำเร็จ');
+
+        } catch (\Exception $e) {
+            return redirect()->route('bom.index')->with('error', 'เกิดข้อผิดพลาดระหว่างการนำเข้า: ' . $e->getMessage());
+        }
+    }
+
+    public function exportTemplate()
+    {
+        return Excel::download(new BomTemplateExport, 'bom_template.xlsx');
     }
 }
