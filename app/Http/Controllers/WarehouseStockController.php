@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Exports\WarehouseStockExport;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\LineSideQtyTemplateExport;
+use App\Imports\LineSideQtyImport;
 
 class WarehouseStockController extends Controller
 {
@@ -59,5 +61,21 @@ class WarehouseStockController extends Controller
         }
 
         return Excel::download(new WarehouseStockExport($query->latest('id')), 'warehouse_stock.csv');
+    }
+
+    public function exportLineSideQtyTemplate()
+    {
+        return Excel::download(new LineSideQtyTemplateExport, 'line_side_qty_template.xlsx');
+    }
+
+    public function importLineSideQty(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls',
+        ]);
+
+        Excel::import(new LineSideQtyImport, $request->file('file'));
+
+        return redirect()->back()->with('success', 'Stock updated successfully!');
     }
 }

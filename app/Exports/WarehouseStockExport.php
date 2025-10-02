@@ -39,6 +39,8 @@ class WarehouseStockExport implements FromQuery, WithHeadings, WithMapping, Shou
             'Pull Type',
             'Line Side',
             'Quantity',
+            'Line Side Stock',
+            'Container Stock',
             'Unit',
         ];
     }
@@ -58,6 +60,8 @@ class WarehouseStockExport implements FromQuery, WithHeadings, WithMapping, Shou
             $stock->material?->primaryPfep?->pull_type ?? 'N/A',
             $stock->material?->primaryPfep?->line_side ?? 'N/A',
             $stock->qty,
+            $stock->line_side_qty,
+            $stock->cy_qty,
             $stock->material?->unit ?? 'N/A',
         ];
     }

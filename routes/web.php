@@ -125,6 +125,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('materials', MaterialController::class);
     Route::resource('pfeps', PfepController::class);
 
+    Route::get('/warehouse-stock/export-line-side-qty-template', [WarehouseStockController::class, 'exportLineSideQtyTemplate'])->name('warehouse-stock.export-template');
+    Route::post('/warehouse-stock/import-line-side-qty', [WarehouseStockController::class, 'importLineSideQty'])->name('warehouse-stock.import');
+
     // AJAX route for fetching BOM details - MOVED HERE
     Route::get('/production-plans/get-bom', [ProductionPlanController::class, 'getBom'])->name('production-plans.getBom');
     Route::resource('production-plans', ProductionPlanController::class); 

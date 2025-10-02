@@ -16,6 +16,44 @@
             <div class="p-4">
                 @include('layouts.partials.alerts')
 
+                                <!-- Section for updating Line Side Quantity -->
+                <div class="card mb-4 shadow-sm border">
+                    <div class="card-header pb-0">
+                        <h6>Update Line Side Quantity</h6>
+                    </div>
+                    <div class="card-body">
+                        <p>To update the line side quantity in bulk, please follow these steps:</p>
+                        <ol>
+                            <li>
+                                Download the template file.
+                                <a href="{{ route('warehouse-stock.export-template') }}" class="btn btn-sm btn-info ms-2">
+                                    <i class="fas fa-download me-1"></i> Download Template
+                                </a>
+                            </li>
+                            <li>Fill in the `line_side_qty` for each `material` in the downloaded Excel file.</li>
+                            <li>Upload the updated file using the form below.</li>
+                        </ol>
+                        <form action="{{ route('warehouse-stock.import') }}" method="POST" enctype="multipart/form-data" class="mt-3">
+                            @csrf
+                            <div class="row align-items-center">
+                               <div class="col-md-6">
+                                    <div class="input-group input-group-outline">
+                                        <input type="file" class="form-control" name="file" id="file" required>
+                                    </div>
+                                    @error('file')
+                                        <div class="text-danger text-xs mt-1">{{ $message }}</div>
+                                    @enderror
+                               </div>
+                               <div class="col-md-4">
+                                   <button type="submit" class="btn btn-primary mb-0">
+                                       <i class="fas fa-upload me-1"></i> Upload & Update Stock
+                                   </button>
+                               </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
                 <!-- Search and Filters -->
                 <form action="{{ route('warehouse-stock.index') }}" method="GET">
                     <div class="row">
