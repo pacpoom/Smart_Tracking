@@ -47,6 +47,7 @@ class ContainerOrderPlanImport implements ToModel, WithHeadingRow, WithValidatio
             'free_time'    => $row['free_time'],
             'checkin_date' => $this->transformDate($row['checkin_date']),
             'depot'        => $row['depot'] ?? null,
+            'week_lot'      => $row['week_lot'] ?? null,
             'status'       => 1, // Default to Pending
         ]);
     }

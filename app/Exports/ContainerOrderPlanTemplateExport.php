@@ -21,6 +21,7 @@ class ContainerOrderPlanTemplateExport implements WithHeadings, ShouldAutoSize
             'free_time',
             'depot',
             'agent',
+            'week_lot',
             'checkin_date',
         ];
     }
