@@ -13,8 +13,7 @@
                     <div class="col-md-3">
                         <div class="input-group input-group-static">
                             <label>Plan No</label>
-                            <input type="text" name="plan_no" class="form-control"
-                                value="{{ request('plan_no') }}">
+                            <input type="text" name="plan_no" class="form-control" value="{{ request('plan_no') }}">
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -35,7 +34,7 @@
                         <button type="submit" class="btn btn-primary">Search</button>
                         <a href="{{ route('packing-list.index') }}" class="btn btn-secondary">Reset</a>
                         {{-- หมายเหตุ: การ Export อาจต้องปรับปรุงเพิ่มเติม --}}
-                        <button type="submit" name="export" value="1" class="btn btn-success">Export</button>
+                        <a href="{{ route('packing-list.export', request()->query()) }}" class="btn btn-success">Export</a>
                     </div>
                 </div>
             </form>
@@ -46,17 +45,26 @@
                     {{-- 2. แก้ไขส่วนหัวของตาราง --}}
                     <thead>
                         <tr>
-                            <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">#</th>
-                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Plan No</th>
-                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Container No</th>
+                            <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">#
+                            </th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Plan No
+                            </th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Container
+                                No</th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Agent</th>
-                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Material No</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Material No
+                            </th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Model</th>
-                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Part Type</th>
-                            <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Uloc</th>
-                            <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Pull Type</th>
-                            <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Quantity</th>
-                            <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Unit</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Part Type
+                            </th>
+                            <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Uloc
+                            </th>
+                            <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Pull
+                                Type</th>
+                            <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                Quantity</th>
+                            <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Unit
+                            </th>
                         </tr>
                     </thead>
                     {{-- 3. แก้ไขส่วนเนื้อหาของตาราง --}}
@@ -67,38 +75,48 @@
                                     <p class="text-xs font-weight-bold mb-0">{{ $packingLists->firstItem() + $key }}</p>
                                 </td>
                                 <td>
-                                    <p class="text-xs font-weight-bold mb-0">{{ $list->plan_no }}</p>
+
+                                    {{-- ใช้ ?? เพื่อกำหนดค่า default ถ้า $list->plan_no เป็น null --}}
+                                    <p class="text-xs font-weight-bold mb-0">{{ $list->plan_no ?? 'N/A' }}</p>
                                 </td>
                                 <td>
-                                    <p class="text-xs font-weight-bold mb-0">{{ $list->container_no }}</p>
+                                    <p class="text-xs font-weight-bold mb-0">{{ $list->container_no ?? 'N/A' }}</p>
+
                                 </td>
                                 <td>
-                                    <p class="text-xs font-weight-bold mb-0">{{ $list->agent }}</p>
+                                    <p class="text-xs font-weight-bold mb-0">{{ $list->agent ?? 'N/A' }}</p>
+
                                 </td>
                                 <td>
-                                    <p class="text-xs font-weight-bold mb-0">{{ $list->material_number }}</p>
+                                    <p class="text-xs font-weight-bold mb-0">{{ $list->material_number ?? 'N/A' }}</p>
+
                                 </td>
                                 <td>
-                                    <p class="text-xs font-weight-bold mb-0">{{ $list->model }}</p>
+                                    <p class="text-xs font-weight-bold mb-0">{{ $list->model ?? 'N/A' }}</p>
+
                                 </td>
                                 <td>
-                                    <p class="text-xs font-weight-bold mb-0">{{ $list->part_type }}</p>
+                                    <p class="text-xs font-weight-bold mb-0">{{ $list->part_type ?? 'N/A' }}</p>
+
                                 </td>
                                 <td class="text-center">
-                                    <p class="text-xs font-weight-bold mb-0">{{ $list->uloc }}</p>
+                                    <p class="text-xs font-weight-bold mb-0">{{ $list->uloc ?? 'N/A' }}</p>
+
                                 </td>
                                 <td class="text-center">
-                                    <p class="text-xs font-weight-bold mb-0">{{ $list->pull_type }}</p>
+                                    <p class="text-xs font-weight-bold mb-0">{{ $list->pull_type ?? 'N/A' }}</p>
+
                                 </td>
                                 <td class="text-center">
-                                    <p class="text-xs font-weight-bold mb-0">{{ $list->Qty }}</p>
+                                    <p class="text-xs font-weight-bold mb-0">{{ $list->Qty ?? 0 }}</p>
+
                                 </td>
                                 <td class="text-center">
-                                    <p class="text-xs font-weight-bold mb-0">{{ $list->unit }}</p>
+                                    <p class="text-xs font-weight-bold mb-0">{{ $list->unit ?? 'N/A' }}</p>
+
                                 </td>
                             </tr>
                         @empty
-                            {{-- 4. ปรับ Colspan ให้ตรงกับจำนวนคอลัมน์ --}}
                             <tr>
                                 <td colspan="11" class="text-center p-3">No data found matching your search criteria.</td>
                             </tr>

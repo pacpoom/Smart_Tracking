@@ -2,67 +2,64 @@
 
 namespace App\Exports;
 
-use App\Models\PackingList;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Illuminate\Database\Query\Builder;
+use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 
-class PackingListExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSize
+//                                                                      
+class PackingListExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSize, WithStrictNullComparison
 {
-    protected $query;
+    protected Builder $query;
 
-    public function __construct($query)
+    public function __construct(Builder $query)
     {
         $this->query = $query;
     }
 
-    public function query()
+    /**
+     * @return Builder
+     */
+    public function query(): Builder
     {
         return $this->query;
     }
 
     public function headings(): array
     {
-        // กำหนดหัวข้อคอลัมน์ในไฟล์ Excel ให้ตรงกับหน้าเว็บล่าสุด
         return [
-            'Storage Location',
-            'Item Number',
-            'Delivery Order',
-            'Delivery Item Number',
-            'Delivery Date',
+            'Plan No',
             'Container No',
             'Agent',
-            'Material Number',
-            'Material Name',
-            'Unit',
-            'Case Number',
-            'Box ID',
+            'Material No',
+            'Model',
+            'Part Type',
+            'Uloc',
+            'Pull Type',
             'Quantity',
+            'Unit',
         ];
     }
 
     /**
-     * @param PackingList $list
+     * @param mixed $row From the query result
      * @return array
      */
-    public function map($list): array
+    public function map($row): array
     {
-        // กำหนดข้อมูลที่จะใส่ในแต่ละแถวของ Excel
         return [
-            $list->storage_location,
-            $list->item_number,
-            $list->delivery_order,
-            $list->delivery_item_number,
-            $list->delivery_date ? $list->delivery_date->format('Y-m-d') : null,
-            $list->container?->container_no,
-            $list->container?->agent,
-            $list->material?->material_number,
-            $list->material?->material_name,
-            $list->material?->unit,
-            $list->case_number,
-            $list->box_id,
-            $list->quantity,
+            $row->plan_no ?? 'N/A',
+            $row->container_no ?? 'N/A',
+            $row->agent ?? 'N/A',
+            $row->material_number ?? 'N/A',
+            $row->model ?? 'N/A',
+            $row->part_type ?? 'N/A',
+            $row->uloc ?? 'N/A',
+            $row->pull_type ?? 'N/A',
+            (int)($row->Qty ?? 0), // <--- 3. แก้ไขตรงนี้ บังคับเป็น int
+            $row->unit ?? 'N/A',
         ];
     }
 }
