@@ -35,6 +35,7 @@ use App\Http\Controllers\FileUploadController;
 use App\Http\Controllers\WarehouseStockController;
 use App\Http\Controllers\ProductionPlanController;
 use App\Http\Controllers\MonitoringPlanController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -61,6 +62,9 @@ Route::middleware('auth')->group(function () {
     Route::get('container-exchange/photo/{photo}', [ContainerExchangeController::class, 'showPhoto'])->name('container-exchange.showPhoto');
     // ✅ CHANGED: Corrected the route name to be plural
     Route::get('container-stock/by-current', [ContainerStockController::class, 'byCurrent'])->name('container-stocks.by-current');
+
+    Route::get('/container-pulling-plans/template', [ContainerPullingPlanController::class, 'downloadTemplate'])->name('container-pulling-plans.template');
+    Route::post('/container-pulling-plans/import', [ContainerPullingPlanController::class, 'import'])->name('container-pulling-plans.import');
 
     Route::get('monitoring-plan', [MonitoringPlanController::class, 'index'])->name('monitoring-plan.index');
     Route::post('monitoring-plan/update', [MonitoringPlanController::class, 'update'])->name('monitoring-plan.update');

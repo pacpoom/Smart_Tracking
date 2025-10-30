@@ -22,6 +22,20 @@
                 <button type="button" class="btn btn-info mb-0 me-2" data-bs-toggle="modal" data-bs-target="#printReportModal">
                     Print Report
                 </button>
+
+                <!-- --- เพิ่มส่วนนี้ --- -->
+                <div class="btn-group me-2">
+                    <button type="button" class="btn btn-success dropdown-toggle mb-0" data-bs-toggle="dropdown" aria-expanded="false">
+                        Import/Export
+                    </button>
+                    <ul class="dropdown-menu px-2 py-3">
+                        <li><a class="dropdown-item border-radius-md" href="{{ route('container-pulling-plans.template') }}">Download Template</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item border-radius-md" href="#" data-bs-toggle="modal" data-bs-target="#importModal">Import Plans</a></li>
+                    </ul>
+                </div>
+                <!-- --- สิ้นสุดส่วนที่เพิ่ม --- -->
+
                 @can('create pulling plans')
                     <a href="{{ route('container-pulling-plans.create') }}" class="btn btn-dark mb-0">Add New Plan</a>
                 @endcan
@@ -114,6 +128,34 @@
         </div>
     </div>
 </div>
+
+<!-- --- เพิ่ม Modal นี้ --- -->
+{{-- Modal for Importing Plans --}}
+<div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{ route('container-pulling-plans.import') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title" id="importModalLabel">Import Pulling Plans</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Select an Excel file (.xlsx, .xls) to import.</p>
+                    <p>Make sure the file follows the <a href="{{ route('container-pulling-plans.template') }}">template format</a>.</p>
+                    <div class="input-group input-group-outline">
+                        <input type="file" class="form-control" name="import_file" required accept=".xlsx, .xls">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-dark">Start Import</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- --- สิ้นสุดส่วนที่เพิ่ม --- -->
 @endsection
 
 @push('scripts')
