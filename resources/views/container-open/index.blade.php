@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     allowClear: true,
                     ajax: {
                         //url: '{{ route("yard-locations.search") }}',
-                        url: '/yard-locations/searchDock',
+                        url: '/yard-locations/searchTransit',
                         dataType: 'json',
                         delay: 250,
                         processResults: function(data) {
