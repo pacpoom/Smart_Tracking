@@ -30,6 +30,7 @@ class ContainerPullingPlanTemplateExport implements FromCollection, WithHeadings
             'Plan Type(All,Pull)',
             'Pulling Order',
             'Pulling Date(yyyyMMdd)',
+            'Shop (SKD,MOQ,KD,BA,EA)',
         ];
     }
 }
