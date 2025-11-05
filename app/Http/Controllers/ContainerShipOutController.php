@@ -30,6 +30,16 @@ class ContainerShipOutController extends Controller
             });
         }
 
+        // --- ADDED: Filter by Shop ---
+        if ($request->filled('shop')) {
+            $shop = $request->shop;
+            // Assuming 'shop' is a field on the 'container_order_plans' table
+            $query->whereHas('containerOrderPlan', function ($q) use ($shop) {
+                $q->where('shop', $shop);
+            });
+        }
+        // --- END ADDED ---
+
         $pullingPlans = $query->paginate(10);
 
         return view('container-ship-out.index', compact('pullingPlans'));

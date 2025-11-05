@@ -16,6 +16,7 @@ class ContainerPullingPlan extends Model
         'pulling_date',
         'pulling_order', // เพิ่มบรรทัดนี้
         'destination',
+        'shop',
         'status',
         'user_id',
         'remarks',

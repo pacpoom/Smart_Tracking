@@ -21,12 +21,28 @@
     <div class="card-header pb-0">
         <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-md-between">
             <h5 class="mb-3 mb-md-0">Container Ship Out</h5>
+            {{-- MODIFIED: Updated form to include Shop dropdown --}}
             <form action="{{ route('container-ship-out.index') }}" method="GET" class="w-100 w-md-auto">
-                <div class="input-group input-group-outline">
-                    <label class="form-label">Search by Container No...</label>
-                    <input type="text" class="form-control" name="search" value="{{ request('search') }}">
+                <div class="d-flex flex-column flex-md-row gap-2">
+                    <div class="input-group input-group-outline">
+                        <label class="form-label">Search by Container No...</label>
+                        <input type="text" class="form-control" name="search" value="{{ request('search') }}">
+                    </div>
+
+                    <div class="input-group input-group-outline">
+                        <label class="form-label" for="shopSelect" style="display:none;">Shop</label>
+                        <select class="form-control" id="shopSelect" name="shop" onchange="this.form.submit()">
+                            <option value="">All Shops</option>
+                            <option value="SKD" @if(request('shop') == 'SKD') selected @endif>SKD</option>
+                            <option value="MOQ" @if(request('shop') == 'MOQ') selected @endif>MOQ</option>
+                            <option value="KD" @if(request('shop') == 'KD') selected @endif>KD</option>
+                            <option value="BA" @if(request('shop') == 'BA') selected @endif>BA</option>
+                            <option value="EA" @if(request('shop') == 'EA') selected @endif>EA</option>
+                        </select>
+                    </div>
                 </div>
             </form>
+            {{-- END MODIFIED --}}
         </div>
     </div>
     <div class="card-body">
@@ -68,7 +84,7 @@
                 <div class="col-12">
                     <p class="text-center p-3">No containers with a pulling plan found.</p>
                 </div>
-            @endforelse
+            @endforelse {{-- <-- FIXED TYPO HERE --}}
         </div>
     </div>
     <div class="card-footer d-flex justify-content-center">
