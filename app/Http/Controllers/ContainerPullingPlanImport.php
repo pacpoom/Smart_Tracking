@@ -66,6 +66,7 @@ class ContainerPullingPlanImport implements ToModel, WithHeadingRow, WithValidat
         // Cập nhật hoặc thiết lập dữ liệu
         $pullingPlan->plan_type = $row['plan_typeallpull']; // Cần kiểm tra lại heading
         $pullingPlan->pulling_order = $row['pulling_order'];
+        $pullingPlan->shop = 'SKD';
         $pullingPlan->user_id = $this->authUserId;
         $pullingPlan->status = 1; // 1 = Planned
 
@@ -86,6 +87,7 @@ class ContainerPullingPlanImport implements ToModel, WithHeadingRow, WithValidat
             'plan_typeallpull' => 'required|in:All,Pull',
             'pulling_order' => 'required|integer|min:1',
             'pulling_dateyyyymmdd' => 'required|numeric|digits:8',
+            'shop' => 'nullable|string',
         ];
     }
 

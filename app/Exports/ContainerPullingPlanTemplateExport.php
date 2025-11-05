@@ -15,7 +15,7 @@ class ContainerPullingPlanTemplateExport implements FromCollection, WithHeadings
     {
         // Trả về một hàng ví dụ
         return collect([
-            ['CONTAINER-NO-123', 'Pull', 1, '20251029'],
+            ['CONTAINER-NO-123', 'Pull', 1, '20251029', 'SKD'],
         ]);
     }
 
@@ -30,7 +30,7 @@ class ContainerPullingPlanTemplateExport implements FromCollection, WithHeadings
             'Plan Type(All,Pull)',
             'Pulling Order',
             'Pulling Date(yyyyMMdd)',
-            'Shop (SKD,MOQ,KD,BA,EA)',
+            'Shop(SKD,MOQ,KD,BA,EA)',
         ];
     }
 }

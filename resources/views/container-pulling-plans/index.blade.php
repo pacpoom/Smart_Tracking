@@ -56,6 +56,8 @@
                             <th class="text-center" style="width: 1%;"><div class="form-check d-flex justify-content-center"><input class="form-check-input" type="checkbox" id="select-all-checkbox"></div></th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Pulling Plan No.</th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Container No.</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Model</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Type</th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Plan Type</th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Shop</th>
                             <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Pulling Date</th>
@@ -70,6 +72,8 @@
                             <td class="text-center"><div class="form-check d-flex justify-content-center"><input class="form-check-input plan-checkbox" type="checkbox" name="ids[]" value="{{ $plan->id }}"></div></td>
                             <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $plan->pulling_plan_no }}</p></td>
                             <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $plan->containerOrderPlan->container->container_no }}</p></td>
+                            <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $plan->containerOrderPlan->model }}</p></td>
+                            <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $plan->containerOrderPlan->type }}</p></td>
                             <td><p class="text-xs font-weight-bold mb-0 px-2">{{ ucfirst($plan->plan_type) }}</p></td>
                             <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $plan->shop }}</p></td>
                             <td class="align-middle text-center"><span class="text-secondary text-xs font-weight-bold">{{ $plan->pulling_date?->format('d/m/Y') }}</span></td>
@@ -118,9 +122,24 @@
                 </div>
                 <div class="modal-body">
                     <p>Please select a date to generate the report for.</p>
-                    <div class="input-group input-group-outline">
+                    <div class="input-group input-group-outline mb-3">
                         <input type="date" class="form-control" name="pulling_date" value="{{ now()->format('Y-m-d') }}" required>
                     </div>
+
+                    <!-- ===== START: Added Shop Dropdown ===== -->
+                    <p>Select Shop (Optional):</p>
+                    <div class="input-group input-group-outline">
+                        <select class="form-control" id="shopSelect" name="shop">
+                            <option value="">All Shops</option>
+                            <option value="SKD">SKD</option>
+                            <option value="MOQ">MOQ</option>
+                            <option value="KD">KD</option>
+                            <option value="BA">BA</option>
+                            <option value="EA">EA</option>
+                        </select>
+                    </div>
+                    <!-- ===== END: Added Shop Dropdown ===== -->
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>

@@ -65,6 +65,7 @@
                                 @endif
                             </div>
                             <p class="text-sm mb-0">Order: {{ $plan->pulling_order ?? 'N/A' }}</p>
+                            <p class="text-sm mb-0">Shop: {{ $plan->shop ?? 'N/A' }}</p>
                         </div>
                         <div class="card-body">
                             <p class="mb-1"><strong>Location:</strong> {{ $plan->containerOrderPlan?->containerStock?->yardLocation?->location_code ?? 'N/A' }}</p>

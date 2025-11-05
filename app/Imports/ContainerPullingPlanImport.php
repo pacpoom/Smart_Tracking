@@ -68,7 +68,7 @@ class ContainerPullingPlanImport implements ToModel, WithHeadingRow, WithValidat
         // ใช้ key ที่ตรงกับ heading 'Plan Type(All,Pull)'
         $pullingPlan->plan_type = $row['plan_typeallpull'];
         $pullingPlan->pulling_order = $row['pulling_order'];
-        $pullingPlan->shop = $row['shop'] ?? null;
+        $pullingPlan->shop = $row['shopskdmoqkdbaea'] ?? '-';
         $pullingPlan->user_id = $this->authUserId;
         $pullingPlan->status = 1; // 1 = Planned
 
@@ -89,6 +89,7 @@ class ContainerPullingPlanImport implements ToModel, WithHeadingRow, WithValidat
             'plan_typeallpull' => 'required|in:All,Pull',
             'pulling_order' => 'required|integer|min:1',
             'pulling_dateyyyymmdd' => 'required|numeric|digits:8',
+            'shop' => 'nullable|string',
         ];
     }
 

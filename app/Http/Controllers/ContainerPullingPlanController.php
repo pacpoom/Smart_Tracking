@@ -141,21 +141,32 @@ class ContainerPullingPlanController extends Controller
     {
         $request->validate([
             'pulling_date' => 'required|date',
+            'shop' => 'nullable|string|in:SKD,MOQ,KD,BA,EA', // Added shop validation
         ]);
 
         $pullingDate = $request->pulling_date;
+        $shop = $request->shop; // Get shop from request
 
-        $plans = ContainerPullingPlan::with(['containerOrderPlan.container', 'containerOrderPlan.containerStock.yardLocation'])
-            ->whereDate('pulling_date', $pullingDate)
-            ->orderBy('pulling_order', 'asc')
-            ->get();
+        $query = ContainerPullingPlan::with(['containerOrderPlan.container', 'containerOrderPlan.containerStock.yardLocation'])
+            ->whereDate('pulling_date', $pullingDate);
+
+        // Filter by shop if it is provided
+        $query->when($shop, function ($q) use ($shop) {
+            return $q->where('shop', $shop);
+        });
+
+        $plans = $query->orderBy('pulling_order', 'asc')->get();
 
         if ($plans->isEmpty()) {
-            return back()->with('error', 'No pulling plans found for the selected date.');
+            return back()->with('error', 'No pulling plans found for the selected date' . ($shop ? ' and shop' : '') . '.');
         }
 
-        $pdf = Pdf::loadView('container-pulling-plans.report_pdf', compact('plans', 'pullingDate'));
-        return $pdf->stream('pulling_report_' . $pullingDate . '.pdf');
+        // Pass 'shop' variable to the PDF view
+        $pdf = Pdf::loadView('container-pulling-plans.report_pdf', compact('plans', 'pullingDate', 'shop'));
+        
+        // Add shop to the PDF filename if it exists
+        $filename = 'pulling_report_' . $pullingDate . ($shop ? '_' . $shop : '') . '.pdf';
+        return $pdf->stream($filename);
     }
 
     public function show()
