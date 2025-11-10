@@ -20,7 +20,7 @@
 <div class="card">
     <div class="card-header pb-0">
         <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-md-between">
-            <h5 class="mb-3 mb-md-0">Container Ship Out</h5>
+            <h5 class="mb-3 mb-md-0">Container Open</h5>
             <form action="{{ route('container-ship-out.index') }}" method="GET" class="w-100 w-md-auto">
                 <div class="input-group input-group-outline">
                     <label class="form-label">Search by Container No...</label>
