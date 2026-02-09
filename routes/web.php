@@ -172,7 +172,7 @@ Route::middleware('auth')->group(function () {
     Route::get('container-change-location', [ContainerChangeLocationController::class, 'index'])->name('container-change-location.index');
     Route::put('container-change-location/{stock}', [ContainerChangeLocationController::class, 'update'])->name('container-change-location.update');
     Route::get('/packing-list', [PackingListController::class, 'index'])->name('packing-list.index');
-    Route::get('packing-list/export', [PackingListController::class, 'export'])->name('packing-list.export');
+    Route::get('/packing-list/export', [PackingListController::class, 'export'])->name('packing-list.export');
     // Container Ship Out Routes
     Route::get('container-ship-out', [ContainerShipOutController::class, 'index'])->name('container-ship-out.index');
     Route::put('container-ship-out/{pullingPlan}', [ContainerShipOutController::class, 'shipOut'])->name('container-ship-out.shipOut');
