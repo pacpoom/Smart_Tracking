@@ -22,6 +22,20 @@
                 <button type="button" class="btn btn-info mb-0 me-2" data-bs-toggle="modal" data-bs-target="#printReportModal">
                     Print Report
                 </button>
+
+                <!-- --- เพิ่มส่วนนี้ --- -->
+                <div class="btn-group me-2">
+                    <button type="button" class="btn btn-success dropdown-toggle mb-0" data-bs-toggle="dropdown" aria-expanded="false">
+                        Import/Export
+                    </button>
+                    <ul class="dropdown-menu px-2 py-3">
+                        <li><a class="dropdown-item border-radius-md" href="{{ route('container-pulling-plans.template') }}">Download Template</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item border-radius-md" href="#" data-bs-toggle="modal" data-bs-target="#importModal">Import Plans</a></li>
+                    </ul>
+                </div>
+                <!-- --- สิ้นสุดส่วนที่เพิ่ม --- -->
+
                 @can('create pulling plans')
                     <a href="{{ route('container-pulling-plans.create') }}" class="btn btn-dark mb-0">Add New Plan</a>
                 @endcan
@@ -42,7 +56,10 @@
                             <th class="text-center" style="width: 1%;"><div class="form-check d-flex justify-content-center"><input class="form-check-input" type="checkbox" id="select-all-checkbox"></div></th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Pulling Plan No.</th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Container No.</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Model</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Type</th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Plan Type</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Shop</th>
                             <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Pulling Date</th>
                             <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Pulling Order</th>
                             <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
@@ -55,7 +72,10 @@
                             <td class="text-center"><div class="form-check d-flex justify-content-center"><input class="form-check-input plan-checkbox" type="checkbox" name="ids[]" value="{{ $plan->id }}"></div></td>
                             <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $plan->pulling_plan_no }}</p></td>
                             <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $plan->containerOrderPlan->container->container_no }}</p></td>
+                            <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $plan->containerOrderPlan->model }}</p></td>
+                            <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $plan->containerOrderPlan->type }}</p></td>
                             <td><p class="text-xs font-weight-bold mb-0 px-2">{{ ucfirst($plan->plan_type) }}</p></td>
+                            <td><p class="text-xs font-weight-bold mb-0 px-2">{{ $plan->shop }}</p></td>
                             <td class="align-middle text-center"><span class="text-secondary text-xs font-weight-bold">{{ $plan->pulling_date?->format('d/m/Y') }}</span></td>
                             <td class="align-middle text-center"><span class="text-secondary text-xs font-weight-bold">{{ $plan->pulling_order }}</span></td>
                             <td class="align-middle text-center text-sm">
@@ -102,9 +122,24 @@
                 </div>
                 <div class="modal-body">
                     <p>Please select a date to generate the report for.</p>
-                    <div class="input-group input-group-outline">
+                    <div class="input-group input-group-outline mb-3">
                         <input type="date" class="form-control" name="pulling_date" value="{{ now()->format('Y-m-d') }}" required>
                     </div>
+
+                    <!-- ===== START: Added Shop Dropdown ===== -->
+                    <p>Select Shop (Optional):</p>
+                    <div class="input-group input-group-outline">
+                        <select class="form-control" id="shopSelect" name="shop">
+                            <option value="">All Shops</option>
+                            <option value="SKD">SKD</option>
+                            <option value="MOQ">MOQ</option>
+                            <option value="KD">KD</option>
+                            <option value="BA">BA</option>
+                            <option value="EA">EA</option>
+                        </select>
+                    </div>
+                    <!-- ===== END: Added Shop Dropdown ===== -->
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -114,6 +149,34 @@
         </div>
     </div>
 </div>
+
+<!-- --- เพิ่ม Modal นี้ --- -->
+{{-- Modal for Importing Plans --}}
+<div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{ route('container-pulling-plans.import') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title" id="importModalLabel">Import Pulling Plans</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Select an Excel file (.xlsx, .xls) to import.</p>
+                    <p>Make sure the file follows the <a href="{{ route('container-pulling-plans.template') }}">template format</a>.</p>
+                    <div class="input-group input-group-outline">
+                        <input type="file" class="form-control" name="import_file" required accept=".xlsx, .xls">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-dark">Start Import</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- --- สิ้นสุดส่วนที่เพิ่ม --- -->
 @endsection
 
 @push('scripts')

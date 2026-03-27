@@ -11,6 +11,16 @@ use Illuminate\Support\Facades\Log;
 class LineSideQtyImport implements ToModel, WithHeadingRow
 {
     /**
+     * Constructor จะทำงานก่อนการ import ข้อมูล
+     * เราจะตั้งค่า line_side_qty ทั้งหมดเป็น 0 ที่นี่
+     */
+    public function __construct()
+    {
+        // นี่คือส่วนที่เพิ่มเข้ามา: อัปเดตทุกแถวใน WarehouseStock ให้ line_side_qty เป็น 0
+        WarehouseStock::query()->update(['line_side_qty' => 0]);
+    }
+
+    /**
     * @param array $row
     *
     * @return void
@@ -24,6 +34,7 @@ class LineSideQtyImport implements ToModel, WithHeadingRow
         if ($material) {
             // updateOrCreate will find a WarehouseStock record by material_id
             // or create a new one if it doesn't exist.
+            // ตอนนี้มันจะอัปเดตจากค่า 0 ที่เราตั้งไว้ หรือสร้างใหม่ด้วยค่าที่ถูกต้องจากไฟล์
             WarehouseStock::updateOrCreate(
                 ['material_id' => $material->id],
                 ['line_side_qty' => $row['line_side_qty']]

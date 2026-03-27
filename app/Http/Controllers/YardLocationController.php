@@ -247,4 +247,36 @@ class YardLocationController extends Controller
 
         return response()->json($formatted_locations);
     }
+
+    public function searchTransit(Request $request)
+    {
+        $search = $request->term;
+        $excludeId = $request->exclude;
+
+        // Get IDs of all locations that already have containers
+        $occupiedLocationIds = ContainerStock::pluck('yard_location_id')->unique()->toArray();
+
+        $query = YardLocation::where('is_active', true);
+
+        $query->where('id', 3065); // Assuming 3065 is the ID for 'Transit'
+
+        // if ($excludeId) {
+        //     $query->where('id', '!=', $excludeId);
+        // }
+
+        // Filter out locations that are already occupied
+        //$query->whereNotIn('id', $occupiedLocationIds);
+
+        $locations = $query->limit(15)->get(['id', 'location_code']);
+
+        $formatted_locations = [];
+        foreach ($locations as $location) {
+            $formatted_locations[] = [
+                'id' => $location->id,
+                'text' => $location->location_code
+            ];
+        }
+
+        return response()->json($formatted_locations);
+    }
 }

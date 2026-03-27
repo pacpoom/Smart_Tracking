@@ -35,6 +35,7 @@ use App\Http\Controllers\FileUploadController;
 use App\Http\Controllers\WarehouseStockController;
 use App\Http\Controllers\ProductionPlanController;
 use App\Http\Controllers\MonitoringPlanController;
+use App\Http\Controllers\ContainerPickingController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -61,6 +62,12 @@ Route::middleware('auth')->group(function () {
     Route::get('container-exchange/photo/{photo}', [ContainerExchangeController::class, 'showPhoto'])->name('container-exchange.showPhoto');
     // ✅ CHANGED: Corrected the route name to be plural
     Route::get('container-stock/by-current', [ContainerStockController::class, 'byCurrent'])->name('container-stocks.by-current');
+
+    Route::get('/container-picking', [ContainerPickingController::class, 'index'])->name('container-picking.index');
+    Route::post('/container-picking', [ContainerPickingController::class, 'store'])->name('container-picking.store');
+
+    Route::get('/container-pulling-plans/template', [ContainerPullingPlanController::class, 'downloadTemplate'])->name('container-pulling-plans.template');
+    Route::post('/container-pulling-plans/import', [ContainerPullingPlanController::class, 'import'])->name('container-pulling-plans.import');
 
     Route::get('monitoring-plan', [MonitoringPlanController::class, 'index'])->name('monitoring-plan.index');
     Route::post('monitoring-plan/update', [MonitoringPlanController::class, 'update'])->name('monitoring-plan.update');
@@ -90,6 +97,7 @@ Route::middleware('auth')->group(function () {
     Route::get('containers/search', [ContainerController::class, 'search'])->name('containers.search');
     Route::get('yard-locations/search', [YardLocationController::class, 'search'])->name('yard-locations.search');
     Route::get('yard-locations/searchDock', [YardLocationController::class, 'searchDock'])->name('yard-locations.searchDock');
+    Route::get('yard-locations/searchTransit', [YardLocationController::class, 'searchTransit'])->name('yard-locations.searchTransit');
     Route::get('container-order-plans/search', [ContainerOrderPlanController::class, 'search'])->name('container-order-plans.search');
     Route::get('container-order-plans/search-stock', [ContainerOrderPlanController::class, 'searchStock'])->name('container-order-plans.searchStock');
     Route::get('container-order-plans/search-stock-pulling', [ContainerOrderPlanController::class, 'searchStockPulling'])->name('container-order-plans.searchStockPulling');
@@ -164,7 +172,7 @@ Route::middleware('auth')->group(function () {
     Route::get('container-change-location', [ContainerChangeLocationController::class, 'index'])->name('container-change-location.index');
     Route::put('container-change-location/{stock}', [ContainerChangeLocationController::class, 'update'])->name('container-change-location.update');
     Route::get('/packing-list', [PackingListController::class, 'index'])->name('packing-list.index');
-    Route::get('packing-list/export', [PackingListController::class, 'export'])->name('packing-list.export');
+    Route::get('/packing-list/export', [PackingListController::class, 'export'])->name('packing-list.export');
     // Container Ship Out Routes
     Route::get('container-ship-out', [ContainerShipOutController::class, 'index'])->name('container-ship-out.index');
     Route::put('container-ship-out/{pullingPlan}', [ContainerShipOutController::class, 'shipOut'])->name('container-ship-out.shipOut');

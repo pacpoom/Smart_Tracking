@@ -60,6 +60,10 @@
         <div class="header">
             <h1>Container Pulling Report</h1>
             <p><strong>Date:</strong> {{ \Carbon\Carbon::parse($pullingDate)->format('d F Y') }}</p>
+            
+            <!-- ===== START: Added Shop Display ===== -->
+            <p><strong>Shop:</strong> {{ $shop ?? 'All Shops' }}</p>
+            <!-- ===== END: Added Shop Display ===== -->
         </div>
 
         <table>
