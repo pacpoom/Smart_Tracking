@@ -11,38 +11,48 @@
     </div>
     <div class="card-body">
         {{-- Search Form --}}
-        <form action="{{ route('container-transactions.index') }}" method="GET">
+         <form action="{{ route('container-transactions.index') }}" method="GET">
             <div class="row g-4 align-items-end">
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <label class="form-label">Search by Container No.</label>
                     <div class="input-group input-group-outline">
                         <input type="text" class="form-control" name="search" value="{{ request('search') }}">
                     </div>
                 </div>
+                
                 <div class="col-md-3">
                     <label class="form-label">Date From</label>
                     <div class="input-group input-group-outline">
                         <input type="date" class="form-control" name="start_date" value="{{ $startDate }}">
                     </div>
                 </div>
+                
                 <div class="col-md-3">
                     <label class="form-label">Date To</label>
                     <div class="input-group input-group-outline">
                         <input type="date" class="form-control" name="end_date" value="{{ $endDate }}">
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="btn-group w-50">
-                        <button type="submit" class="btn btn-dark w-50">Search</button>
-                    <div class="btn-group w-50">
-                        @can('export container transactions')
-                        <a href="{{ route('container-transactions.export', request()->query()) }}" class="btn btn-success w-50">Export</a>
-                        @endcan
-                    </div>
+
+                <div class="col-md-2">
+                    <label class="form-label">Activity Type</label>
+                    <div class="input-group input-group-outline">
+                        <select name="activity_type" class="form-control form-select" style="padding-left: 10px;" onchange="this.form.submit()">
+                            <option value="">All</option>
+                            @foreach($activities as $activity)
+                                <option value="{{ $activity }}" {{ request('activity_type') == $activity ? 'selected' : '' }}>
+                                    {{ $activity }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
+                
+                <div class="col-md-12 text-end mt-3">
+                    <button type="submit" class="btn btn-primary mb-0">Search</button>
+                    <a href="{{ route('container-transactions.export', request()->all()) }}" class="btn btn-success mb-0">Export CSV</a>
+                </div>
             </div>
-        </div>
         </form>
         <div class="table-responsive p-0 mt-4">
             <table class="table align-items-center mb-0">
