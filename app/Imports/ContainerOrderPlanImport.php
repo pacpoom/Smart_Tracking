@@ -23,8 +23,12 @@ class ContainerOrderPlanImport implements ToModel, WithHeadingRow, WithValidatio
         ['container_no' => $row['container_no']],
         );
 
+        // แก้ไข: เพิ่มการอัพเดท container_owner เข้าไปพร้อมกับ agent
         Container::where('container_no', $container->container_no)
-        ->update(['agent' => $row['agent']]);
+        ->update([
+            'agent' => $row['agent'] ?? null,
+            'container_owner' => $row['container_owner'] ?? null // เพิ่มบรรทัดนี้
+        ]);
 
 
         // Check for existing record with the same container_id and house_bl
@@ -43,11 +47,12 @@ class ContainerOrderPlanImport implements ToModel, WithHeadingRow, WithValidatio
             'model'        => $row['model'],
             'type'         => $row['type'],
             'house_bl'     => $row['house_bl'],
-            'eta_date'     => $this->transformDate($row['eta_date']),
-            'free_time'    => $row['free_time'],
-            'checkin_date' => $this->transformDate($row['checkin_date']),
+            'eta_date'     => $this->transformDate($row['eta_date'] ?? null),
+            'free_time'    => $row['free_time'] ?? null,
+            'checkin_date' => $this->transformDate($row['checkin_date'] ?? null),
             'depot'        => $row['depot'] ?? null,
-            'week_lot'      => $row['week_lot'] ?? null,
+            'week_lot'     => $row['week_lot'] ?? null,
+            'vessel'       => $row['vessel'] ?? null,
             'status'       => 1, // Default to Pending
         ]);
     }
@@ -61,6 +66,7 @@ class ContainerOrderPlanImport implements ToModel, WithHeadingRow, WithValidatio
             'house_bl' => 'required|string',
             'eta_date' => 'nullable|date_format:Ymd',
             'checkin_date' => 'nullable|date_format:Ymd',
+            'container_owner' => 'nullable|string', // เพิ่ม Rule สำหรับ container_owner
         ];
     }
 
@@ -69,8 +75,9 @@ class ContainerOrderPlanImport implements ToModel, WithHeadingRow, WithValidatio
         if (empty($value)) {
             return null;
         }
+        
         try {
-            return Carbon::createFromFormat('Ymd', $value);
+            return Carbon::createFromFormat('Ymd', $value)->format('Y-m-d');
         } catch (\Exception $e) {
             return null;
         }

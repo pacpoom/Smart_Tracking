@@ -18,6 +18,7 @@ class ContainerOrderPlan extends Model
         'house_bl',
         'eta_date',
         'week_lot',
+        'vessel',
         'free_time',
         'checkin_date',
         'departure_date',
