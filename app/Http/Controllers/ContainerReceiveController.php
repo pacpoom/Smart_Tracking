@@ -66,6 +66,7 @@ class ContainerReceiveController extends Controller
                 'activity_type' => 'Receive',
                 'transaction_date' => now(),
                 'remarks' => $request->remarks,
+                
             ]);
         });
 
