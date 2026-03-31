@@ -29,11 +29,11 @@
                              @error('yard_location_id') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Check-in Date</label>
+                            <label class="form-label">Check-in Date & Time</label>
                             <div class="input-group input-group-outline">
-                                <input type="date" class="form-control" name="checkin_date" value="{{ now()->format('Y-m-d') }}" required>
+                                <input type="datetime-local" class="form-control" name="checkin_date" value="{{ now()->format('Y-m-d\TH:i') }}" required>
                             </div>
-                             @error('checkin_date') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
+                            @error('checkin_date') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
                         </div>
                     </div>
                     <div class="mb-3">
