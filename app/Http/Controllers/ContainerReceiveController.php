@@ -9,6 +9,7 @@ use App\Models\ContainerTransaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon; // นำเข้า Carbon สำหรับจัดการ Date Time
 
 class ContainerReceiveController extends Controller
 {
@@ -38,11 +39,14 @@ class ContainerReceiveController extends Controller
         $request->validate([
             'container_order_plan_id' => 'required|exists:container_order_plans,id',
             'yard_location_id' => 'required|exists:yard_locations,id',
-            'checkin_date' => 'required|date',
+            'checkin_date' => 'required|date', // กฎ 'date' รองรับทั้ง Date และ Datetime
             'remarks' => 'nullable|string',
         ]);
 
-        DB::transaction(function () use ($request) {
+        // แปลงรูปแบบวันที่และเวลาให้อยู่ในฟอร์แมตมาตรฐานของ Database (Y-m-d H:i:s)
+        $checkinDateTime = Carbon::parse($request->checkin_date)->format('Y-m-d H:i:s');
+
+        DB::transaction(function () use ($request, $checkinDateTime) {
             $plan = ContainerOrderPlan::find($request->container_order_plan_id);
 
             ContainerStock::create([
@@ -50,12 +54,12 @@ class ContainerReceiveController extends Controller
                 'container_id' => $plan->container_id, // Assuming the plan has a container_id
                 'yard_location_id' => $request->yard_location_id,
                 'status' => 1, // 1 = Full
-                'checkin_date' => $request->checkin_date,
+                'checkin_date' => $checkinDateTime, // ใช้ Datetime ที่แปลงแล้ว
                 'remarks' => $request->remarks,
             ]);
 
             $plan->status = 2; // 2 = Received
-            $plan->checkin_date = $request->checkin_date;
+            $plan->checkin_date = $checkinDateTime; // ใช้ Datetime ที่แปลงแล้ว
             $plan->save();
 
             ContainerTransaction::create([
@@ -64,9 +68,8 @@ class ContainerReceiveController extends Controller
                 'user_id' => Auth::id(),
                 'yard_location_id' => $request->yard_location_id,
                 'activity_type' => 'Receive',
-                'transaction_date' => now(),
+                'transaction_date' => now(), // เก็บเวลาปัจจุบันของ Transaction
                 'remarks' => $request->remarks,
-                
             ]);
         });
 
