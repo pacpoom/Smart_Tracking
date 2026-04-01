@@ -81,6 +81,8 @@ class ContainerOrderPlanController extends Controller
     {
         $request->validate([
             'container_no' => 'required|string|max:255',
+            'vessel' => 'nullable|string|max:255',
+            'container_owner' => 'nullable|string|max:255',
             'eta_date' => 'nullable|date',
             'checkin_date' => 'nullable|date|after_or_equal:eta_date',
         ]);
@@ -89,7 +91,11 @@ class ContainerOrderPlanController extends Controller
             ['container_no' => $request->container_no]
         );
         
-        $data = $request->except(['status', 'container_no']);
+        if ($request->has('container_owner')) {
+            $container->update(['container_owner' => $request->container_owner]);
+        }
+        
+        $data = $request->except(['status', 'container_no', 'container_owner']);
         $data['container_id'] = $container->id;
         
         $containerOrderPlan->update($data);

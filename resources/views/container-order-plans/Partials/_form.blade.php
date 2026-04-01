@@ -81,6 +81,30 @@
     </div>
 </div>
 
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <label class="form-label">Vessel</label>
+        <div class="input-group input-group-outline">
+            <input type="text" class="form-control" name="vessel"
+                value="{{ old('vessel', $containerOrderPlan->vessel ?? '') }}">
+        </div>
+        @error('vessel')
+            <p class="text-danger text-xs pt-1"> {{ $message }} </p>
+        @enderror
+    </div>
+
+    <div class="col-md-6 mb-3">
+        <label class="form-label">Owner</label>
+        <div class="input-group input-group-outline">
+            <input type="text" class="form-control" name="container_owner"
+                value="{{ old('container_owner', $containerOrderPlan->container->container_owner ?? '') }}">
+        </div>
+        @error('container_owner')
+            <p class="text-danger text-xs pt-1"> {{ $message }} </p>
+        @enderror
+    </div>
+</div>
+
 @if (isset($containerOrderPlan))
     <div class="mb-3">
         <label class="form-label">Status</label>
