@@ -35,7 +35,7 @@ RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 RUN chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
 # 9. Expose port 9000 สำหรับ PHP-FPM
-EXPOSE 9000
+EXPOSE 8000
 
 # 10. คำสั่งที่จะรันเมื่อ Container เริ่มทำงาน
 CMD ["php-fpm"]
