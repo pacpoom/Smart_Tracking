@@ -191,9 +191,10 @@ Route::middleware('auth')->group(function () {
     Route::get('display-dashboard', [App\Http\Controllers\DisplayDashboardController::class, 'index'])->name('display.dashboard');
     Route::post('container-tacking/{containerTacking}/add-photos', [ContainerTackingController::class, 'addPhotos'])->name('container-tacking.addPhotos');
 
-    // Container Return Routes
+// Container Return Routes
     Route::get('container-return', [ContainerReturnController::class, 'index'])->name('container-return.index');
-    Route::put('container-return/{stock}', [ContainerReturnController::class, 'returnContainer'])->name('container-return.return');
+    Route::get('container-return/search', [ContainerReturnController::class, 'search'])->name('container-return.search'); // <-- เพิ่ม Route สำหรับค้นหา (AJAX)
+    Route::post('container-return', [ContainerReturnController::class, 'store'])->name('container-return.store'); // <-- เปลี่ยนเป็น POST ชี้ไปที่ store
 
     // Container Exchange Routes
     Route::get('container-exchange/create', [ContainerExchangeController::class, 'create'])->name('container-exchange.create');

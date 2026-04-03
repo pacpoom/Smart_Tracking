@@ -1,93 +1,132 @@
 @extends('layouts.app')
 
-@section('title', 'Container Return')
-
 @section('content')
-<div class="card">
-    <div class="card-header pb-0">
-        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-md-between">
-            <h5 class="mb-3 mb-md-0">Container Return (Empty Containers)</h5>
-            {{-- 1. เปลี่ยนจากช่อง input ธรรมดาเป็น select2 --}}
-            <div class="input-group input-group-outline w-100 w-md-auto">
-                <label class="form-label">Search by Container No...</label>
-                <select id="container-search" class="form-control" style="width: 100%;"></select>
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-undo me-2"></i> Container Return</h5>
+                </div>
+
+                <div class="card-body bg-light">
+                    
+                    <!-- Search Bar (Text Input) -->
+                    <form action="{{ route('container-return.index') }}" method="GET" class="mb-4">
+                        <div class="row g-2">
+                            <!-- Input Search -->
+                            <div class="col-12 col-md-8 col-lg-9">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0"><i class="fas fa-box text-muted"></i></span>
+                                    <input type="text" class="form-control border-start-0 ps-0" name="search" placeholder="-- Search Container No --" value="{{ request('search') }}" autofocus autocomplete="off">
+                                </div>
+                            </div>
+                            <!-- Buttons -->
+                            <div class="col-6 col-md-2 col-lg-auto flex-grow-1">
+                                <button class="btn btn-primary w-100 text-nowrap fw-bold" type="submit">
+                                    <i class="fas fa-search me-1"></i> Search
+                                </button>
+                            </div>
+                            <div class="col-6 col-md-2 col-lg-auto flex-grow-1">
+                                <a href="{{ route('container-return.index') }}" class="btn btn-secondary w-100 text-nowrap fw-bold">
+                                    <i class="fas fa-sync-alt me-1"></i> Reset
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Feedback Messages -->
+                    @if(session('success'))
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+                    @if(session('error'))
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i> {{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+                    @if($errors->has('general'))
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i> {{ $errors->first('general') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+
+                    <!-- List of Containers (Card Layout) -->
+                    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                        @forelse($stocks as $stock)
+                        <div class="col">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-header bg-white border-bottom-0 pt-3 pb-0">
+                                    @php
+                                        // Handle cases where container relation might be direct or via order plan
+                                        $containerNo = $stock->container->container_no ?? ($stock->containerOrderPlan->container->container_no ?? 'N/A');
+                                    @endphp
+                                    <h5 class="card-title text-primary fw-bold">
+                                        {{ $containerNo }}
+                                    </h5>
+                                </div>
+                                <div class="card-body py-2">
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Current Location</small>
+                                        <span class="badge bg-secondary">
+                                            {{ $stock->yardLocation->location_code ?? 'Unknown Location' }}
+                                        </span>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Container Status</small>
+                                        @if($stock->status == 1)
+                                            <span class="badge bg-danger">Full</span>
+                                        @elseif($stock->status == 2)
+                                            <span class="badge bg-warning text-dark">Partial</span>
+                                        @elseif($stock->status == 3)
+                                            <span class="badge bg-success">Empty</span>
+                                        @else
+                                            <span class="badge bg-secondary">Unknown</span>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-white border-top-0 pb-3 pt-0">
+                                    <div class="d-grid gap-2">
+                                        <button type="button" class="btn btn-warning" onclick="openReturnModal({{ $stock->container_id }}, '{{ $containerNo }}')">
+                                            <i class="fas fa-undo"></i> Return
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @empty
+                        <div class="col-12 text-center py-5 w-100">
+                            <div class="text-muted">
+                                <i class="fas fa-box-open fa-3x mb-3"></i>
+                                <h5>No containers available for return</h5>
+                            </div>
+                        </div>
+                        @endforelse
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="d-flex justify-content-center mt-4">
+                        {{ $stocks->appends(request()->query())->links() }}
+                    </div>
+
+                </div>
             </div>
         </div>
     </div>
-    <div class="card-body">
-        @include('layouts.partials.alerts')
-        
-        <div class="row">
-            @forelse ($stocks as $stock)
-                <div class="col-md-6 col-lg-4 mb-4">
-                    <div class="card border">
-                        <div class="card-header border-bottom pb-2">
-                            <h6 class="mb-0">{{ $stock->containerOrderPlan?->container?->container_no ?? 'N/A' }}</h6>
-                            <p class="text-sm mb-0">Size: {{ $stock->containerOrderPlan?->container?->size ?? 'N/A' }}</p>
-                            <p class="text-sm mb-0">Agent: {{ $stock->containerOrderPlan?->container?->agent ?? 'N/A' }}</p>
-                            <p class="text-sm mb-0">Depot: {{ $stock->containerOrderPlan?->depot ?? 'N/A' }}</p>
-                            <p class="text-sm mb-0">Age in yard: {{ $stock->containerOrderPlan?->age_in_days ?? 'N/A' }} days</p>
-                        </div>
-                        <div class="card-body">
-                            <p class="mb-1"><strong>Current Location:</strong></p>
-                            <h5 class="font-weight-bolder">{{ $stock->yardLocation?->location_code ?? 'N/A' }}</h5>
-                        </div>
-                        <div class="card-footer pt-0">
-                            <button type="button" class="btn btn-dark w-100 mb-0" data-bs-toggle="modal" data-bs-target="#returnModal-{{ $stock->id }}">
-                                Return Container
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                @include('container-return.partials.return-modal', ['stock' => $stock])
-            @empty
-                <div class="col-12">
-                    <p class="text-center p-3">No empty containers available for return.</p>
-                </div>
-            @endforelse
-        </div>
-    </div>
-    <div class="card-footer d-flex justify-content-center">
-        {{ $stocks->withQueryString()->links() }}
-    </div>
 </div>
+
+<!-- Include Modal -->
+@include('container-return.partials.return-modal')
+
 @endsection
 
-@push('scripts')
+@section('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // 2. Initialise the main search bar with Select2 for AJAX
-    $('#container-search').select2({
-        theme: 'bootstrap-5',
-        width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
-        placeholder: 'Search for a container...',
-        allowClear: true,
-        ajax: {
-            url: '/container-stocks/search-empty',
-            dataType: 'json',
-            delay: 250,
-            data: function(params) {
-                return {
-                    term: params.term // search term
-                };
-            },
-            processResults: function(data) {
-                return {
-                    results: data
-                };
-            },
-            cache: true
-        }
-    }).on('select2:select', function(e) {
-        // เมื่อเลือก container จาก dropdown ให้เปลี่ยน URL เพื่อทำการค้นหา
-        let stockId = e.params.data.id;
-        // ส่งค่า 'search' ไปที่ URL เพื่อให้ Controller ทำการค้นหา
-        window.location.href = '{{ route("container-return.index") }}?search=' + encodeURIComponent(e.params.data.text.split(' ')[0]);
-
-    }).on('select2:unselect', function(e) {
-        // เมื่อยกเลิกการเลือก ให้รีโหลดหน้าเดิมเพื่อแสดงข้อมูลทั้งหมด
-        window.location.href = '{{ route("container-return.index") }}';
-    });
-});
+    // สามารถเพิ่ม Script อื่นๆ ที่จำเป็นในหน้านี้ได้
+    // นำ Select2 script ออกแล้วเพื่อใช้ Textbox ค้นหาแบบปกติ
 </script>
-@endpush
+@endsection

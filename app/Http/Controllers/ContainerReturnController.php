@@ -8,6 +8,7 @@ use App\Models\ContainerOrderPlan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class ContainerReturnController extends Controller
 {
@@ -21,19 +22,33 @@ class ContainerReturnController extends Controller
      */
     public function index(Request $request)
     {
-        // Fetch Container Stocks that are not 'Returned' (status != 4)
-        $query = ContainerStock::where('status', '!=', 4)
+        // 1. หาค่า ID ล่าสุดของแต่ละตู้ เพื่อให้แสดงตู้ไม่ซ้ำซ้อนกัน
+        // ลบ "as max_id" ออก เพื่อให้ whereIn สามารถประมวลผลเป็น where id in (select max(id) ...) ได้อย่างถูกต้อง
+        $subQuery = ContainerStock::select(DB::raw('MAX(id)'))
+            ->where('status', '!=', 4)
+            ->groupBy('container_id');
+
+        // ดึงข้อมูล stock ที่เป็น ID ล่าสุด
+        $query = ContainerStock::whereIn('id', $subQuery)
             ->with(['containerOrderPlan.container', 'yardLocation', 'container']); // Eager load relationships
 
-        // แก้ไขการค้นหา: ถ้ามีการส่ง container_id มาจาก search dropdown
+        // 2. การค้นหา: ถ้ามีการส่ง search มาจาก dropdown หรือพิมพ์ค้นหา
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->whereHas('containerOrderPlan.container', function ($q) use ($search) {
-                $q->where('container_no', 'like', '%' . $search . '%');
+            $query->where(function($q) use ($search) {
+                // ปรับ whereHas nested ให้ปลอดภัยขึ้น
+                $q->whereHas('containerOrderPlan', function ($q2) use ($search) {
+                    $q2->whereHas('container', function ($q4) use ($search) {
+                        $q4->where('container_no', 'like', '%' . $search . '%');
+                    });
+                })->orWhereHas('container', function($q3) use ($search) {
+                    $q3->where('container_no', 'like', '%' . $search . '%');
+                });
             });
         }
         
-        $stocks = $query->paginate(6); // 6 cards per page for PDA layout
+        // เรียงลำดับจากใหม่ไปเก่า
+        $stocks = $query->orderBy('id', 'desc')->paginate(6); 
 
         return view('container-return.index', compact('stocks'));
     }
@@ -43,72 +58,76 @@ class ContainerReturnController extends Controller
      */
     public function search(Request $request)
     {
-
-        // ค้นหาเฉพาะตู้ที่ยังไม่ถูก Return (4)
-
         $search = $request->term;
 
-        // แก้ไข: ใช้ join และ group by container_no
-        $query = ContainerStock::join('containers', 'container_stocks.container_id', '=', 'containers.id')
-                    ->where('containers.container_no', 'LIKE', "%{$search}%")
-                    ->groupBy('containers.container_no')
-                    ->select(
-                        'container_stocks.container_id',
-                        'containers.container_no as text'
-                    );
-        
-        $stocks = $query->limit(15)->get();
-        
-        $formatted_stocks = [];
-        foreach ($stocks as $stock) {
-            if ($stock->container) {
-                $formatted_stocks[] = [
-                    'id' => $stock->container_id, // ใช้ container_id เป็น ID เพื่อใช้ในการลบ
-                    'text' => $stock->container->container_no,
-                ];
-            }
-        }
-        
-        return response()->json($formatted_stocks);
+        // สำหรับ AJAX Search ดึงข้อมูลโดยไม่ต้องใช้ whereIn(SubQuery) ที่ซับซ้อน 
+        // อาศัย Collection unique ในการกรองตู้ที่ไม่ซ้ำ เพื่อให้ค้นหาได้รวดเร็วขึ้น
+        $stocks = ContainerStock::with(['containerOrderPlan.container', 'container'])
+            ->where('status', '!=', 4)
+            ->where(function($q) use ($search) {
+                $q->whereHas('containerOrderPlan', function ($q2) use ($search) {
+                    $q2->whereHas('container', function ($q4) use ($search) {
+                        $q4->where('container_no', 'like', '%' . $search . '%');
+                    });
+                })->orWhereHas('container', function($q3) use ($search) {
+                    $q3->where('container_no', 'like', '%' . $search . '%');
+                });
+            })
+            ->orderBy('id', 'desc')
+            ->get()
+            ->unique('container_id') // กรองให้เหลือตู้ละ 1 รายการ
+            ->take(20); // จำกัดผลลัพธ์
+
+        $formattedStocks = $stocks->map(function ($stock) {
+            // ดึงเลขตู้คอนเทนเนอร์
+            $containerNo = $stock->container->container_no ?? ($stock->containerOrderPlan->container->container_no ?? 'Unknown');
+            
+            return [
+                'id' => $containerNo, // คืนค่าหมายเลขตู้เพื่อนำไปใส่เป็น Value ตอนกด Search
+                'text' => $containerNo,
+            ];
+        })->values(); // reset keys หลังจากการใช้ unique()
+
+        return response()->json(['results' => $formattedStocks]);
     }
 
     /**
      * Process the container return.
      */
-     public function returnContainer(Request $request, ContainerStock $stock)
+    public function store(Request $request)
     {
-        DB::transaction(function () use ($request, $stock) {
-            $orderPlan = $stock->containerOrderPlan;
-            $containerIdToReturn = $stock->container_id;
+        // ตรวจสอบว่ามีข้อมูล container_id ส่งมา
+        $request->validate([
+            'container_id' => 'required',
+        ]);
 
-            if (!$orderPlan) {
-                // This is a safeguard in case the relationship is broken
-                // ใช้ ValidationException เพื่อให้สามารถส่ง error กลับไปหน้า view ได้
-                throw ValidationException::withMessages(['general' => 'Associated Order Plan not found for this stock item.']);
-            }
+        $containerIdToReturn = $request->container_id;
 
-            // 1. อัปเดตสถานะของ Order Plan ทุกรายการที่เกี่ยวข้องกับ container_id นี้
+        DB::transaction(function () use ($containerIdToReturn) {
+            
+            // หา order_plan และ stock ที่เกี่ยวข้องเพื่อเอาไปบันทึก transaction
+            $orderPlan = ContainerOrderPlan::where('container_id', $containerIdToReturn)->orderBy('id', 'desc')->first();
+            $stock = ContainerStock::where('container_id', $containerIdToReturn)->orderBy('id', 'desc')->first();
+
+            // 1. อัปเดตสถานะของ Order Plan ทุกรายการที่เกี่ยวข้องกับ container_id นี้เป็น Return (4)
             ContainerOrderPlan::where('container_id', $containerIdToReturn)
                 ->update(['status' => 4]);
 
             // 2. Create a Transaction Log for the 'Return' activity
-            ContainerTransaction::create([
-                'container_order_plan_id' => $orderPlan->id,
-                'house_bl' => $orderPlan->house_bl,
-                'user_id' => Auth::id(),
-                'yard_location_id' => $stock->yard_location_id, // Record the location it was returned from
-                'activity_type' => 'Return',
-                'transaction_date' => now(),
-                'remarks' => 'Container returned to owner.',
-            ]);
+            if ($orderPlan) {
+                ContainerTransaction::create([
+                    'container_order_plan_id' => $orderPlan->id,
+                    'house_bl' => $orderPlan->house_bl,
+                    'user_id' => Auth::id(),
+                    'yard_location_id' => $stock ? $stock->yard_location_id : null, // Record the location it was returned from
+                    'activity_type' => 'Return',
+                    'transaction_date' => now(),
+                    'remarks' => 'Container returned to owner.',
+                ]);
+            }
 
             // 3. Delete all container stock records with the same container_id
-            if ($containerIdToReturn) {
-                ContainerStock::where('container_id', $containerIdToReturn)->delete();
-            } else {
-                // Fallback for safety, though container_id should exist
-                $stock->delete();
-            }
+            ContainerStock::where('container_id', $containerIdToReturn)->delete();
         });
 
         return back()->with('success', 'Container has been returned successfully.');
