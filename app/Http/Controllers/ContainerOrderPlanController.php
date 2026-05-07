@@ -59,6 +59,7 @@ class ContainerOrderPlanController extends Controller
         'checkin_date' => 'nullable|date|after_or_equal:eta_date',
         'agent' => 'nullable|string|max:255', 
         'week_lot' => 'nullable|string|max:255', 
+        'free_time' => 'nullable|integer',
     ]);
 
     $container = Container::firstOrCreate(
@@ -109,6 +110,9 @@ class ContainerOrderPlanController extends Controller
     
     $data = $request->except(['status', 'container_no', 'container_owner', 'agent']);
     $data['container_id'] = $container->id;
+    if (isset($data['free_time'])) {
+        $data['free_time'] = (int) $data['free_time'];
+    }
     
     $containerOrderPlan->update($data);
     return redirect()->route('container-order-plans.index')->with('success', 'Container order plan updated successfully.');
