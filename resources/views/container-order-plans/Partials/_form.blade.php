@@ -105,6 +105,7 @@
     </div>
 </div>
 
+<div class="row">
     <div class="col-md-6 mb-3">
         <label class="form-label">Owner</label>
         <div class="input-group input-group-outline">
@@ -115,9 +116,8 @@
             <p class="text-danger text-xs pt-1"> {{ $message }} </p>
         @enderror
     </div>
-</div>
 
-<div class="col-md-6 mb-3">
+    <div class="col-md-6 mb-3">
         <label class="form-label">Agent</label>
         <div class="input-group input-group-outline">
             <input type="text" class="form-control" name="agent"
