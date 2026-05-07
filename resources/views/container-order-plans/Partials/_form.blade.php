@@ -94,12 +94,36 @@
     </div>
 
     <div class="col-md-6 mb-3">
+        <label class="form-label">Week Lot</label>
+        <div class="input-group input-group-outline">
+            <input type="text" class="form-control" name="week_lot"
+                value="{{ old('week_lot', $containerOrderPlan->week_lot ?? '') }}">
+        </div>
+        @error('week_lot')
+            <p class="text-danger text-xs pt-1"> {{ $message }} </p>
+        @enderror
+    </div>
+</div>
+
+    <div class="col-md-6 mb-3">
         <label class="form-label">Owner</label>
         <div class="input-group input-group-outline">
             <input type="text" class="form-control" name="container_owner"
                 value="{{ old('container_owner', $containerOrderPlan->container->container_owner ?? '') }}">
         </div>
         @error('container_owner')
+            <p class="text-danger text-xs pt-1"> {{ $message }} </p>
+        @enderror
+    </div>
+</div>
+
+<div class="col-md-6 mb-3">
+        <label class="form-label">Agent</label>
+        <div class="input-group input-group-outline">
+            <input type="text" class="form-control" name="agent"
+                value="{{ old('agent', $containerOrderPlan->container->agent ?? '') }}">
+        </div>
+        @error('agent')
             <p class="text-danger text-xs pt-1"> {{ $message }} </p>
         @enderror
     </div>

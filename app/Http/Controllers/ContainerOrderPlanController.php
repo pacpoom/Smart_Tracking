@@ -52,25 +52,31 @@ class ContainerOrderPlanController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'container_no' => 'required|string|max:255',
-            'eta_date' => 'nullable|date',
-            'checkin_date' => 'nullable|date|after_or_equal:eta_date',
-        ]);
+{
+    $request->validate([
+        'container_no' => 'required|string|max:255',
+        'eta_date' => 'nullable|date',
+        'checkin_date' => 'nullable|date|after_or_equal:eta_date',
+        'agent' => 'nullable|string|max:255', 
+        'week_lot' => 'nullable|string|max:255', 
+    ]);
 
-        $container = Container::firstOrCreate(
-            ['container_no' => $request->container_no]
-        );
-
-        $data = $request->except('container_no');
-        $data['container_id'] = $container->id;
-        $data['status'] = 1; // 1 = Pending
-        $data['plan_no'] = ContainerOrderPlan::generatePlanNumber();
-
-        ContainerOrderPlan::create($data);
-        return redirect()->route('container-order-plans.index')->with('success', 'Container order plan created successfully.');
+    $container = Container::firstOrCreate(
+        ['container_no' => $request->container_no]
+    );
+    
+    if ($request->has('agent')) {
+        $container->update(['agent' => $request->agent]);
     }
+
+    $data = $request->except(['container_no', 'agent']); 
+    $data['container_id'] = $container->id;
+    $data['status'] = 1; 
+    $data['plan_no'] = ContainerOrderPlan::generatePlanNumber();
+
+    ContainerOrderPlan::create($data);
+    return redirect()->route('container-order-plans.index')->with('success', 'Container order plan created successfully.');
+}
 
     public function edit(ContainerOrderPlan $containerOrderPlan)
     {
@@ -78,29 +84,35 @@ class ContainerOrderPlanController extends Controller
     }
 
     public function update(Request $request, ContainerOrderPlan $containerOrderPlan)
-    {
-        $request->validate([
-            'container_no' => 'required|string|max:255',
-            'vessel' => 'nullable|string|max:255',
-            'container_owner' => 'nullable|string|max:255',
-            'eta_date' => 'nullable|date',
-            'checkin_date' => 'nullable|date|after_or_equal:eta_date',
-        ]);
-        
-        $container = Container::firstOrCreate(
-            ['container_no' => $request->container_no]
-        );
-        
-        if ($request->has('container_owner')) {
-            $container->update(['container_owner' => $request->container_owner]);
-        }
-        
-        $data = $request->except(['status', 'container_no', 'container_owner']);
-        $data['container_id'] = $container->id;
-        
-        $containerOrderPlan->update($data);
-        return redirect()->route('container-order-plans.index')->with('success', 'Container order plan updated successfully.');
+{
+    $request->validate([
+        'container_no' => 'required|string|max:255',
+        'vessel' => 'nullable|string|max:255',
+        'container_owner' => 'nullable|string|max:255',
+        'agent' => 'nullable|string|max:255', 
+        'week_lot' => 'nullable|string|max:255', 
+        'eta_date' => 'nullable|date',
+        'checkin_date' => 'nullable|date|after_or_equal:eta_date',
+    ]);
+    
+    $container = Container::firstOrCreate(
+        ['container_no' => $request->container_no]
+    );
+    
+    $containerUpdates = [];
+    if ($request->has('container_owner')) $containerUpdates['container_owner'] = $request->container_owner;
+    if ($request->has('agent')) $containerUpdates['agent'] = $request->agent;
+    
+    if (!empty($containerUpdates)) {
+        $container->update($containerUpdates);
     }
+    
+    $data = $request->except(['status', 'container_no', 'container_owner', 'agent']);
+    $data['container_id'] = $container->id;
+    
+    $containerOrderPlan->update($data);
+    return redirect()->route('container-order-plans.index')->with('success', 'Container order plan updated successfully.');
+}
 
     public function destroy(ContainerOrderPlan $containerOrderPlan)
     {
